@@ -1,0 +1,174 @@
+<div class="container-fluid py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="fw-bold mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Analytics</h4>
+    <button class="btn btn-outline-primary btn-sm" (click)="loadAll()">
+      <i class="fas fa-sync-alt me-1"></i>Refresh
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="loading" class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+
+  <div *ngIf="!loading">
+
+    <!-- Overview KPIs -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm text-center py-3">
+          <i class="fas fa-users fa-2x text-primary mb-2"></i>
+          <div class="fs-4 fw-bold">{{ overview?.total_leads ?? '—' }}</div>
+          <div class="text-muted small">Total Leads</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm text-center py-3">
+          <i class="fas fa-percentage fa-2x text-success mb-2"></i>
+          <div class="fs-4 fw-bold">{{ overview?.conversion_rate ?? '—' }}%</div>
+          <div class="text-muted small">Conversion Rate</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm text-center py-3">
+          <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+          <div class="fs-4 fw-bold">{{ overview?.avg_response_time ?? '—' }}s</div>
+          <div class="text-muted small">Avg Response Time</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="card shadow-sm text-center py-3">
+          <i class="fas fa-fire fa-2x text-danger mb-2"></i>
+          <div class="fs-4 fw-bold">{{ overview?.active_pipeline ?? '—' }}</div>
+          <div class="text-muted small">Active Pipeline</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+
+      <!-- Funnel -->
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header fw-semibold">
+            <i class="fas fa-filter me-2 text-info"></i>Lead Funnel
+          </div>
+          <div class="card-body">
+            <div *ngIf="!funnel" class="text-muted text-center py-4">Loading funnel…</div>
+            <div *ngIf="funnel">
+              <div class="mb-2" *ngFor="let stage of funnelStages">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="text-capitalize small">{{ stage }}</span>
+                  <span class="fw-semibold small">{{ funnelCount(stage) }}</span>
+                </div>
+                <div class="progress" style="height:18px;">
+                  <div class="progress-bar"
+                       [style.width.%]="funnelWidth(stage)"
+                       [style.background-color]="funnelColor(stage)">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent Performance -->
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header fw-semibold">
+            <i class="fas fa-robot me-2 text-success"></i>Agent Performance
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="agents.length === 0" class="text-muted text-center py-4">Loading agents…</div>
+            <table class="table table-hover mb-0" *ngIf="agents.length > 0">
+              <thead class="table-light">
+                <tr>
+                  <th>Agent</th>
+                  <th class="text-end">Conversions</th>
+                  <th class="text-end">Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let a of agents">
+                  <td><i class="fas fa-robot me-2 text-muted"></i>{{ a.agent }}</td>
+                  <td class="text-end fw-semibold">{{ a.conversions }}</td>
+                  <td class="text-end">
+                    <span class="badge" [ngClass]="a.conv_rate >= 25 ? 'bg-success' : 'bg-warning text-dark'">
+                      {{ a.conv_rate }}%
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Analytics -->
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold">
+            <i class="fas fa-brain me-2 text-purple"></i>Advanced Analytics
+          </div>
+          <div class="card-body">
+            <div *ngIf="!advanced" class="text-muted text-center py-3">Loading advanced data…</div>
+            <div class="row g-4" *ngIf="advanced">
+
+              <!-- Lead Velocity -->
+              <div class="col-12 col-md-4">
+                <div class="p-3 rounded bg-light">
+                  <div class="text-muted small mb-1"><i class="fas fa-tachometer-alt me-1"></i>Lead Velocity (7d)</div>
+                  <div class="fs-4 fw-bold">{{ advanced.lead_velocity.last_7_days }}</div>
+                  <div class="text-muted small">{{ advanced.lead_velocity.avg_per_day_7d }} / day avg</div>
+                </div>
+              </div>
+
+              <!-- LLM Cost -->
+              <div class="col-12 col-md-4">
+                <div class="p-3 rounded bg-light">
+                  <div class="text-muted small mb-1"><i class="fas fa-dollar-sign me-1"></i>LLM Cost (Total)</div>
+                  <div class="fs-4 fw-bold">${{ totalLlmCost().toFixed(5) }}</div>
+                  <div class="text-muted small">Cumulative spend</div>
+                </div>
+              </div>
+
+              <!-- Revenue Attribution -->
+              <div class="col-12 col-md-4">
+                <div class="p-3 rounded bg-light">
+                  <div class="text-muted small mb-2"><i class="fas fa-share-alt me-1"></i>Revenue Attribution</div>
+                  <div *ngFor="let entry of attributionEntries()" class="d-flex justify-content-between">
+                    <span class="text-capitalize">{{ entry.channel }}</span>
+                    <span class="badge bg-primary">{{ entry.count }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cohort Conversion -->
+              <div class="col-12">
+                <div class="text-muted small mb-2"><i class="fas fa-layer-group me-1"></i>Cohort Conversion</div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered mb-0">
+                    <thead class="table-light">
+                      <tr><th>Cohort</th><th class="text-end">Total</th><th class="text-end">Converted</th><th class="text-end">Rate</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let entry of advanced.cohort_conversion | keyvalue">
+                        <td>{{ entry.key }}</td>
+                        <td class="text-end">{{ entry.value.total }}</td>
+                        <td class="text-end">{{ entry.value.converted }}</td>
+                        <td class="text-end">
+                          <span class="badge bg-success">{{ entry.value.rate }}%</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

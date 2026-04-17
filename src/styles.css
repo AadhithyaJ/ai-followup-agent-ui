@@ -1,0 +1,62 @@
+/* ── Global ─────────────────────────────────────────────────── */
+body {
+  background-color: #f4f6fb;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ── KPI Card helpers ───────────────────────────────────────── */
+.kpi-card { border-left: 4px solid transparent; transition: box-shadow 0.15s; }
+.kpi-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.1) !important; }
+.kpi-primary { border-left-color: #0d6efd; }
+.kpi-success  { border-left-color: #198754; }
+.kpi-warning  { border-left-color: #ffc107; }
+.kpi-info     { border-left-color: #0dcaf0; }
+
+.kpi-icon {
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Soft background utilities ──────────────────────────────── */
+.bg-primary-soft { background-color: rgba(13, 110, 253, 0.08) !important; }
+.bg-success-soft  { background-color: rgba(25, 135, 84,  0.08) !important; }
+.bg-warning-soft  { background-color: rgba(255, 193, 7, 0.12) !important; }
+.bg-info-soft     { background-color: rgba(13, 202, 240, 0.08) !important; }
+
+/* ── Navbar ─────────────────────────────────────────────────── */
+.navbar { position: sticky; top: 0; z-index: 1030; }
+
+/* ── Tables ─────────────────────────────────────────────────── */
+.cursor-pointer { cursor: pointer; }
+.table tbody tr:hover { background-color: rgba(13, 110, 253, 0.04); }
+
+/* ── Forms ──────────────────────────────────────────────────── */
+.form-control:focus, .form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* ── Cards ──────────────────────────────────────────────────── */
+.card { border-radius: 10px; border: 1px solid #e8ecf0; }
+.card-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e8ecf0;
+  padding: 0.75rem 1.25rem;
+}
+
+/* ── Realtime feed ──────────────────────────────────────────── */
+.font-monospace { font-family: 'Courier New', monospace; }
+
+/* ── Utility ────────────────────────────────────────────────── */
+.gap-2 { gap: 0.5rem !important; }
+.text-purple { color: #6f42c1 !important; }
+
+/* ── Login / Register fullpage ──────────────────────────────── */
+.min-vh-100 { min-height: 100vh; }
+
+/* ── Responsive tweaks ──────────────────────────────────────── */
+@media (max-width: 576px) {
+  .container-fluid { padding: 0.75rem; }
+  .fs-3 { font-size: 1.4rem !important; }
+}

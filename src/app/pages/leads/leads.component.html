@@ -1,0 +1,130 @@
+<div class="container-fluid py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h4 class="fw-bold mb-0"><i class="fas fa-users me-2 text-primary"></i>Leads</h4>
+    <button class="btn btn-primary btn-sm" (click)="showIngestForm = !showIngestForm">
+      <i class="fas fa-plus me-1"></i>Ingest Lead
+    </button>
+  </div>
+
+  <!-- Ingest Form -->
+  <div class="card shadow-sm mb-4" *ngIf="showIngestForm">
+    <div class="card-header fw-semibold">
+      <i class="fas fa-user-plus me-2 text-success"></i>Ingest New Lead
+    </div>
+    <div class="card-body">
+      <div class="alert alert-success" *ngIf="ingestSuccess">{{ ingestSuccess }}</div>
+      <div class="alert alert-danger" *ngIf="ingestError">{{ ingestError }}</div>
+      <form [formGroup]="ingestForm" (ngSubmit)="ingest()">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Message</label>
+            <textarea class="form-control" formControlName="message" rows="2"
+                      placeholder="I need CRM for 20 users"></textarea>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Source</label>
+            <select class="form-select" formControlName="source">
+              <option value="whatsapp">WhatsApp</option>
+              <option value="email">Email</option>
+              <option value="web">Web</option>
+              <option value="api">API</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Phone</label>
+            <input class="form-control" formControlName="phone" placeholder="+91…">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Email</label>
+            <input class="form-control" formControlName="email" type="email" placeholder="lead@co.com">
+          </div>
+          <div class="col-12">
+            <button class="btn btn-success" type="submit" [disabled]="ingestLoading">
+              <span *ngIf="ingestLoading" class="spinner-border spinner-border-sm me-2"></span>
+              <i class="fas fa-paper-plane me-1" *ngIf="!ingestLoading"></i>
+              {{ ingestLoading ? 'Processing…' : 'Ingest' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+      <form [formGroup]="filterForm" (ngSubmit)="applyFilter()" class="row g-2 align-items-end">
+        <div class="col-auto">
+          <label class="form-label mb-1 small">Stage</label>
+          <select class="form-select form-select-sm" formControlName="stage">
+            <option value="">All Stages</option>
+            <option *ngFor="let s of stages" [value]="s">{{ s | titlecase }}</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <label class="form-label mb-1 small">Score</label>
+          <select class="form-select form-select-sm" formControlName="score">
+            <option value="">All Scores</option>
+            <option *ngFor="let s of scores" [value]="s">{{ s | titlecase }}</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary btn-sm me-2" type="submit">
+            <i class="fas fa-filter me-1"></i>Filter
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" type="button" (click)="clearFilter()">
+            <i class="fas fa-times me-1"></i>Clear
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- Leads Table -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+      </div>
+      <div *ngIf="!loading && leads.length === 0" class="text-center py-5 text-muted">
+        <i class="fas fa-user-slash fa-2x mb-2 d-block"></i>No leads found.
+      </div>
+      <div class="table-responsive" *ngIf="!loading && leads.length > 0">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th><i class="fas fa-user me-1 text-muted"></i>Name</th>
+              <th><i class="fas fa-star me-1 text-muted"></i>Score</th>
+              <th><i class="fas fa-flag me-1 text-muted"></i>Stage</th>
+              <th><i class="fas fa-share-alt me-1 text-muted"></i>Source</th>
+              <th><i class="fas fa-robot me-1 text-muted"></i>Agent</th>
+              <th><i class="fas fa-calendar me-1 text-muted"></i>Created</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let lead of leads" class="cursor-pointer" (click)="openLead(lead.id)">
+              <td class="fw-semibold">{{ lead.name }}</td>
+              <td><span class="badge {{ scoreBadge(lead.score) }}">{{ lead.score }}</span></td>
+              <td><span class="badge {{ stageBadge(lead.stage) }}">{{ lead.stage }}</span></td>
+              <td>{{ lead.source || '—' }}</td>
+              <td>{{ lead.assigned_agent || '—' }}</td>
+              <td class="text-muted small">{{ lead.created_at | date:'MMM d, y' }}</td>
+              <td class="text-end" (click)="$event.stopPropagation()">
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="openLead(lead.id)">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="loadLeads()">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

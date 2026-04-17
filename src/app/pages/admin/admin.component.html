@@ -1,0 +1,485 @@
+<div class="container-fluid py-4">
+
+  <h4 class="fw-bold mb-4"><i class="fas fa-cogs me-2 text-primary"></i>Admin Panel</h4>
+
+  <!-- Tab Nav -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab==='flags'" (click)="setTab('flags')">
+        <i class="fas fa-toggle-on me-1"></i>Feature Flags
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab==='config'" (click)="setTab('config')">
+        <i class="fas fa-sliders-h me-1"></i>Config
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab==='prompts'" (click)="setTab('prompts')">
+        <i class="fas fa-file-alt me-1"></i>Prompts
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab==='usage'" (click)="setTab('usage')">
+        <i class="fas fa-tachometer-alt me-1"></i>Usage & Quota
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab==='nba'" (click)="setTab('nba')">
+        <i class="fas fa-trophy me-1"></i>NBA & Leaderboard
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab==='autopilot'" (click)="setTab('autopilot')">
+        <i class="fas fa-rocket me-1"></i>Autopilot
+      </button>
+    </li>
+  </ul>
+
+  <!-- ── Feature Flags Tab ── -->
+  <div *ngIf="activeTab==='flags'">
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold d-flex justify-content-between">
+            <span><i class="fas fa-toggle-on me-2 text-success"></i>Current Flags</span>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadFlags()">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="flagsLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>
+            <table class="table mb-0" *ngIf="!flagsLoading">
+              <tbody>
+                <tr *ngFor="let f of flagEntries()">
+                  <td class="fw-semibold">{{ f.key }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="f.value ? 'bg-success' : 'bg-secondary'">
+                      {{ f.value ? 'Enabled' : 'Disabled' }}
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <div class="form-check form-switch d-inline-block mb-0">
+                      <input class="form-check-input" type="checkbox" [checked]="f.value"
+                             (change)="quickToggle(f.key, f.value)">
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="flagEntries().length===0"><td colspan="3" class="text-muted text-center">No flags found.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold"><i class="fas fa-edit me-2 text-primary"></i>Update Flag</div>
+          <div class="card-body">
+            <div class="alert alert-info py-2 small" *ngIf="flagMsg">{{ flagMsg }}</div>
+            <form [formGroup]="flagForm" (ngSubmit)="saveFlag()">
+              <div class="mb-3">
+                <label class="form-label small">Flag Name</label>
+                <input class="form-control" formControlName="flag" placeholder="autopilot">
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col">
+                  <label class="form-label small">Rollout %</label>
+                  <input type="number" class="form-control" formControlName="rollout_pct" min="0" max="100">
+                </div>
+                <div class="col">
+                  <label class="form-label small">Expires In (sec)</label>
+                  <input type="number" class="form-control" formControlName="expires_in">
+                </div>
+              </div>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" formControlName="enabled" id="flagEnabled">
+                <label class="form-check-label" for="flagEnabled">Enabled</label>
+              </div>
+              <button class="btn btn-primary" type="submit" [disabled]="flagForm.invalid">
+                <i class="fas fa-save me-1"></i>Save Flag
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Config Tab ── -->
+  <div *ngIf="activeTab==='config'">
+    <div class="row g-4">
+      <div class="col-12 col-lg-5">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header fw-semibold"><i class="fas fa-sliders-h me-2 text-primary"></i>Set Config</div>
+          <div class="card-body">
+            <div class="alert alert-info py-2 small" *ngIf="configMsg">{{ configMsg }}</div>
+            <form [formGroup]="configForm" (ngSubmit)="setConfig()">
+              <div class="mb-3">
+                <label class="form-label small">Path (dot notation)</label>
+                <input class="form-control" formControlName="path" placeholder="llm.temperature">
+              </div>
+              <div class="mb-3">
+                <label class="form-label small">Value (JSON or scalar)</label>
+                <input class="form-control" formControlName="value" placeholder="0.7">
+              </div>
+              <button class="btn btn-primary btn-sm" type="submit" [disabled]="configForm.invalid">
+                <i class="fas fa-save me-1"></i>Save
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Audit Log -->
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold small"><i class="fas fa-history me-1 text-muted"></i>Audit Log</div>
+          <div class="card-body p-0" style="max-height:240px;overflow-y:auto">
+            <table class="table table-sm mb-0">
+              <tbody>
+                <tr *ngFor="let a of configAudit">
+                  <td class="text-muted small">{{ a.ts * 1000 | date:'short' }}</td>
+                  <td><span class="badge bg-secondary">{{ a.op }}</span></td>
+                  <td class="small"><code>{{ a.path }}</code></td>
+                  <td class="small">{{ a.value }}</td>
+                </tr>
+                <tr *ngIf="configAudit.length===0"><td colspan="4" class="text-muted text-center small py-2">No audit history.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold d-flex justify-content-between">
+            <span><i class="fas fa-database me-2 text-success"></i>Current Config</span>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadConfig()"><i class="fas fa-sync-alt"></i></button>
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="configLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>
+            <table class="table table-sm mb-0" *ngIf="!configLoading">
+              <thead class="table-light"><tr><th>Path</th><th>Value</th><th></th></tr></thead>
+              <tbody>
+                <tr *ngFor="let e of configEntries()">
+                  <td><code class="small">{{ e.key }}</code></td>
+                  <td class="small">{{ e.value }}</td>
+                  <td>
+                    <button class="btn btn-outline-danger btn-sm py-0" (click)="deleteConfig(e.key)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="configEntries().length===0"><td colspan="3" class="text-muted text-center small">No config overrides.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Prompts Tab ── -->
+  <div *ngIf="activeTab==='prompts'">
+    <div class="row g-4">
+      <div class="col-12 col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold small d-flex justify-content-between">
+            <span><i class="fas fa-list me-1"></i>Prompts</span>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadPromptNames()"><i class="fas fa-sync-alt"></i></button>
+          </div>
+          <div class="list-group list-group-flush" style="max-height:340px;overflow-y:auto">
+            <button type="button" class="list-group-item list-group-item-action small"
+                    *ngFor="let name of promptNames"
+                    [class.active]="selectedPrompt?.name===name"
+                    (click)="selectPrompt(name)">
+              <i class="fas fa-file-alt me-1"></i>{{ name }}
+            </button>
+            <div *ngIf="promptNames.length===0" class="list-group-item text-muted small">No prompts found.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-9">
+        <div class="card shadow-sm mb-3">
+          <div class="card-header fw-semibold"><i class="fas fa-edit me-2 text-primary"></i>Edit Prompt</div>
+          <div class="card-body">
+            <div class="alert alert-info py-2 small" *ngIf="promptMsg">{{ promptMsg }}</div>
+            <form [formGroup]="promptForm" (ngSubmit)="savePrompt()">
+              <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                  <label class="form-label small">Prompt Name</label>
+                  <input class="form-control form-control-sm" formControlName="name" placeholder="lead_scorer">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small">Change Note</label>
+                  <input class="form-control form-control-sm" formControlName="note" placeholder="Tuned for India market">
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Content</label>
+                <textarea class="form-control form-control-sm font-monospace" rows="8"
+                          formControlName="content" placeholder="Analyse lead and return JSON…"></textarea>
+              </div>
+              <button class="btn btn-primary btn-sm" type="submit" [disabled]="promptForm.invalid || promptLoading">
+                <span *ngIf="promptLoading" class="spinner-border spinner-border-sm me-1"></span>
+                <i class="fas fa-save me-1" *ngIf="!promptLoading"></i>Save Prompt
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- History & Diff -->
+        <div class="card shadow-sm" *ngIf="selectedPrompt">
+          <div class="card-header fw-semibold small"><i class="fas fa-history me-1 text-muted"></i>Version History</div>
+          <div class="card-body">
+            <div class="d-flex gap-2 mb-2 align-items-end">
+              <div>
+                <label class="form-label small mb-1">v1</label>
+                <input type="number" class="form-control form-control-sm" style="width:70px" [(ngModel)]="diffV1">
+              </div>
+              <div>
+                <label class="form-label small mb-1">v2</label>
+                <input type="number" class="form-control form-control-sm" style="width:70px" [(ngModel)]="diffV2">
+              </div>
+              <button class="btn btn-outline-secondary btn-sm" (click)="fetchDiff()">
+                <i class="fas fa-code-branch me-1"></i>Diff
+              </button>
+            </div>
+            <pre *ngIf="promptDiff" class="bg-dark text-light rounded p-2 small" style="max-height:160px;overflow:auto">{{ promptDiff }}</pre>
+
+            <div class="table-responsive mt-2">
+              <table class="table table-sm mb-0">
+                <thead class="table-light"><tr><th>Version</th><th>Author</th><th>Date</th><th></th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let h of promptHistory">
+                    <td>v{{ h.version }}</td>
+                    <td>{{ h.author }}</td>
+                    <td class="text-muted small">{{ h.ts * 1000 | date:'short' }}</td>
+                    <td>
+                      <button class="btn btn-outline-warning btn-sm py-0"
+                              (click)="rollbackPrompt(selectedPrompt!.name, h.version)">
+                        <i class="fas fa-undo me-1"></i>Rollback
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Usage Tab ── -->
+  <div *ngIf="activeTab==='usage'">
+    <div class="row g-4">
+      <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold d-flex justify-content-between">
+            <span><i class="fas fa-tachometer-alt me-2 text-primary"></i>Quota Usage</span>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadUsage()"><i class="fas fa-sync-alt"></i></button>
+          </div>
+          <div class="card-body">
+            <div *ngIf="usageLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>
+            <div *ngFor="let u of usage" class="mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="small fw-semibold">{{ u.limit_name }}</span>
+                <span class="small text-muted">{{ u.used }} / {{ u.limit }}
+                  <span class="badge ms-1" [ngClass]="u.is_warning ? 'bg-warning text-dark' : 'bg-success'">
+                    {{ u.percent.toFixed(1) }}%
+                  </span>
+                </span>
+              </div>
+              <div class="progress" style="height:10px">
+                <div class="progress-bar" [ngClass]="u.is_warning ? 'bg-warning' : 'bg-success'"
+                     [style.width.%]="u.percent"></div>
+              </div>
+            </div>
+            <div *ngIf="usage.length===0 && !usageLoading" class="text-muted text-center py-3">No usage data.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <div class="alert alert-info py-2 small" *ngIf="usageMsg">{{ usageMsg }}</div>
+
+        <div class="card shadow-sm mb-3">
+          <div class="card-header fw-semibold small"><i class="fas fa-edit me-1 text-primary"></i>Update Limit</div>
+          <div class="card-body">
+            <form [formGroup]="limitForm" (ngSubmit)="updateLimit()">
+              <div class="mb-2">
+                <input class="form-control form-control-sm" formControlName="limit_name" placeholder="max_leads_per_month">
+              </div>
+              <div class="mb-2">
+                <input type="number" class="form-control form-control-sm" formControlName="value" placeholder="20000">
+              </div>
+              <button class="btn btn-primary btn-sm w-100" type="submit">
+                <i class="fas fa-save me-1"></i>Update
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold small"><i class="fas fa-plus-circle me-1 text-success"></i>Top-Up Quota</div>
+          <div class="card-body">
+            <form [formGroup]="topupForm" (ngSubmit)="topUp()">
+              <div class="mb-2">
+                <input class="form-control form-control-sm" formControlName="limit_name" placeholder="max_llm_calls_per_day">
+              </div>
+              <div class="mb-2">
+                <input type="number" class="form-control form-control-sm" formControlName="extra" placeholder="2000">
+              </div>
+              <button class="btn btn-success btn-sm w-100" type="submit">
+                <i class="fas fa-plus me-1"></i>Top Up
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NBA & Leaderboard Tab ── -->
+  <div *ngIf="activeTab==='nba'">
+    <div class="row g-4">
+      <div class="col-12 col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold"><i class="fas fa-lightbulb me-2 text-warning"></i>Next Best Action</div>
+          <div class="card-body">
+            <div class="d-flex gap-2 mb-3">
+              <input class="form-control" [(ngModel)]="nbaLeadId" placeholder="Enter Lead UUID">
+              <button class="btn btn-warning text-nowrap" (click)="fetchNBA()" [disabled]="nbaLoading">
+                <span *ngIf="nbaLoading" class="spinner-border spinner-border-sm"></span>
+                <i class="fas fa-magic" *ngIf="!nbaLoading"></i>
+              </button>
+            </div>
+            <div *ngIf="nbaResult" class="bg-light rounded p-3">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-warning text-dark fs-6">{{ nbaResult.action }}</span>
+                <span class="text-muted small">{{ (nbaResult.confidence * 100).toFixed(0) }}% confidence</span>
+              </div>
+              <p class="text-muted small mb-2">{{ nbaResult.reason }}</p>
+              <div class="bg-white rounded border p-2 small fst-italic">{{ nbaResult.message_draft }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold d-flex justify-content-between">
+            <span><i class="fas fa-trophy me-2 text-warning"></i>Conversion Leaderboard</span>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadLeaderboard()"><i class="fas fa-sync-alt"></i></button>
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="leaderboardLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>
+            <table class="table table-hover mb-0" *ngIf="!leaderboardLoading">
+              <thead class="table-light">
+                <tr><th>#</th><th>Lead</th><th>Stage</th><th>Score</th><th class="text-end">Conv. Prob.</th></tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let l of leaderboard; let i=index">
+                  <td class="text-muted small">{{ i + 1 }}</td>
+                  <td class="fw-semibold">{{ l.name }}</td>
+                  <td><span class="badge bg-primary">{{ l.stage }}</span></td>
+                  <td><span class="badge" [ngClass]="l.score==='high' ? 'bg-success' : 'bg-warning text-dark'">{{ l.score }}</span></td>
+                  <td class="text-end fw-bold">{{ l.conv_prob }}%</td>
+                </tr>
+                <tr *ngIf="leaderboard.length===0"><td colspan="5" class="text-muted text-center py-3">No leaderboard data.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Autopilot Tab ── -->
+  <div *ngIf="activeTab==='autopilot'">
+    <div class="row g-4">
+      <div class="col-12 col-lg-5">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header fw-semibold"><i class="fas fa-robot me-2 text-success"></i>Autopilot</div>
+          <div class="card-body">
+            <p class="text-muted small mb-3">Run the AI autopilot across all active leads. Use dry-run first to preview actions.</p>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-warning" (click)="runAutopilot(true)" [disabled]="autopilotLoading">
+                <span *ngIf="autopilotLoading" class="spinner-border spinner-border-sm me-1"></span>
+                <i class="fas fa-vial me-1" *ngIf="!autopilotLoading"></i>Dry Run
+              </button>
+              <button class="btn btn-success" (click)="runAutopilot(false)" [disabled]="autopilotLoading">
+                <i class="fas fa-play me-1"></i>Run Live
+              </button>
+            </div>
+            <div *ngIf="autopilotResult" class="mt-3 bg-light rounded p-3">
+              <div class="row g-2 text-center">
+                <div class="col-4">
+                  <div class="fw-bold fs-5">{{ autopilotResult.leads_processed }}</div>
+                  <div class="text-muted small">Processed</div>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold fs-5 text-success">{{ autopilotResult.actions_taken }}</div>
+                  <div class="text-muted small">Actions</div>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold fs-5 text-danger">{{ autopilotResult.errors }}</div>
+                  <div class="text-muted small">Errors</div>
+                </div>
+              </div>
+              <div class="text-center mt-2">
+                <span class="badge" [ngClass]="autopilotResult.dry_run ? 'bg-warning text-dark' : 'bg-success'">
+                  {{ autopilotResult.dry_run ? 'Dry Run' : 'Live Run' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold"><i class="fas fa-network-wired me-2 text-primary"></i>Orchestrator Test</div>
+          <div class="card-body">
+            <form [formGroup]="orchestrateForm" (ngSubmit)="orchestrate()">
+              <div class="row g-2 mb-3">
+                <div class="col-12">
+                  <label class="form-label small">Message</label>
+                  <textarea class="form-control" formControlName="message" rows="2"
+                            placeholder="I need CRM for 50 users urgently"></textarea>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small">Lead ID (optional)</label>
+                  <input class="form-control form-control-sm" formControlName="lead_id">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small">Phone</label>
+                  <input class="form-control form-control-sm" formControlName="phone" placeholder="+91…">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small">Email</label>
+                  <input class="form-control form-control-sm" formControlName="email" type="email">
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit" [disabled]="orchestrateForm.invalid || orchestrateLoading">
+                <span *ngIf="orchestrateLoading" class="spinner-border spinner-border-sm me-1"></span>
+                <i class="fas fa-play-circle me-1" *ngIf="!orchestrateLoading"></i>
+                {{ orchestrateLoading ? 'Orchestrating…' : 'Run Orchestrator' }}
+              </button>
+            </form>
+
+            <div *ngIf="orchestrateResult" class="mt-3 bg-light rounded p-3">
+              <div class="d-flex flex-wrap gap-2 mb-2">
+                <span class="badge bg-primary">Score: {{ orchestrateResult.score }}</span>
+                <span class="badge bg-success">Stage: {{ orchestrateResult.stage_updated }}</span>
+                <span class="badge bg-secondary">{{ orchestrateResult.total_steps }} steps</span>
+              </div>
+              <p class="mb-0 small">{{ orchestrateResult.final_summary }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

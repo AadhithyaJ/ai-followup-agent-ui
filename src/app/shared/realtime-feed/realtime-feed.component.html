@@ -1,0 +1,43 @@
+<div class="card shadow-sm">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <h6 class="mb-0">
+      <i class="fas fa-stream me-2 text-primary"></i>Live Event Feed
+    </h6>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge" [ngClass]="connected ? 'bg-success' : 'bg-secondary'">
+        <i class="fas fa-circle me-1" style="font-size:0.6rem"></i>{{ statusText }}
+      </span>
+      <button class="btn btn-outline-secondary btn-sm" (click)="disconnect()" *ngIf="connected">
+        <i class="fas fa-stop me-1"></i>Stop
+      </button>
+      <button class="btn btn-outline-success btn-sm" (click)="connect()" *ngIf="!connected">
+        <i class="fas fa-play me-1"></i>Connect
+      </button>
+      <button class="btn btn-outline-danger btn-sm" (click)="clearEvents()">
+        <i class="fas fa-trash me-1"></i>Clear
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body p-0" style="max-height:340px; overflow-y:auto;">
+    <div *ngIf="events.length === 0" class="text-center text-muted py-4">
+      <i class="fas fa-satellite-dish fa-2x mb-2 d-block"></i>
+      No events yet. Connect to start streaming.
+    </div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item list-group-item-action py-2 px-3"
+          *ngFor="let ev of events">
+        <div class="d-flex align-items-start gap-2">
+          <i [class]="eventIcon(ev.type)" style="margin-top:3px"></i>
+          <div class="flex-grow-1 overflow-hidden">
+            <div class="d-flex justify-content-between">
+              <span class="badge bg-dark text-white">{{ ev.type }}</span>
+              <small class="text-muted">{{ ev.timestamp | date:'HH:mm:ss' }}</small>
+            </div>
+            <pre class="mb-0 mt-1 text-truncate small text-secondary" style="max-width:100%">{{ ev.data | json }}</pre>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
