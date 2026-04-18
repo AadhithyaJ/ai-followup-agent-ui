@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
@@ -10,34 +10,36 @@ type DetailTab = 'overview' | 'thread' | 'advisory';
 @Component({
   selector: 'app-lead-detail',
   standalone: false,
-  templateUrl: './lead-detail.component.html'
+  templateUrl: './lead-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LeadDetailComponent implements OnInit {
-  lead: Lead | null = null;
-  loading = true;
-  error = '';
+  lead    = signal<Lead | null>(null);
+  loading = signal(true);
+  error   = signal('');
 
-  activeTab: DetailTab = 'overview';
+  activeTab = signal<DetailTab>('overview');
+
+  stageSuccess = signal('');
+  stageError   = signal('');
+
+  triggerSuccess = signal('');
+  triggerError   = signal('');
+
+  nba        = signal<NBAResult | null>(null);
+  nbaLoading = signal(false);
+
+  thread        = signal<CommunicationThread | null>(null);
+  threadLoading = signal(false);
+  threadError   = signal('');
+
+  advisory        = signal<LeadAdvisory | null>(null);
+  advisoryLoading = signal(false);
+  advisoryError   = signal('');
+  activeDraftChannel = signal(0);
 
   stageForm: FormGroup;
-  stageSuccess = '';
-  stageError = '';
-
   triggerForm: FormGroup;
-  triggerSuccess = '';
-  triggerError = '';
-
-  nba: NBAResult | null = null;
-  nbaLoading = false;
-
-  thread: CommunicationThread | null = null;
-  threadLoading = false;
-  threadError = '';
-
-  advisory: LeadAdvisory | null = null;
-  advisoryLoading = false;
-  advisoryError = '';
-  activeDraftChannel = 0;
 
   stages = ['new', 'qualified', 'contacted', 'interested', 'negotiation', 'converted', 'lost'];
   eventTypes = ['link_click', 'form_submit', 'meeting_booked', 'demo_requested', 'email_opened'];
@@ -45,8 +47,7 @@ export class LeadDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private api: ApiService,
-    private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
+    private fb: FormBuilder
   ) {
     this.stageForm = this.fb.group({ stage: ['', Validators.required] });
     this.triggerForm = this.fb.group({
@@ -61,76 +62,79 @@ export class LeadDetailComponent implements OnInit {
     this.api.getLead(id).subscribe({
       next: (data) => {
         console.log('Lead data received:', data);
-        this.lead = data;
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.lead.set(data);
+        this.loading.set(false);
       },
       error: (err) => {
         console.error('Error loading lead:', err);
-        this.error = 'Failed to load lead.';
-        this.loading = false;
-        this.cdr.detectChanges();
+        this.error.set('Failed to load lead.');
+        this.loading.set(false);
       }
     });
   }
 
   setTab(tab: DetailTab): void {
-    this.activeTab = tab;
-    if (tab === 'thread' && !this.thread && this.lead) this.loadThread();
-    if (tab === 'advisory' && !this.advisory && this.lead) this.loadAdvisory();
+    this.activeTab.set(tab);
+    if (tab === 'thread' && !this.thread() && this.lead()) this.loadThread();
+    if (tab === 'advisory' && !this.advisory() && this.lead()) this.loadAdvisory();
   }
 
   loadThread(): void {
-    if (!this.lead) return;
-    this.threadLoading = true;
-    this.threadError = '';
-    this.api.getLeadCommunications(this.lead.id).subscribe({
-      next: (data) => { this.thread = data; this.threadLoading = false; },
-      error: () => { this.threadError = 'Failed to load communications.'; this.threadLoading = false; }
+    const l = this.lead();
+    if (!l) return;
+    this.threadLoading.set(true);
+    this.threadError.set('');
+    this.api.getLeadCommunications(l.id).subscribe({
+      next: (data) => { this.thread.set(data); this.threadLoading.set(false); },
+      error: () => { this.threadError.set('Failed to load communications.'); this.threadLoading.set(false); }
     });
   }
 
   loadAdvisory(): void {
-    if (!this.lead) return;
-    this.advisoryLoading = true;
-    this.advisoryError = '';
-    this.api.getLeadSuggest(this.lead.id).subscribe({
-      next: (data) => { this.advisory = data; this.advisoryLoading = false; },
-      error: () => { this.advisoryError = 'Failed to load advisory.'; this.advisoryLoading = false; }
+    const l = this.lead();
+    if (!l) return;
+    this.advisoryLoading.set(true);
+    this.advisoryError.set('');
+    this.api.getLeadSuggest(l.id).subscribe({
+      next: (data) => { this.advisory.set(data); this.advisoryLoading.set(false); },
+      error: () => { this.advisoryError.set('Failed to load advisory.'); this.advisoryLoading.set(false); }
     });
   }
 
   updateStage(): void {
-    if (!this.lead) return;
-    this.api.updateLeadStage(this.lead.id, this.stageForm.value).subscribe({
+    const l = this.lead();
+    if (!l) return;
+    this.api.updateLeadStage(l.id, this.stageForm.value).subscribe({
       next: (res) => {
-        this.stageSuccess = `Stage updated to "${res.stage}"`;
-        if (this.lead) this.lead.stage = res.stage;
+        this.stageSuccess.set(`Stage updated to "${res.stage}"`);
+        this.lead.update(lead => lead ? { ...lead, stage: res.stage } : lead);
       },
-      error: () => { this.stageError = 'Failed to update stage.'; }
+      error: () => { this.stageError.set('Failed to update stage.'); }
     });
   }
 
   sendTrigger(): void {
-    if (!this.lead) return;
+    const l = this.lead();
+    if (!l) return;
     let metadata = {};
     try { if (this.triggerForm.value.metadata) metadata = JSON.parse(this.triggerForm.value.metadata); } catch {}
     this.api.triggerLeadEvent({
-      lead_id: this.lead.id,
+      lead_id: l.id,
       event: this.triggerForm.value.event,
       metadata
     }).subscribe({
-      next: () => { this.triggerSuccess = 'Event triggered successfully.'; },
-      error: () => { this.triggerError = 'Failed to send trigger.'; }
+      next: () => { this.triggerSuccess.set('Event triggered successfully.'); },
+      error: () => { this.triggerError.set('Failed to send trigger.'); }
     });
   }
 
   loadNBA(): void {
-    if (!this.lead) return;
-    this.nbaLoading = true;
-    this.api.getNBA(this.lead.id).subscribe({
-      next: (data) => { this.nba = data; this.nbaLoading = false; },
-      error: () => { this.nbaLoading = false; }
+    const l = this.lead();
+    if (!l) return;
+    this.nbaLoading.set(true);
+    this.api.getNBA(l.id).subscribe({
+      next: (data) => { this.nba.set(data); this.nbaLoading.set(false); },
+      error: () => { this.nbaLoading.set(false); }
     });
   }
 

@@ -7,10 +7,10 @@
       <p class="page-sub">Manage your AI Revenue Engine configuration</p>
     </div>
     <div style="display:flex;align-items:center;gap:0.75rem">
-      <span *ngIf="seedMsg" class="s-toast"><i class="fas fa-check-circle"></i>{{ seedMsg }}</span>
-      <button class="db-refresh-btn" (click)="seed()" [disabled]="seedLoading">
-        <span *ngIf="seedLoading" class="ingest-spinner" style="border-color:rgba(55,65,81,0.3);border-top-color:#374151"></span>
-        <i class="fas fa-database" *ngIf="!seedLoading"></i>Seed Defaults
+      <span *ngIf="seedMsg()" class="s-toast"><i class="fas fa-check-circle"></i>{{ seedMsg() }}</span>
+      <button class="db-refresh-btn" (click)="seed()" [disabled]="seedLoading()">
+        <span *ngIf="seedLoading()" class="ingest-spinner" style="border-color:rgba(55,65,81,0.3);border-top-color:#374151"></span>
+        <i class="fas fa-database" *ngIf="!seedLoading()"></i>Seed Defaults
       </button>
     </div>
   </div>
@@ -24,7 +24,7 @@
       <!-- General -->
       <div class="settings-group-label">General</div>
       <button *ngFor="let t of tabGroup('general')"
-              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              class="settings-nav-btn" [class.s-active]="activeTab()===t.key"
               (click)="setTab(t.key)">
         <i class="fas {{ t.icon }}"></i>{{ t.label }}
       </button>
@@ -32,7 +32,7 @@
       <!-- Messaging -->
       <div class="settings-group-label" style="margin-top:0.5rem">Messaging</div>
       <button *ngFor="let t of tabGroup('messaging')"
-              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              class="settings-nav-btn" [class.s-active]="activeTab()===t.key"
               (click)="setTab(t.key)">
         <i class="fas {{ t.icon }}"></i>{{ t.label }}
       </button>
@@ -40,7 +40,7 @@
       <!-- AI & Agents -->
       <div class="settings-group-label" style="margin-top:0.5rem">AI & Agents</div>
       <button *ngFor="let t of tabGroup('ai')"
-              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              class="settings-nav-btn" [class.s-active]="activeTab()===t.key"
               (click)="setTab(t.key)">
         <i class="fas {{ t.icon }}"></i>{{ t.label }}
       </button>
@@ -48,7 +48,7 @@
       <!-- Automation -->
       <div class="settings-group-label" style="margin-top:0.5rem">Automation</div>
       <button *ngFor="let t of tabGroup('automation')"
-              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              class="settings-nav-btn" [class.s-active]="activeTab()===t.key"
               (click)="setTab(t.key)">
         <i class="fas {{ t.icon }}"></i>{{ t.label }}
       </button>
@@ -56,7 +56,7 @@
       <!-- Growth -->
       <div class="settings-group-label" style="margin-top:0.5rem">Growth</div>
       <button *ngFor="let t of tabGroup('growth')"
-              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              class="settings-nav-btn" [class.s-active]="activeTab()===t.key"
               (click)="setTab(t.key)">
         <i class="fas {{ t.icon }}"></i>{{ t.label }}
       </button>
@@ -64,7 +64,7 @@
       <!-- Infrastructure -->
       <div class="settings-group-label" style="margin-top:0.5rem">Infrastructure</div>
       <button *ngFor="let t of tabGroup('infra')"
-              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              class="settings-nav-btn" [class.s-active]="activeTab()===t.key"
               (click)="setTab(t.key)">
         <i class="fas {{ t.icon }}"></i>{{ t.label }}
       </button>
@@ -74,7 +74,7 @@
     <div class="settings-content">
 
       <!-- ══ BRANDING ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='branding'" class="settings-panel">
+      <div *ngIf="activeTab()==='branding'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon" style="background:rgba(99,102,241,0.1);color:#6366f1"><i class="fas fa-palette"></i></div>
           <div>
@@ -83,7 +83,7 @@
           </div>
         </div>
 
-        <span *ngIf="brandingMsg" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ brandingMsg }}</span>
+        <span *ngIf="brandingMsg()" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ brandingMsg() }}</span>
 
         <form [formGroup]="brandingForm" (ngSubmit)="saveBranding()">
 
@@ -168,7 +168,7 @@
       </div>
 
 <!-- ══ SMTP ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='smtp'" class="settings-panel">
+      <div *ngIf="activeTab()==='smtp'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-mail-bulk"></i></div>
           <div>
@@ -177,7 +177,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['smtp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['smtp'] }}</span>
+                  <span *ngIf="msg()['smtp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['smtp'] }}</span>
           <form [formGroup]="smtpForm" (ngSubmit)="save('smtp')">
             <div class="s-section-label">Server</div>
             <div class="row g-3 mb-4">
@@ -210,7 +210,7 @@
       </div>
 
       <!-- ══ ALERTS ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='alerts'" class="settings-panel">
+      <div *ngIf="activeTab()==='alerts'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-warning-soft" style="color:#d97706"><i class="fas fa-bell"></i></div>
           <div>
@@ -219,7 +219,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['alerts']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['alerts'] }}</span>
+                  <span *ngIf="msg()['alerts']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['alerts'] }}</span>
           <form [formGroup]="alertForm" (ngSubmit)="save('alerts')">
             <div class="s-section-label">Recipients</div>
             <div class="s-field mb-4">
@@ -262,7 +262,7 @@
       </div>
 
       <!-- ══ CHANNELS ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='channels'" class="settings-panel">
+      <div *ngIf="activeTab()==='channels'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-success-soft text-success"><i class="fas fa-broadcast-tower"></i></div>
           <div>
@@ -271,7 +271,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['channels']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['channels'] }}</span>
+                  <span *ngIf="msg()['channels']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['channels'] }}</span>
           <form [formGroup]="channelForm" (ngSubmit)="save('channels')">
             <div class="d-flex flex-column gap-2 mb-4">
               <label class="toggle-row" for="ce">
@@ -322,7 +322,7 @@
       </div>
 
       <!-- ══ WHATSAPP ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='whatsapp'" class="settings-panel">
+      <div *ngIf="activeTab()==='whatsapp'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-success-soft text-success" style="font-size:1.1rem"><i class="fab fa-whatsapp"></i></div>
           <div>
@@ -331,7 +331,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['whatsapp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['whatsapp'] }}</span>
+                  <span *ngIf="msg()['whatsapp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['whatsapp'] }}</span>
           <form [formGroup]="whatsappForm" (ngSubmit)="save('whatsapp')">
             <div class="s-section-label">Provider</div>
             <div class="row g-3 mb-4">
@@ -403,7 +403,7 @@
       </div>
 
       <!-- ══ LLM ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='llm'" class="settings-panel">
+      <div *ngIf="activeTab()==='llm'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-info-soft text-info"><i class="fas fa-robot"></i></div>
           <div>
@@ -412,7 +412,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['llm']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['llm'] }}</span>
+                  <span *ngIf="msg()['llm']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['llm'] }}</span>
           <form [formGroup]="llmForm" (ngSubmit)="save('llm')">
             <div class="row g-4 mb-4">
               <div class="col-md-4 s-field">
@@ -439,7 +439,7 @@
       </div>
 
       <!-- ══ AGENTS ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='agents'" class="settings-panel">
+      <div *ngIf="activeTab()==='agents'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-user-astronaut"></i></div>
           <div>
@@ -455,7 +455,7 @@
                   <i class="fas fa-robot"></i>
                 </div>
                 <div class="fw-semibold" style="color:#111827">{{ name }}</div>
-                <span *ngIf="agentMsg[name]" class="s-toast ms-auto"><i class="fas fa-check-circle me-1"></i>{{ agentMsg[name] }}</span>
+                <span *ngIf="agentMsg()[name]" class="s-toast ms-auto"><i class="fas fa-check-circle me-1"></i>{{ agentMsg()[name] }}</span>
               </div>
               <div class="p-4">
                 <form [formGroup]="agentForms[name]" (ngSubmit)="saveAgent(name)">
@@ -488,7 +488,7 @@
       </div>
 
       <!-- ══ SCORING ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='scoring'" class="settings-panel">
+      <div *ngIf="activeTab()==='scoring'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-warning-soft" style="color:#d97706"><i class="fas fa-star"></i></div>
           <div>
@@ -497,7 +497,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['scoring']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['scoring'] }}</span>
+                  <span *ngIf="msg()['scoring']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['scoring'] }}</span>
           <form [formGroup]="scoringForm" (ngSubmit)="save('scoring')">
             <label class="toggle-row mb-4" for="scen">
               <div>
@@ -524,7 +524,7 @@
       </div>
 
       <!-- ══ LANGUAGE ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='language'" class="settings-panel">
+      <div *ngIf="activeTab()==='language'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-info-soft text-info"><i class="fas fa-language"></i></div>
           <div>
@@ -533,7 +533,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['language']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['language'] }}</span>
+                  <span *ngIf="msg()['language']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['language'] }}</span>
           <form [formGroup]="languageForm" (ngSubmit)="save('language')">
             <div class="row g-3 mb-3">
               <div class="col-md-4 s-field">
@@ -564,31 +564,31 @@
           <div class="row g-3 align-items-end">
             <div class="col-md-5 s-field">
               <label>Sample Text</label>
-              <input class="form-control" [(ngModel)]="detectText" placeholder="मुझे CRM चाहिए">
+              <input class="form-control" [ngModel]="detectText()" (ngModelChange)="detectText.set($event)" placeholder="मुझे CRM चाहिए">
             </div>
             <div class="col-md-3 s-field">
               <label>Location <span class="fw-normal text-muted">(optional)</span></label>
-              <input class="form-control" [(ngModel)]="detectLocation" placeholder="Delhi">
+              <input class="form-control" [ngModel]="detectLocation()" (ngModelChange)="detectLocation.set($event)" placeholder="Delhi">
             </div>
             <div class="col-md-2">
-              <button class="btn btn-outline-primary w-100" (click)="detectLanguage()" [disabled]="detectLoading"
+              <button class="btn btn-outline-primary w-100" (click)="detectLanguage()" [disabled]="detectLoading()"
                       style="border-radius:8px;font-size:0.875rem">
-                <span *ngIf="detectLoading" class="spinner-border spinner-border-sm"></span>
-                <i class="fas fa-search" *ngIf="!detectLoading"></i> Detect
+                <span *ngIf="detectLoading()" class="spinner-border spinner-border-sm"></span>
+                <i class="fas fa-search" *ngIf="!detectLoading()"></i> Detect
               </button>
             </div>
           </div>
-          <div *ngIf="detectResult" class="mt-3 d-flex gap-2 flex-wrap">
-            <span class="badge bg-primary rounded-pill px-3 py-2">Text → {{ detectResult.detected_from_text }}</span>
-            <span class="badge bg-secondary rounded-pill px-3 py-2">Location → {{ detectResult.detected_from_location }}</span>
+          <div *ngIf="detectResult()" class="mt-3 d-flex gap-2 flex-wrap">
+            <span class="badge bg-primary rounded-pill px-3 py-2">Text → {{ detectResult()!.detected_from_text }}</span>
+            <span class="badge bg-secondary rounded-pill px-3 py-2">Location → {{ detectResult()!.detected_from_location }}</span>
             <span class="badge bg-success rounded-pill px-3 py-2">
-              <i class="fas fa-check me-1"></i>{{ detectResult.resolved_language }} — {{ detectResult.language_name }}
+              <i class="fas fa-check me-1"></i>{{ detectResult()!.resolved_language }} — {{ detectResult()!.language_name }}
             </span>
           </div>
       </div>
 
       <!-- ══ FOLLOW-UP ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='followup'" class="settings-panel">
+      <div *ngIf="activeTab()==='followup'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-warning-soft" style="color:#d97706"><i class="fas fa-redo"></i></div>
           <div>
@@ -597,7 +597,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['followup']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['followup'] }}</span>
+                  <span *ngIf="msg()['followup']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['followup'] }}</span>
           <form [formGroup]="followupForm" (ngSubmit)="save('followup')">
             <label class="toggle-row mb-4" for="fen">
               <div>
@@ -648,7 +648,7 @@
       </div>
 
       <!-- ══ OPT-OUT ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='optout'" class="settings-panel">
+      <div *ngIf="activeTab()==='optout'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon" style="background:#fef2f2;color:#dc2626"><i class="fas fa-ban"></i></div>
           <div>
@@ -657,10 +657,11 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="optoutMsg" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ optoutMsg }}</span>
+                  <span *ngIf="optoutMsg()" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ optoutMsg() }}</span>
           <div class="s-field mb-4">
             <label>Keywords <span class="fw-normal text-muted">(comma-separated)</span></label>
-            <textarea class="form-control" rows="4" [(ngModel)]="optoutKeywords"
+            <textarea class="form-control" rows="4"
+                      [ngModel]="optoutKeywords()" (ngModelChange)="optoutKeywords.set($event)"
                       placeholder="stop, unsubscribe, opt out, opt-out, remove me, don't contact…"></textarea>
             <div class="form-text">Case-insensitive matching. Lead is marked opted_out, stage set to lost.</div>
           </div>
@@ -668,7 +669,7 @@
       </div>
 
       <!-- ══ IMAP ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='imap'" class="settings-panel">
+      <div *ngIf="activeTab()==='imap'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-info-soft text-info"><i class="fas fa-inbox"></i></div>
           <div>
@@ -677,7 +678,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['imap']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['imap'] }}</span>
+                  <span *ngIf="msg()['imap']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['imap'] }}</span>
           <form [formGroup]="imapForm" (ngSubmit)="save('imap')">
             <label class="toggle-row mb-4" for="imaen">
               <div>
@@ -700,7 +701,7 @@
       </div>
 
       <!-- ══ PIPELINE ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='pipeline'" class="settings-panel">
+      <div *ngIf="activeTab()==='pipeline'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-project-diagram"></i></div>
           <div>
@@ -709,7 +710,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['pipeline']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['pipeline'] }}</span>
+                  <span *ngIf="msg()['pipeline']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['pipeline'] }}</span>
           <form [formGroup]="pipelineForm" (ngSubmit)="save('pipeline')">
             <div class="d-flex flex-column gap-2 mb-4">
               <label class="toggle-row" for="aaa">
@@ -736,7 +737,7 @@
       </div>
 
       <!-- ══ A/B TESTING ══════════════════════════════════════ -->
-      <div *ngIf="activeTab==='ab'" class="settings-panel">
+      <div *ngIf="activeTab()==='ab'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-success-soft text-success"><i class="fas fa-flask"></i></div>
           <div>
@@ -748,7 +749,7 @@
             <i class="fas fa-plus me-1"></i>Add Experiment
           </button>
         </div>
-                  <span *ngIf="msg['ab']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['ab'] }}</span>
+                  <span *ngIf="msg()['ab']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['ab'] }}</span>
           <form [formGroup]="abForm" (ngSubmit)="save('ab')">
             <label class="toggle-row mb-4" for="aben">
               <div>
@@ -789,7 +790,7 @@
       </div>
 
       <!-- ══ PERSONALIZATION ═══════════════════════════════════ -->
-      <div *ngIf="activeTab==='personalization'" class="settings-panel">
+      <div *ngIf="activeTab()==='personalization'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-info-soft text-info"><i class="fas fa-user-tag"></i></div>
           <div>
@@ -801,7 +802,7 @@
             <i class="fas fa-plus me-1"></i>Add Rule
           </button>
         </div>
-                  <span *ngIf="msg['personalization']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['personalization'] }}</span>
+                  <span *ngIf="msg()['personalization']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['personalization'] }}</span>
           <form [formGroup]="personalizationForm" (ngSubmit)="save('personalization')">
             <label class="toggle-row mb-4" for="pen">
               <div>
@@ -845,7 +846,7 @@
       </div>
 
       <!-- ══ LIMITS ════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='limits'" class="settings-panel">
+      <div *ngIf="activeTab()==='limits'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-warning-soft" style="color:#d97706"><i class="fas fa-tachometer-alt"></i></div>
           <div>
@@ -854,7 +855,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['limits']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['limits'] }}</span>
+                  <span *ngIf="msg()['limits']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['limits'] }}</span>
           <form [formGroup]="limitsForm" (ngSubmit)="save('limits')">
             <div class="row g-4 mb-4">
               <div class="col-md-5 s-field">
@@ -871,7 +872,7 @@
       </div>
 
       <!-- ══ COST CONTROL ══════════════════════════════════════ -->
-      <div *ngIf="activeTab==='cost'" class="settings-panel">
+      <div *ngIf="activeTab()==='cost'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-success-soft text-success"><i class="fas fa-dollar-sign"></i></div>
           <div>
@@ -880,7 +881,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['cost']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['cost'] }}</span>
+                  <span *ngIf="msg()['cost']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['cost'] }}</span>
           <form [formGroup]="costForm" (ngSubmit)="save('cost')">
             <div class="row g-3 mb-3">
               <div class="col-md-4 s-field">
@@ -902,7 +903,7 @@
       </div>
 
       <!-- ══ REPORTS ════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='reports'" class="settings-panel">
+      <div *ngIf="activeTab()==='reports'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon" style="background:#f3f4f6;color:#6b7280"><i class="fas fa-file-alt"></i></div>
           <div>
@@ -910,7 +911,7 @@
             <div class="s-desc">Automated summary email with pipeline stats, conversions, and LLM cost breakdown.</div>
           </div>
         </div>
-                  <span *ngIf="msg['reports']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['reports'] }}</span>
+                  <span *ngIf="msg()['reports']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['reports'] }}</span>
           <form [formGroup]="reportsForm" (ngSubmit)="save('reports')">
             <label class="toggle-row mb-4" for="rep">
               <div>
@@ -930,7 +931,7 @@
       </div>
 
       <!-- ══ SECURITY ═══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='security'" class="settings-panel">
+      <div *ngIf="activeTab()==='security'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon" style="background:#fef2f2;color:#dc2626"><i class="fas fa-shield-alt"></i></div>
           <div>
@@ -939,7 +940,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-                  <span *ngIf="msg['security']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['security'] }}</span>
+                  <span *ngIf="msg()['security']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['security'] }}</span>
           <form [formGroup]="securityForm" (ngSubmit)="save('security')">
             <div class="col-md-4 s-field mb-4">
               <label>Rate Limit (requests / minute)</label>
@@ -950,7 +951,7 @@
       </div>
 
       <!-- ══ SCALING ════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='scaling'" class="settings-panel">
+      <div *ngIf="activeTab()==='scaling'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon" style="background:#f3f4f6;color:#6b7280"><i class="fas fa-server"></i></div>
           <div>
@@ -958,7 +959,7 @@
             <div class="s-desc">Record target instance counts. Apply via your container orchestrator (Kubernetes / ECS).</div>
           </div>
         </div>
-                  <span *ngIf="msg['scaling']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['scaling'] }}</span>
+                  <span *ngIf="msg()['scaling']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['scaling'] }}</span>
           <form [formGroup]="scalingForm" (ngSubmit)="save('scaling')">
             <div class="row g-4 mb-4">
               <div class="col-md-4 s-field">
@@ -979,7 +980,7 @@
       </div>
 
       <!-- ══ QUEUE ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='queue'" class="settings-panel">
+      <div *ngIf="activeTab()==='queue'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-layer-group"></i></div>
           <div>
@@ -987,7 +988,7 @@
             <div class="s-desc">Tune retry behaviour and worker concurrency for the background task queue.</div>
           </div>
         </div>
-                  <span *ngIf="msg['queue']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['queue'] }}</span>
+                  <span *ngIf="msg()['queue']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg()['queue'] }}</span>
           <form [formGroup]="queueForm" (ngSubmit)="save('queue')">
             <div class="row g-4 mb-4">
               <div class="col-md-4 s-field">

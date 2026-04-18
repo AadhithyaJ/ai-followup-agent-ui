@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
@@ -17,22 +17,21 @@ interface LeadView extends Lead {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LeadsComponent implements OnInit {
-  leads: LeadView[] = [];
-  loading = false;
-  error = '';
-  filterForm: FormGroup;
+  leads          = signal<LeadView[]>([]);
+  loading        = signal(false);
+  error          = signal('');
+  showIngestForm = signal(false);
+  ingestLoading  = signal(false);
+  ingestSuccess  = signal('');
+  ingestError    = signal('');
 
-  // Ingest form
-  showIngestForm = false;
+  filterForm: FormGroup;
   ingestForm: FormGroup;
-  ingestLoading = false;
-  ingestSuccess = '';
-  ingestError = '';
 
   stages = ['new', 'qualified', 'contacted', 'interested', 'negotiation', 'converted', 'lost'];
   scores = ['high', 'medium', 'low'];
 
-  constructor(private api: ApiService, private fb: FormBuilder, private router: Router, private cdr: ChangeDetectorRef) {
+  constructor(private api: ApiService, private fb: FormBuilder, private router: Router) {
     this.filterForm = this.fb.group({ stage: [''], score: [''] });
     this.ingestForm = this.fb.group({
       message: [''],
@@ -45,23 +44,22 @@ export class LeadsComponent implements OnInit {
   ngOnInit(): void { this.loadLeads(); }
 
   loadLeads(): void {
-    this.loading = true;
+    this.loading.set(true);
     const { stage, score } = this.filterForm.value;
     const params: any = {};
     if (stage) params.stage = stage;
     if (score) params.score = score;
     this.api.getLeads(params).subscribe({
       next: (data) => {
-        this.leads = data.map(l => ({
+        this.leads.set(data.map(l => ({
           ...l,
           _initials: this._initials(l.name),
           _avatarColor: this._avatarColor(l.name),
           _sourceIcon: this._sourceIcon(l.source)
-        }));
-        this.loading = false;
-        this.cdr.markForCheck();
+        })));
+        this.loading.set(false);
       },
-      error: () => { this.error = 'Failed to load leads.'; this.loading = false; this.cdr.markForCheck(); }
+      error: () => { this.error.set('Failed to load leads.'); this.loading.set(false); }
     });
   }
 
@@ -74,20 +72,22 @@ export class LeadsComponent implements OnInit {
 
   openLead(id: string): void { this.router.navigate(['/leads', id]); }
 
+  toggleIngestForm(): void { this.showIngestForm.set(!this.showIngestForm()); }
+
   ingest(): void {
-    this.ingestLoading = true;
-    this.ingestSuccess = '';
-    this.ingestError = '';
+    this.ingestLoading.set(true);
+    this.ingestSuccess.set('');
+    this.ingestError.set('');
     this.api.ingestLead(this.ingestForm.value).subscribe({
       next: (res) => {
-        this.ingestSuccess = `Lead "${res.name}" ingested — score: ${res.score}, stage: ${res.stage}`;
-        this.ingestLoading = false;
+        this.ingestSuccess.set(`Lead "${res.name}" ingested — score: ${res.score}, stage: ${res.stage}`);
+        this.ingestLoading.set(false);
         this.ingestForm.reset({ source: 'whatsapp' });
         this.loadLeads();
       },
       error: (err) => {
-        this.ingestError = err?.error?.detail || 'Ingest failed.';
-        this.ingestLoading = false;
+        this.ingestError.set(err?.error?.detail || 'Ingest failed.');
+        this.ingestLoading.set(false);
       }
     });
   }

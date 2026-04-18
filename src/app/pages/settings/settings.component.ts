@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs';
@@ -15,12 +15,13 @@ type SettingsTab =
 @Component({
   selector: 'app-settings',
   standalone: false,
-  templateUrl: './settings.component.html'
+  templateUrl: './settings.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent implements OnInit {
-  activeTab: SettingsTab = 'smtp';
-  msg: Partial<Record<SettingsTab, string>> = {};
-  loading: Partial<Record<SettingsTab, boolean>> = {};
+  activeTab = signal<SettingsTab>('smtp');
+  msg       = signal<Partial<Record<SettingsTab, string>>>({});
+  loading   = signal<Partial<Record<SettingsTab, boolean>>>({});
 
   smtpForm!: FormGroup;
   alertForm!: FormGroup;
@@ -43,23 +44,23 @@ export class SettingsComponent implements OnInit {
 
   agentNames: string[] = ['sales_agent', 'support_agent', 'followup_agent'];
   agentForms: Record<string, FormGroup> = {};
-  agentMsg: Record<string, string> = {};
+  agentMsg = signal<Record<string, string>>({});
 
-  optoutKeywords = '';
-  optoutMsg = '';
+  optoutKeywords = signal('');
+  optoutMsg      = signal('');
 
-  detectText = '';
-  detectLocation = '';
-  detectResult: any = null;
-  detectLoading = false;
+  detectText     = signal('');
+  detectLocation = signal('');
+  detectResult   = signal<any>(null);
+  detectLoading  = signal(false);
 
-  seedMsg = '';
-  seedLoading = false;
+  seedMsg     = signal('');
+  seedLoading = signal(false);
 
   llmModels = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'];
 
   brandingForm!: FormGroup;
-  brandingMsg = '';
+  brandingMsg = signal('');
 
   logoIcons = [
     'fa-bolt','fa-rocket','fa-brain','fa-fire','fa-star',
@@ -108,7 +109,7 @@ export class SettingsComponent implements OnInit {
   }
 
   buildForms(): void {
-    const c = this.branding.config;
+    const c = this.branding.config();
     this.brandingForm = this.fb.group({
       appName:      [c.appName],
       appSub:       [c.appSub],
@@ -186,7 +187,7 @@ export class SettingsComponent implements OnInit {
   }
 
   setTab(tab: SettingsTab): void {
-    this.activeTab = tab;
+    this.activeTab.set(tab);
     this.loadTab(tab);
   }
 
@@ -205,26 +206,26 @@ export class SettingsComponent implements OnInit {
   applyPreset(p: typeof this.colorPresets[0]): void {
     if (!p.primary) return;
     this.brandingForm.patchValue({ primaryColor: p.primary, primaryDark: p.dark, primaryLight: p.light });
-    this.branding.applyCssVars({ ...this.branding.config, primaryColor: p.primary, primaryDark: p.dark, primaryLight: p.light });
+    this.branding.applyCssVars({ ...this.branding.config(), primaryColor: p.primary, primaryDark: p.dark, primaryLight: p.light });
   }
 
   saveBranding(): void {
     this.branding.save(this.brandingForm.value);
-    this.brandingMsg = 'Branding updated.';
-    setTimeout(() => this.brandingMsg = '', 3000);
+    this.brandingMsg.set('Branding updated.');
+    setTimeout(() => this.brandingMsg.set(''), 3000);
   }
 
   resetBranding(): void {
     this.branding.reset();
-    const c = this.branding.config;
+    const c = this.branding.config();
     this.brandingForm.patchValue(c);
-    this.brandingMsg = 'Reset to defaults.';
-    setTimeout(() => this.brandingMsg = '', 3000);
+    this.brandingMsg.set('Reset to defaults.');
+    setTimeout(() => this.brandingMsg.set(''), 3000);
   }
 
   private fetch<T>(tab: SettingsTab, obs: Observable<T>, onNext: (d: T) => void): void {
-    this.loading[tab] = true;
-    obs.pipe(finalize(() => { this.loading[tab] = false; }))
+    this.loading.update(l => ({ ...l, [tab]: true }));
+    obs.pipe(finalize(() => { this.loading.update(l => ({ ...l, [tab]: false })); }))
        .subscribe({ next: onNext, error: () => {} });
   }
 
@@ -265,7 +266,7 @@ export class SettingsComponent implements OnInit {
         break;
       case 'optout':
         this.fetch(tab, this.api.getOptoutSettings(), d =>
-          this.optoutKeywords = (d.keywords || []).join(', ')
+          this.optoutKeywords.set((d.keywords || []).join(', '))
         );
         break;
       case 'imap':
@@ -349,9 +350,9 @@ export class SettingsComponent implements OnInit {
   removeRule(i: number): void { this.personalizationRules.removeAt(i); }
 
   save(tab: SettingsTab): void {
-    this.msg[tab] = '';
-    const ok = () => { this.msg[tab] = 'Saved successfully.'; };
-    const err = () => { this.msg[tab] = 'Save failed.'; };
+    this.msg.update(m => ({ ...m, [tab]: '' }));
+    const ok = () => { this.msg.update(m => ({ ...m, [tab]: 'Saved successfully.' })); };
+    const err = () => { this.msg.update(m => ({ ...m, [tab]: 'Save failed.' })); };
 
     switch (tab) {
       case 'smtp':
@@ -431,34 +432,34 @@ export class SettingsComponent implements OnInit {
   }
 
   saveAgent(name: string): void {
-    this.agentMsg[name] = '';
+    this.agentMsg.update(m => ({ ...m, [name]: '' }));
     this.api.saveAgentSettings(name, this.agentForms[name].value).subscribe({
-      next: () => { this.agentMsg[name] = 'Saved.'; },
-      error: () => { this.agentMsg[name] = 'Save failed.'; }
+      next: () => { this.agentMsg.update(m => ({ ...m, [name]: 'Saved.' })); },
+      error: () => { this.agentMsg.update(m => ({ ...m, [name]: 'Save failed.' })); }
     });
   }
 
   saveOptout(): void {
-    const keywords = this.optoutKeywords.split(',').map(k => k.trim()).filter(Boolean);
+    const keywords = this.optoutKeywords().split(',').map(k => k.trim()).filter(Boolean);
     this.api.saveOptoutSettings({ keywords }).subscribe({
-      next: () => { this.optoutMsg = 'Saved.'; },
-      error: () => { this.optoutMsg = 'Save failed.'; }
+      next: () => { this.optoutMsg.set('Saved.'); },
+      error: () => { this.optoutMsg.set('Save failed.'); }
     });
   }
 
   detectLanguage(): void {
-    this.detectLoading = true;
-    this.api.detectLanguage(this.detectText, this.detectLocation || undefined).subscribe({
-      next: d => { this.detectResult = d; this.detectLoading = false; },
-      error: () => { this.detectLoading = false; }
+    this.detectLoading.set(true);
+    this.api.detectLanguage(this.detectText(), this.detectLocation() || undefined).subscribe({
+      next: d => { this.detectResult.set(d); this.detectLoading.set(false); },
+      error: () => { this.detectLoading.set(false); }
     });
   }
 
   seed(): void {
-    this.seedLoading = true;
+    this.seedLoading.set(true);
     this.api.seedSettings().subscribe({
-      next: (r) => { this.seedMsg = `Seeded ${r.seeded_keys} keys.`; this.seedLoading = false; },
-      error: () => { this.seedMsg = 'Seed failed.'; this.seedLoading = false; }
+      next: (r) => { this.seedMsg.set(`Seeded ${r.seeded_keys} keys.`); this.seedLoading.set(false); },
+      error: () => { this.seedMsg.set('Seed failed.'); this.seedLoading.set(false); }
     });
   }
 }

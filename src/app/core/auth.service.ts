@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface LoginRequest { email: string; password: string; }
@@ -11,9 +11,7 @@ export interface AuthResponse { access_token: string; token_type: string; }
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly TOKEN_KEY = 'are_access_token';
-  private loggedIn$ = new BehaviorSubject<boolean>(this.hasToken());
-
-  isLoggedIn$ = this.loggedIn$.asObservable();
+  readonly loggedIn = signal<boolean>(this.hasToken());
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -31,7 +29,7 @@ export class AuthService {
 
   logout(): void {
     sessionStorage.removeItem(this.TOKEN_KEY);
-    this.loggedIn$.next(false);
+    this.loggedIn.set(false);
     this.router.navigate(['/login']);
   }
 
@@ -40,12 +38,12 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return this.hasToken();
+    return this.loggedIn();
   }
 
   private saveToken(token: string): void {
     sessionStorage.setItem(this.TOKEN_KEY, token);
-    this.loggedIn$.next(true);
+    this.loggedIn.set(true);
   }
 
   private hasToken(): boolean {

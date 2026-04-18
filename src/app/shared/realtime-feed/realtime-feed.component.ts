@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, input, signal } from '@angular/core';
 import { AuthService } from '../../core/auth.service';
 import { environment } from '../../../environments/environment';
 
@@ -11,15 +11,16 @@ export interface RealtimeEvent {
 @Component({
   selector: 'app-realtime-feed',
   standalone: false,
-  templateUrl: './realtime-feed.component.html'
+  templateUrl: './realtime-feed.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RealtimeFeedComponent implements OnInit, OnDestroy {
-  @Input() mode: 'sse' | 'ws' = 'sse';
-  @Input() channel: 'dashboard' | 'leads' | 'metrics' = 'dashboard';
+  mode    = input<'sse' | 'ws'>('sse');
+  channel = input<'dashboard' | 'leads' | 'metrics'>('dashboard');
 
-  events: RealtimeEvent[] = [];
-  connected = false;
-  statusText = 'Disconnected';
+  events     = signal<RealtimeEvent[]>([]);
+  connected  = signal(false);
+  statusText = signal('Disconnected');
 
   private eventSource: EventSource | null = null;
   private ws: WebSocket | null = null;
@@ -38,7 +39,7 @@ export class RealtimeFeedComponent implements OnInit, OnDestroy {
     const token = this.auth.getToken();
     if (!token) return;
 
-    if (this.mode === 'sse') {
+    if (this.mode() === 'sse') {
       this.connectSSE(token);
     } else {
       this.connectWS(token);
@@ -48,21 +49,21 @@ export class RealtimeFeedComponent implements OnInit, OnDestroy {
   disconnect(): void {
     if (this.eventSource) { this.eventSource.close(); this.eventSource = null; }
     if (this.ws) { this.ws.close(); this.ws = null; }
-    this.connected = false;
-    this.statusText = 'Disconnected';
+    this.connected.set(false);
+    this.statusText.set('Disconnected');
   }
 
   clearEvents(): void {
-    this.events = [];
+    this.events.set([]);
   }
 
   private connectSSE(token: string): void {
-    const url = `${environment.apiUrl}/stream/${this.channel}?token=${encodeURIComponent(token)}`;
+    const url = `${environment.apiUrl}/stream/${this.channel()}?token=${encodeURIComponent(token)}`;
     this.eventSource = new EventSource(url);
 
     this.eventSource.onopen = () => {
-      this.connected = true;
-      this.statusText = 'Connected (SSE)';
+      this.connected.set(true);
+      this.statusText.set('Connected (SSE)');
     };
 
     this.eventSource.onmessage = (e) => {
@@ -76,8 +77,8 @@ export class RealtimeFeedComponent implements OnInit, OnDestroy {
     });
 
     this.eventSource.onerror = () => {
-      this.connected = false;
-      this.statusText = 'Error — reconnecting…';
+      this.connected.set(false);
+      this.statusText.set('Error — reconnecting…');
     };
   }
 
@@ -86,8 +87,8 @@ export class RealtimeFeedComponent implements OnInit, OnDestroy {
     this.ws = new WebSocket(url);
 
     this.ws.onopen = () => {
-      this.connected = true;
-      this.statusText = 'Connected (WebSocket)';
+      this.connected.set(true);
+      this.statusText.set('Connected (WebSocket)');
     };
 
     this.ws.onmessage = (e) => {
@@ -100,19 +101,22 @@ export class RealtimeFeedComponent implements OnInit, OnDestroy {
     };
 
     this.ws.onclose = () => {
-      this.connected = false;
-      this.statusText = 'Disconnected';
+      this.connected.set(false);
+      this.statusText.set('Disconnected');
     };
 
     this.ws.onerror = () => {
-      this.connected = false;
-      this.statusText = 'WebSocket error';
+      this.connected.set(false);
+      this.statusText.set('WebSocket error');
     };
   }
 
   private pushEvent(type: string, data: any): void {
-    this.events.unshift({ type, data, timestamp: new Date() });
-    if (this.events.length > 100) this.events.pop();
+    this.events.update(evs => {
+      const next = [{ type, data, timestamp: new Date() }, ...evs];
+      if (next.length > 100) next.pop();
+      return next;
+    });
   }
 
   eventIcon(type: string): string {

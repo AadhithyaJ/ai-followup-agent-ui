@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { AnalyticsOverview, FunnelData, AgentPerformance, AdvancedAnalytics } from '../../core/models/analytics.model';
@@ -13,29 +13,36 @@ interface AttrRow   { channel: string; count: number; pct: number; }
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnalyticsComponent implements OnInit {
-  overview: AnalyticsOverview | null = null;
-  agents: AgentPerformance[] = [];
-  advanced: AdvancedAnalytics | null = null;
-  loading = true;
-  error = '';
+  overview  = signal<AnalyticsOverview | null>(null);
+  agents    = signal<AgentPerformance[]>([]);
+  advanced  = signal<AdvancedAnalytics | null>(null);
+  loading   = signal(true);
+  error     = signal('');
 
-  funnelRows: FunnelRow[] = [];
-  attrRows: AttrRow[] = [];
-  cohortRows: { key: string; value: { total: number; converted: number; rate: number } }[] = [];
-  totalLlmCost = 0;
+  funnelRows = signal<FunnelRow[]>([]);
+  attrRows   = signal<AttrRow[]>([]);
+
+  cohortRows = computed(() => {
+    const adv = this.advanced();
+    return adv?.cohort_conversion
+      ? Object.entries(adv.cohort_conversion).map(([key, value]) => ({ key, value }))
+      : [];
+  });
+
+  totalLlmCost = computed(() => this.advanced()?.llm_cost_report?.total_usd ?? 0);
 
   private readonly FUNNEL_COLORS: Record<string, string> = {
     new: '#0dcaf0', qualified: '#0d6efd', contacted: '#6c757d',
     interested: '#198754', negotiation: '#ffc107', converted: '#20c997', lost: '#dc3545'
   };
 
-  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void { this.loadAll(); }
 
   loadAll(): void {
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
     forkJoin({
       overview: this.api.getAnalyticsOverview(),
       funnel:   this.api.getAnalyticsFunnel(),
@@ -43,38 +50,33 @@ export class AnalyticsComponent implements OnInit {
       advanced: this.api.getAdvancedAnalytics()
     }).subscribe({
       next: ({ overview, funnel, agents, advanced }) => {
-        this.overview = overview;
-        this.agents   = agents;
-        this.advanced = advanced;
-        this.loading  = false;
-        this._buildFunnel(funnel);
-        this._buildAttribution(advanced);
-        this.cohortRows = advanced?.cohort_conversion
-          ? Object.entries(advanced.cohort_conversion).map(([key, value]) => ({ key, value }))
-          : [];
-        this.totalLlmCost = advanced?.llm_cost_report?.total_usd ?? 0;
-        this.cdr.markForCheck();
+        this.overview.set(overview);
+        this.agents.set(agents);
+        this.advanced.set(advanced);
+        this.loading.set(false);
+        this.funnelRows.set(this._buildFunnel(funnel));
+        this.attrRows.set(this._buildAttribution(advanced));
       },
-      error: () => { this.error = 'Failed to load analytics.'; this.loading = false; this.cdr.markForCheck(); }
+      error: () => { this.error.set('Failed to load analytics.'); this.loading.set(false); }
     });
   }
 
-  private _buildFunnel(funnel: FunnelData): void {
+  private _buildFunnel(funnel: FunnelData): FunnelRow[] {
     const stages = ['new','qualified','contacted','interested','negotiation','converted','lost'];
     const counts = stages.map(s => (funnel as any)[s] ?? 0);
     const max = Math.max(...counts, 1);
-    this.funnelRows = stages.map((s, i) => ({
+    return stages.map((s, i) => ({
       stage: s, count: counts[i],
       pct: Math.round((counts[i] / max) * 100),
       color: this.FUNNEL_COLORS[s] || '#6c757d'
     }));
   }
 
-  private _buildAttribution(advanced: AdvancedAnalytics | null): void {
-    if (!advanced?.revenue_attribution) { this.attrRows = []; return; }
+  private _buildAttribution(advanced: AdvancedAnalytics | null): AttrRow[] {
+    if (!advanced?.revenue_attribution) return [];
     const entries = Object.entries(advanced.revenue_attribution).map(([channel, count]) => ({ channel, count }));
     const max = Math.max(...entries.map(e => e.count), 1);
-    this.attrRows = entries.map(e => ({ ...e, pct: Math.round((e.count / max) * 100) }));
+    return entries.map(e => ({ ...e, pct: Math.round((e.count / max) * 100) }));
   }
 
   rateColor(rate: number): string {

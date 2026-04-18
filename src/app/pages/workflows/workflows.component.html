@@ -12,27 +12,27 @@
   </div>
 
   <!-- ── Alerts ─────────────────────────────────────────────────── -->
-  <div class="alert-success-pill" *ngIf="successMsg">
-    <i class="fas fa-check-circle"></i>{{ successMsg }}
-    <button type="button" class="wf-btn-cancel" style="background:none;border:none;padding:0;margin-left:auto;height:auto;color:inherit;opacity:0.5;min-width:0" (click)="successMsg=''">
+  <div class="alert-success-pill" *ngIf="successMsg()">
+    <i class="fas fa-check-circle"></i>{{ successMsg() }}
+    <button type="button" class="wf-btn-cancel" style="background:none;border:none;padding:0;margin-left:auto;height:auto;color:inherit;opacity:0.5;min-width:0" (click)="successMsg.set('')">
       <i class="fas fa-times"></i>
     </button>
   </div>
-  <div class="alert-danger-pill" *ngIf="error">
-    <i class="fas fa-exclamation-circle"></i>{{ error }}
-    <button type="button" class="wf-btn-cancel" style="background:none;border:none;padding:0;margin-left:auto;height:auto;color:inherit;opacity:0.5;min-width:0" (click)="error=''">
+  <div class="alert-danger-pill" *ngIf="error()">
+    <i class="fas fa-exclamation-circle"></i>{{ error() }}
+    <button type="button" class="wf-btn-cancel" style="background:none;border:none;padding:0;margin-left:auto;height:auto;color:inherit;opacity:0.5;min-width:0" (click)="error.set('')">
       <i class="fas fa-times"></i>
     </button>
   </div>
 
   <!-- ── Create / Edit Form ─────────────────────────────────────── -->
-  <div class="ingest-panel" *ngIf="showForm" style="margin-bottom:1.25rem">
+  <div class="ingest-panel" *ngIf="showForm()" style="margin-bottom:1.25rem">
     <div class="ingest-panel-title">
       <i class="fas fa-edit me-2" style="color:#6366f1"></i>
-      {{ editingId ? 'Edit Workflow' : 'Create Workflow' }}
+      {{ editingId() ? 'Edit Workflow' : 'Create Workflow' }}
     </div>
-    <div class="alert-danger-pill" *ngIf="formError" style="margin-bottom:1rem">
-      <i class="fas fa-exclamation-circle"></i>{{ formError }}
+    <div class="alert-danger-pill" *ngIf="formError()" style="margin-bottom:1rem">
+      <i class="fas fa-exclamation-circle"></i>{{ formError() }}
     </div>
     <form [formGroup]="form" (ngSubmit)="save()">
       <!-- Basic fields -->
@@ -105,10 +105,10 @@
 
       <!-- Form actions -->
       <div style="display:flex;gap:0.75rem">
-        <button class="btn-ingest" type="submit" [disabled]="form.invalid || formLoading">
-          <span class="ingest-spinner" *ngIf="formLoading"></span>
-          <i class="fas fa-save" *ngIf="!formLoading"></i>
-          {{ formLoading ? 'Saving…' : 'Save Workflow' }}
+        <button class="btn-ingest" type="submit" [disabled]="form.invalid || formLoading()">
+          <span class="ingest-spinner" *ngIf="formLoading()"></span>
+          <i class="fas fa-save" *ngIf="!formLoading()"></i>
+          {{ formLoading() ? 'Saving…' : 'Save Workflow' }}
         </button>
         <button type="button" class="wf-btn-cancel" (click)="cancelForm()">
           <i class="fas fa-times"></i>Cancel
@@ -125,11 +125,12 @@
       <div class="wf-test-bar-sub">Enter a lead UUID then click Test on any workflow</div>
     </div>
     <input class="field-input" style="flex:1;max-width:320px;margin-bottom:0"
-           [(ngModel)]="testLeadId" placeholder="Paste lead UUID here…">
+           [ngModel]="testLeadId()" (ngModelChange)="testLeadId.set($event)"
+           placeholder="Paste lead UUID here…">
   </div>
 
   <!-- ── Test Result ────────────────────────────────────────────── -->
-  <div class="wf-result-card" *ngIf="testResult">
+  <div class="wf-result-card" *ngIf="testResult()">
     <div class="wf-result-header">
       <i class="fas fa-vial"></i>Dry-Run Result
     </div>
@@ -143,7 +144,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let s of testResult.steps_would_execute" class="lead-row">
+          <tr *ngFor="let s of testResult()!.steps_would_execute" class="lead-row">
             <td>
               <div class="wf-step-num" style="width:24px;height:24px;font-size:0.65rem">{{ s.step }}</div>
             </td>
@@ -158,7 +159,7 @@
   </div>
 
   <!-- ── Skeleton ───────────────────────────────────────────────── -->
-  <div class="leads-skeleton" *ngIf="loading">
+  <div class="leads-skeleton" *ngIf="loading()">
     <div class="leads-skel-row" *ngFor="let i of [1,2,3]">
       <div class="skel skel-avatar" style="border-radius:12px"></div>
       <div class="skel-content">
@@ -171,16 +172,16 @@
   </div>
 
   <!-- ── Empty State ────────────────────────────────────────────── -->
-  <div class="leads-empty" *ngIf="!loading && workflows.length === 0 && !showForm">
+  <div class="leads-empty" *ngIf="!loading() && workflows().length === 0 && !showForm()">
     <i class="fas fa-sitemap"></i>
     <div>No workflows yet</div>
     <p>Create a workflow to start automating your lead follow-up sequences</p>
   </div>
 
   <!-- ── Workflow Cards ─────────────────────────────────────────── -->
-  <div class="wf-grid" *ngIf="!loading && workflows.length > 0">
+  <div class="wf-grid" *ngIf="!loading() && workflows().length > 0">
 
-    <div *ngFor="let wf of workflows"
+    <div *ngFor="let wf of workflows()"
          class="wf-card"
          [class.wf-active]="wf.is_active">
 
@@ -226,10 +227,10 @@
         <button class="wf-btn wf-btn-edit" (click)="openEdit(wf)">
           <i class="fas fa-edit"></i>Edit
         </button>
-        <button class="wf-btn wf-btn-test" (click)="test(wf)" [disabled]="testingId === wf.id">
-          <span class="ingest-spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(217,119,6,0.3);border-top-color:#d97706" *ngIf="testingId===wf.id"></span>
-          <i class="fas fa-vial" *ngIf="testingId!==wf.id"></i>
-          {{ testingId===wf.id ? 'Testing…' : 'Test' }}
+        <button class="wf-btn wf-btn-test" (click)="test(wf)" [disabled]="testingId() === wf.id">
+          <span class="ingest-spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(217,119,6,0.3);border-top-color:#d97706" *ngIf="testingId()===wf.id"></span>
+          <i class="fas fa-vial" *ngIf="testingId()!==wf.id"></i>
+          {{ testingId()===wf.id ? 'Testing…' : 'Test' }}
         </button>
         <button class="wf-btn" (click)="toggleActive(wf)"
                 [class.wf-btn-enable]="!wf.is_active"

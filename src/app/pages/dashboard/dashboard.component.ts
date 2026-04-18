@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../core/api.service';
 import { AnalyticsOverview, FunnelData, AgentPerformance } from '../../core/models/analytics.model';
@@ -12,44 +12,48 @@ interface FunnelStage { label: string; key: keyof FunnelData; color: string; cou
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit {
-  overview: AnalyticsOverview | null = null;
-  funnel: FunnelData | null = null;
-  agents: AgentPerformance[] = [];
-  funnelRows: FunnelStage[] = [];
-  bestAgent: AgentPerformance | null = null;
-  loading = true;
-  error = '';
-  now = new Date();
+  overview = signal<AnalyticsOverview | null>(null);
+  funnel   = signal<FunnelData | null>(null);
+  agents   = signal<AgentPerformance[]>([]);
+  loading  = signal(true);
+  error    = signal('');
+  now      = signal(new Date());
 
-  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
+  funnelRows = computed<FunnelStage[]>(() => {
+    const f = this.funnel();
+    if (!f) return [];
+    return this._buildFunnel(f);
+  });
+
+  bestAgent = computed<AgentPerformance | null>(() => {
+    const a = this.agents();
+    return a.length ? a.reduce((x, b) => x.conv_rate > b.conv_rate ? x : b) : null;
+  });
+
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void { this.load(); }
 
   load(): void {
-    this.loading = true;
-    this.error = '';
+    this.loading.set(true);
+    this.error.set('');
     forkJoin({
       overview: this.api.getAnalyticsOverview(),
       funnel:   this.api.getAnalyticsFunnel(),
       agents:   this.api.getAgentPerformance()
     }).subscribe({
       next: ({ overview, funnel, agents }) => {
-        this.overview = overview;
-        this.funnel   = funnel;
-        this.agents   = agents;
-        this.now      = new Date();
-        this.loading  = false;
-        this._buildFunnel(funnel);
-        this.bestAgent = agents.length
-          ? agents.reduce((a, b) => a.conv_rate > b.conv_rate ? a : b)
-          : null;
-        this.cdr.markForCheck();
+        this.overview.set(overview);
+        this.funnel.set(funnel);
+        this.agents.set(agents);
+        this.now.set(new Date());
+        this.loading.set(false);
       },
-      error: () => { this.error = 'Failed to load dashboard.'; this.loading = false; this.cdr.markForCheck(); }
+      error: () => { this.error.set('Failed to load dashboard.'); this.loading.set(false); }
     });
   }
 
-  private _buildFunnel(funnel: FunnelData): void {
+  private _buildFunnel(funnel: FunnelData): FunnelStage[] {
     const defs: { label: string; key: keyof FunnelData; color: string }[] = [
       { label: 'New',         key: 'new',         color: '#6366f1' },
       { label: 'Qualified',   key: 'qualified',   color: '#3b82f6' },
@@ -59,7 +63,7 @@ export class DashboardComponent implements OnInit {
       { label: 'Converted',   key: 'converted',   color: '#22c55e' },
     ];
     const max = Math.max(...defs.map(d => Number(funnel[d.key])), 1);
-    this.funnelRows = defs.map(d => ({
+    return defs.map(d => ({
       ...d,
       count: Number(funnel[d.key]),
       pct:   Math.round((Number(funnel[d.key]) / max) * 100)

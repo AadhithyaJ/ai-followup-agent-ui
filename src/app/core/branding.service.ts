@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 export interface BrandConfig {
   appName: string;
@@ -23,10 +22,7 @@ const DEFAULTS: BrandConfig = {
 
 @Injectable({ providedIn: 'root' })
 export class BrandingService {
-  private _config = new BehaviorSubject<BrandConfig>(this.load());
-  config$ = this._config.asObservable();
-
-  get config(): BrandConfig { return this._config.value; }
+  readonly config = signal<BrandConfig>(this.load());
 
   private load(): BrandConfig {
     try {
@@ -36,19 +32,19 @@ export class BrandingService {
   }
 
   save(partial: Partial<BrandConfig>): void {
-    const next = { ...this._config.value, ...partial };
-    this._config.next(next);
+    const next = { ...this.config(), ...partial };
+    this.config.set(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
     this.applyCssVars(next);
   }
 
   reset(): void {
     localStorage.removeItem(STORAGE_KEY);
-    this._config.next({ ...DEFAULTS });
+    this.config.set({ ...DEFAULTS });
     this.applyCssVars(DEFAULTS);
   }
 
-  applyCssVars(c: BrandConfig = this._config.value): void {
+  applyCssVars(c: BrandConfig = this.config()): void {
     const r = document.documentElement;
     r.style.setProperty('--brand-primary',      c.primaryColor);
     r.style.setProperty('--brand-primary-dark',  c.primaryDark);

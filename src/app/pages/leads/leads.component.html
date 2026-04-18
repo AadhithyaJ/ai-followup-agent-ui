@@ -6,22 +6,22 @@
       <h4 class="page-title">Leads</h4>
       <p class="page-sub">Manage and track your pipeline</p>
     </div>
-    <button class="btn-primary-pill" (click)="showIngestForm = !showIngestForm">
-      <i class="fas" [class.fa-plus]="!showIngestForm" [class.fa-times]="showIngestForm"></i>
-      {{ showIngestForm ? 'Cancel' : 'Ingest Lead' }}
+    <button class="btn-primary-pill" (click)="toggleIngestForm()">
+      <i class="fas" [class.fa-plus]="!showIngestForm()" [class.fa-times]="showIngestForm()"></i>
+      {{ showIngestForm() ? 'Cancel' : 'Ingest Lead' }}
     </button>
   </div>
 
   <!-- Ingest Panel -->
-  <div class="ingest-panel" *ngIf="showIngestForm">
+  <div class="ingest-panel" *ngIf="showIngestForm()">
     <div class="ingest-panel-title">
       <i class="fas fa-user-plus me-2" style="color:#6366f1"></i>New Lead
     </div>
-    <div class="alert-success-pill" *ngIf="ingestSuccess">
-      <i class="fas fa-check-circle me-2"></i>{{ ingestSuccess }}
+    <div class="alert-success-pill" *ngIf="ingestSuccess()">
+      <i class="fas fa-check-circle me-2"></i>{{ ingestSuccess() }}
     </div>
-    <div class="alert-danger-pill" *ngIf="ingestError">
-      <i class="fas fa-exclamation-circle me-2"></i>{{ ingestError }}
+    <div class="alert-danger-pill" *ngIf="ingestError()">
+      <i class="fas fa-exclamation-circle me-2"></i>{{ ingestError() }}
     </div>
     <form [formGroup]="ingestForm" (ngSubmit)="ingest()">
       <div class="ingest-grid">
@@ -48,10 +48,10 @@
           <input class="field-input" formControlName="email" type="email" placeholder="lead@co.com">
         </div>
       </div>
-      <button class="btn-ingest" type="submit" [disabled]="ingestLoading">
-        <span class="ingest-spinner" *ngIf="ingestLoading"></span>
-        <i class="fas fa-paper-plane" *ngIf="!ingestLoading"></i>
-        {{ ingestLoading ? 'Processing…' : 'Ingest Lead' }}
+      <button class="btn-ingest" type="submit" [disabled]="ingestLoading()">
+        <span class="ingest-spinner" *ngIf="ingestLoading()"></span>
+        <i class="fas fa-paper-plane" *ngIf="!ingestLoading()"></i>
+        {{ ingestLoading() ? 'Processing…' : 'Ingest Lead' }}
       </button>
     </form>
   </div>
@@ -90,10 +90,10 @@
   </div>
 
   <!-- Error -->
-  <div class="alert-danger-pill" *ngIf="error">{{ error }}</div>
+  <div class="alert-danger-pill" *ngIf="error()">{{ error() }}</div>
 
   <!-- Loading -->
-  <div class="leads-skeleton" *ngIf="loading">
+  <div class="leads-skeleton" *ngIf="loading()">
     <div class="leads-skel-row" *ngFor="let i of [1,2,3,4,5]">
       <div class="skel skel-avatar"></div>
       <div class="skel-content">
@@ -106,14 +106,14 @@
   </div>
 
   <!-- Empty -->
-  <div class="leads-empty" *ngIf="!loading && leads.length === 0">
+  <div class="leads-empty" *ngIf="!loading() && leads().length === 0">
     <i class="fas fa-user-slash"></i>
     <div>No leads found</div>
     <p>Try adjusting the filters or ingest a new lead</p>
   </div>
 
   <!-- Table -->
-  <div class="leads-table-wrap" *ngIf="!loading && leads.length > 0">
+  <div class="leads-table-wrap" *ngIf="!loading() && leads().length > 0">
     <table class="leads-table">
       <thead>
         <tr>
@@ -127,7 +127,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let lead of leads; trackBy: trackByLead" (click)="openLead(lead.id)" class="lead-row">
+        <tr *ngFor="let lead of leads(); trackBy: trackByLead" (click)="openLead(lead.id)" class="lead-row">
           <td>
             <div class="lead-identity">
               <div class="lead-avatar" [style.background]="lead._avatarColor">

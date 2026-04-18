@@ -6,12 +6,12 @@
       <h4 class="page-title">Analytics</h4>
       <p class="page-sub">Performance metrics and pipeline insights</p>
     </div>
-    <button class="db-refresh-btn" (click)="loadAll()" [disabled]="loading">
-      <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> Refresh
+    <button class="db-refresh-btn" (click)="loadAll()" [disabled]="loading()">
+      <i class="fas fa-sync-alt" [class.fa-spin]="loading()"></i> Refresh
     </button>
   </div>
 
-  <div class="alert-danger-pill" *ngIf="error">{{ error }}</div>
+  <div class="alert-danger-pill" *ngIf="error()">{{ error() }}</div>
 
   <!-- KPI Row -->
   <div class="db-kpi-row" style="margin-bottom:1.5rem">
@@ -19,32 +19,32 @@
       <div class="db-kpi-icon" style="background:rgba(99,102,241,0.1);color:#6366f1"><i class="fas fa-users"></i></div>
       <div class="db-kpi-body">
         <div class="db-kpi-label">Total Leads</div>
-        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.total_leads ?? '—' }}</div>
-        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+        <div class="db-kpi-value" *ngIf="!loading()">{{ overview()?.total_leads ?? '—' }}</div>
+        <div class="db-skel db-skel-sm" *ngIf="loading()"></div>
       </div>
     </div>
     <div class="db-kpi-card">
       <div class="db-kpi-icon" style="background:rgba(34,197,94,0.1);color:#22c55e"><i class="fas fa-chart-line"></i></div>
       <div class="db-kpi-body">
         <div class="db-kpi-label">Conversion Rate</div>
-        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.conversion_rate ?? '—' }}<span class="db-kpi-unit">%</span></div>
-        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+        <div class="db-kpi-value" *ngIf="!loading()">{{ overview()?.conversion_rate ?? '—' }}<span class="db-kpi-unit">%</span></div>
+        <div class="db-skel db-skel-sm" *ngIf="loading()"></div>
       </div>
     </div>
     <div class="db-kpi-card">
       <div class="db-kpi-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b"><i class="fas fa-bolt"></i></div>
       <div class="db-kpi-body">
         <div class="db-kpi-label">Avg Response</div>
-        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.avg_response_time ?? '—' }}<span class="db-kpi-unit">s</span></div>
-        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+        <div class="db-kpi-value" *ngIf="!loading()">{{ overview()?.avg_response_time ?? '—' }}<span class="db-kpi-unit">s</span></div>
+        <div class="db-skel db-skel-sm" *ngIf="loading()"></div>
       </div>
     </div>
     <div class="db-kpi-card">
       <div class="db-kpi-icon" style="background:rgba(14,165,233,0.1);color:#0ea5e9"><i class="fas fa-filter"></i></div>
       <div class="db-kpi-body">
         <div class="db-kpi-label">Active Pipeline</div>
-        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.active_pipeline ?? '—' }}</div>
-        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+        <div class="db-kpi-value" *ngIf="!loading()">{{ overview()?.active_pipeline ?? '—' }}</div>
+        <div class="db-skel db-skel-sm" *ngIf="loading()"></div>
       </div>
     </div>
   </div>
@@ -58,11 +58,11 @@
         <div class="db-card-title"><i class="fas fa-filter me-2" style="color:#6366f1"></i>Lead Funnel</div>
       </div>
       <div class="db-card-body">
-        <div class="db-skel-list" *ngIf="loading">
+        <div class="db-skel-list" *ngIf="loading()">
           <div class="db-skel" *ngFor="let i of [1,2,3,4,5,6,7]"></div>
         </div>
-        <div *ngIf="!loading">
-          <div class="an-funnel-row" *ngFor="let row of funnelRows; trackBy: trackByFunnel">
+        <div *ngIf="!loading()">
+          <div class="an-funnel-row" *ngFor="let row of funnelRows(); trackBy: trackByFunnel">
             <div class="an-funnel-label">{{ row.stage | titlecase }}</div>
             <div class="an-funnel-track">
               <div class="an-funnel-bar" [style.width.%]="row.pct" [style.background]="row.color">
@@ -80,12 +80,12 @@
         <div class="db-card-title"><i class="fas fa-robot me-2" style="color:#0ea5e9"></i>Agent Performance</div>
       </div>
       <div class="db-card-body" style="padding:0">
-        <div class="db-skel-list" style="padding:1rem" *ngIf="loading">
+        <div class="db-skel-list" style="padding:1rem" *ngIf="loading()">
           <div class="db-skel" *ngFor="let i of [1,2,3]"></div>
         </div>
-        <div class="db-empty" *ngIf="!loading && agents.length === 0">No agent data yet</div>
-        <div class="an-agent-table" *ngIf="!loading && agents.length > 0">
-          <div class="an-agent-row" *ngFor="let a of agents; trackBy: trackByAgent; let i = index">
+        <div class="db-empty" *ngIf="!loading() && agents().length === 0">No agent data yet</div>
+        <div class="an-agent-table" *ngIf="!loading() && agents().length > 0">
+          <div class="an-agent-row" *ngFor="let a of agents(); trackBy: trackByAgent; let i = index">
             <div class="db-agent-rank" [class.db-rank-gold]="i===0" [class.db-rank-silver]="i===1" [class.db-rank-bronze]="i===2">{{ i+1 }}</div>
             <div class="db-agent-avatar"><i class="fas fa-robot"></i></div>
             <div class="db-agent-info">
@@ -102,30 +102,30 @@
     </div>
 
     <!-- Advanced: Velocity + Cost -->
-    <div class="db-card an-velocity" *ngIf="!loading && advanced">
+    <div class="db-card an-velocity" *ngIf="!loading() && advanced()">
       <div class="db-card-header">
         <div class="db-card-title"><i class="fas fa-tachometer-alt me-2" style="color:#f59e0b"></i>Lead Velocity (7d)</div>
       </div>
       <div class="db-card-body">
-        <div class="an-stat-big">{{ advanced.lead_velocity.last_7_days }}</div>
+        <div class="an-stat-big">{{ advanced()!.lead_velocity.last_7_days }}</div>
         <div class="an-stat-sub">leads this week</div>
         <div class="an-stat-row" style="margin-top:1rem">
           <span class="an-stat-label">Daily avg</span>
-          <span class="an-stat-val">{{ advanced.lead_velocity.avg_per_day_7d }}</span>
+          <span class="an-stat-val">{{ advanced()!.lead_velocity.avg_per_day_7d }}</span>
         </div>
       </div>
     </div>
 
-    <div class="db-card an-cost" *ngIf="!loading && advanced">
+    <div class="db-card an-cost" *ngIf="!loading() && advanced()">
       <div class="db-card-header">
         <div class="db-card-title"><i class="fas fa-dollar-sign me-2" style="color:#22c55e"></i>LLM Cost</div>
       </div>
       <div class="db-card-body">
-        <div class="an-stat-big">${{ totalLlmCost.toFixed(4) }}</div>
+        <div class="an-stat-big">${{ totalLlmCost().toFixed(4) }}</div>
         <div class="an-stat-sub">total spend</div>
-        <div class="an-attribution" *ngIf="attrRows.length">
+        <div class="an-attribution" *ngIf="attrRows().length">
           <div class="an-stat-label" style="margin-bottom:0.5rem">Revenue Attribution</div>
-          <div class="an-attr-row" *ngFor="let e of attrRows; trackBy: trackByAttr">
+          <div class="an-attr-row" *ngFor="let e of attrRows(); trackBy: trackByAttr">
             <span class="an-attr-channel">{{ e.channel | titlecase }}</span>
             <div class="an-attr-bar-wrap">
               <div class="an-attr-bar" [style.width.%]="e.pct"></div>
@@ -137,7 +137,7 @@
     </div>
 
     <!-- Cohort Table -->
-    <div class="db-card an-cohort" *ngIf="!loading && cohortRows.length">
+    <div class="db-card an-cohort" *ngIf="!loading() && cohortRows().length">
       <div class="db-card-header">
         <div class="db-card-title"><i class="fas fa-layer-group me-2" style="color:#8b5cf6"></i>Cohort Conversion</div>
       </div>
@@ -147,7 +147,7 @@
             <tr><th>Cohort</th><th>Total</th><th>Converted</th><th>Rate</th></tr>
           </thead>
           <tbody>
-            <tr *ngFor="let e of cohortRows; trackBy: trackByCohort">
+            <tr *ngFor="let e of cohortRows(); trackBy: trackByCohort">
               <td class="an-td-bold">{{ e.key }}</td>
               <td>{{ e.value.total }}</td>
               <td>{{ e.value.converted }}</td>

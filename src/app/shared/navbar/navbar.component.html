@@ -2,11 +2,11 @@
   <!-- Brand -->
   <div class="sidebar-brand">
     <div class="sidebar-logo">
-      <i class="fas {{ (branding.config$ | async)?.logoIcon }}"></i>
+      <i class="fas {{ branding.config().logoIcon }}"></i>
     </div>
     <div class="sidebar-brand-text">
-      <div class="sidebar-app-name">{{ (branding.config$ | async)?.appName }}</div>
-      <div class="sidebar-app-sub">{{ (branding.config$ | async)?.appSub }}</div>
+      <div class="sidebar-app-name">{{ branding.config().appName }}</div>
+      <div class="sidebar-app-sub">{{ branding.config().appSub }}</div>
     </div>
   </div>
 

@@ -57,8 +57,8 @@
         <p class="auth-card-sub">Welcome back — let's grow your pipeline</p>
       </div>
 
-      <div class="auth-error" *ngIf="error">
-        <i class="fas fa-exclamation-circle"></i>{{ error }}
+      <div class="auth-error" *ngIf="error()">
+        <i class="fas fa-exclamation-circle"></i>{{ error() }}
       </div>
 
       <form [formGroup]="form" (ngSubmit)="submit()" autocomplete="on" class="auth-form">
@@ -80,19 +80,19 @@
           </div>
           <div class="af-input-wrap" [class.af-invalid]="form.get('password')?.invalid && form.get('password')?.touched">
             <i class="fas fa-lock af-icon"></i>
-            <input [type]="showPwd ? 'text' : 'password'" class="af-input"
+            <input [type]="showPwd() ? 'text' : 'password'" class="af-input"
                    formControlName="password" placeholder="Your password" autocomplete="current-password">
-            <button type="button" class="af-eye" (click)="showPwd=!showPwd" tabindex="-1">
-              <i class="fas" [class.fa-eye]="!showPwd" [class.fa-eye-slash]="showPwd"></i>
+            <button type="button" class="af-eye" (click)="showPwd.set(!showPwd())" tabindex="-1">
+              <i class="fas" [class.fa-eye]="!showPwd()" [class.fa-eye-slash]="showPwd()"></i>
             </button>
           </div>
           <span class="af-err" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">Password is required</span>
         </div>
 
-        <button class="af-submit" type="submit" [disabled]="loading || form.invalid">
-          <span class="af-spinner" *ngIf="loading"></span>
-          <span>{{ loading ? 'Signing in…' : 'Sign In' }}</span>
-          <i class="fas fa-arrow-right ms-2" *ngIf="!loading"></i>
+        <button class="af-submit" type="submit" [disabled]="loading() || form.invalid">
+          <span class="af-spinner" *ngIf="loading()"></span>
+          <span>{{ loading() ? 'Signing in…' : 'Sign In' }}</span>
+          <i class="fas fa-arrow-right ms-2" *ngIf="!loading()"></i>
         </button>
 
       </form>

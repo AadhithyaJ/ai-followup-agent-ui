@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import {
@@ -12,61 +12,63 @@ type AdminTab = 'flags' | 'config' | 'prompts' | 'usage' | 'nba' | 'autopilot' |
 @Component({
   selector: 'app-admin',
   standalone: false,
-  templateUrl: './admin.component.html'
+  templateUrl: './admin.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminComponent implements OnInit {
-  activeTab: AdminTab = 'flags';
+  activeTab = signal<AdminTab>('flags');
 
   /* ── Feature Flags ── */
-  flags: FeatureFlags = {};
-  flagsLoading = false;
+  flags        = signal<FeatureFlags>({});
+  flagsLoading = signal(false);
+  flagMsg      = signal('');
   flagForm: FormGroup;
-  flagMsg = '';
 
   /* ── Dynamic Config ── */
-  config: DynamicConfig = {};
-  configAudit: ConfigAuditEntry[] = [];
+  config        = signal<DynamicConfig>({});
+  configAudit   = signal<ConfigAuditEntry[]>([]);
+  configMsg     = signal('');
+  configLoading = signal(false);
   configForm: FormGroup;
-  configMsg = '';
-  configLoading = false;
 
   /* ── Prompts ── */
-  promptNames: string[] = [];
-  selectedPrompt: Prompt | null = null;
-  promptHistory: PromptHistory[] = [];
-  promptDiff = '';
+  promptNames    = signal<string[]>([]);
+  selectedPrompt = signal<Prompt | null>(null);
+  promptHistory  = signal<PromptHistory[]>([]);
+  promptDiff     = signal('');
+  promptMsg      = signal('');
+  promptLoading  = signal(false);
+  diffV1         = signal(1);
+  diffV2         = signal(2);
   promptForm: FormGroup;
-  promptMsg = '';
-  promptLoading = false;
-  diffV1 = 1; diffV2 = 2;
 
   /* ── Usage ── */
-  usage: UsageEntry[] = [];
-  usageLoading = false;
+  usage       = signal<UsageEntry[]>([]);
+  usageLoading = signal(false);
+  usageMsg    = signal('');
   limitForm: FormGroup;
   topupForm: FormGroup;
-  usageMsg = '';
 
   /* ── NBA / Leaderboard ── */
-  leaderboard: LeaderboardEntry[] = [];
-  leaderboardLoading = false;
-  nbaLeadId = '';
-  nbaResult: any = null;
-  nbaLoading = false;
+  leaderboard        = signal<LeaderboardEntry[]>([]);
+  leaderboardLoading = signal(false);
+  nbaLeadId          = signal('');
+  nbaResult          = signal<any>(null);
+  nbaLoading         = signal(false);
 
   /* ── A/B Testing ── */
-  abExperimentName = '';
-  abReport: ABReport | null = null;
-  abLoading = false;
+  abExperimentName = signal('');
+  abReport         = signal<ABReport | null>(null);
+  abLoading        = signal(false);
 
   /* ── Autopilot / Orchestrate ── */
-  autopilotResult: AutopilotResult | null = null;
-  autopilotLoading = false;
+  autopilotResult    = signal<AutopilotResult | null>(null);
+  autopilotLoading   = signal(false);
+  orchestrateResult  = signal<OrchestrateResult | null>(null);
+  orchestrateLoading = signal(false);
   orchestrateForm: FormGroup;
-  orchestrateResult: OrchestrateResult | null = null;
-  orchestrateLoading = false;
 
-  constructor(private api: ApiService, private fb: FormBuilder, private cdr: ChangeDetectorRef) {
+  constructor(private api: ApiService, private fb: FormBuilder) {
     this.flagForm = this.fb.group({
       flag: ['', Validators.required],
       enabled: [true],
@@ -101,7 +103,7 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void { this.loadFlags(); }
 
   setTab(tab: AdminTab): void {
-    this.activeTab = tab;
+    this.activeTab.set(tab);
     if (tab === 'flags') this.loadFlags();
     if (tab === 'config') { this.loadConfig(); this.loadConfigAudit(); }
     if (tab === 'prompts') this.loadPromptNames();
@@ -111,41 +113,43 @@ export class AdminComponent implements OnInit {
 
   /* ── Flags ── */
   loadFlags(): void {
-    this.flagsLoading = true;
+    this.flagsLoading.set(true);
     this.api.getFlags().subscribe({
-      next: d => { this.flags = d; this.flagsLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.flagsLoading = false; this.cdr.detectChanges(); }
+      next: d => { this.flags.set(d); this.flagsLoading.set(false); },
+      error: () => { this.flagsLoading.set(false); }
     });
   }
 
   flagEntries(): { key: string; value: boolean }[] {
-    return Object.entries(this.flags).map(([key, value]) => ({ key, value }));
+    return Object.entries(this.flags()).map(([key, value]) => ({ key, value }));
   }
 
   quickToggle(key: string, value: boolean): void {
-    this.api.updateFlag({ flag: key, enabled: !value }).subscribe({ next: () => { this.flags[key] = !value; } });
+    this.api.updateFlag({ flag: key, enabled: !value }).subscribe({
+      next: () => { this.flags.update(f => ({ ...f, [key]: !value })); }
+    });
   }
 
   saveFlag(): void {
     const body = { ...this.flagForm.value };
     try { body.value = JSON.parse(body.value); } catch {}
     this.api.updateFlag(body).subscribe({
-      next: () => { this.flagMsg = 'Flag updated.'; this.loadFlags(); },
-      error: () => { this.flagMsg = 'Failed to update flag.'; }
+      next: () => { this.flagMsg.set('Flag updated.'); this.loadFlags(); },
+      error: () => { this.flagMsg.set('Failed to update flag.'); }
     });
   }
 
   /* ── Config ── */
   loadConfig(): void {
-    this.configLoading = true;
+    this.configLoading.set(true);
     this.api.getConfig().subscribe({
-      next: d => { this.config = d; this.configLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.configLoading = false; this.cdr.detectChanges(); }
+      next: d => { this.config.set(d); this.configLoading.set(false); },
+      error: () => { this.configLoading.set(false); }
     });
   }
 
   loadConfigAudit(): void {
-    this.api.getConfigAudit().subscribe({ next: d => this.configAudit = d });
+    this.api.getConfigAudit().subscribe({ next: d => this.configAudit.set(d) });
   }
 
   configEntries(): { key: string; value: any }[] {
@@ -155,134 +159,135 @@ export class AdminComponent implements OnInit {
           ? flatten(v, prefix ? `${prefix}.${k}` : k)
           : [{ key: prefix ? `${prefix}.${k}` : k, value: v }]
       );
-    return flatten(this.config);
+    return flatten(this.config());
   }
 
   setConfig(): void {
     const body = { path: this.configForm.value.path, value: this.configForm.value.value };
     try { body.value = JSON.parse(body.value); } catch {}
     this.api.setConfig(body).subscribe({
-      next: () => { this.configMsg = 'Config updated.'; this.loadConfig(); this.loadConfigAudit(); },
-      error: () => { this.configMsg = 'Failed to update config.'; }
+      next: () => { this.configMsg.set('Config updated.'); this.loadConfig(); this.loadConfigAudit(); },
+      error: () => { this.configMsg.set('Failed to update config.'); }
     });
   }
 
   deleteConfig(path: string): void {
     if (!confirm(`Delete config override "${path}"?`)) return;
-    this.api.deleteConfig(path).subscribe({ next: () => { this.configMsg = 'Deleted.'; this.loadConfig(); } });
+    this.api.deleteConfig(path).subscribe({ next: () => { this.configMsg.set('Deleted.'); this.loadConfig(); } });
   }
 
   /* ── Prompts ── */
   loadPromptNames(): void {
-    this.promptLoading = true;
+    this.promptLoading.set(true);
     this.api.getPromptNames().subscribe({
-      next: d => { this.promptNames = d; this.promptLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.promptLoading = false; this.cdr.detectChanges(); }
+      next: d => { this.promptNames.set(d); this.promptLoading.set(false); },
+      error: () => { this.promptLoading.set(false); }
     });
   }
 
   selectPrompt(name: string): void {
     this.api.getPrompt(name).subscribe({ next: p => {
-      this.selectedPrompt = p;
+      this.selectedPrompt.set(p);
       this.promptForm.patchValue({ name: p.name, content: p.content, note: '' });
     }});
-    this.api.getPromptHistory(name).subscribe({ next: h => this.promptHistory = h });
-    this.promptDiff = '';
+    this.api.getPromptHistory(name).subscribe({ next: h => this.promptHistory.set(h) });
+    this.promptDiff.set('');
   }
 
   savePrompt(): void {
-    this.promptLoading = true;
+    this.promptLoading.set(true);
     this.api.upsertPrompt(this.promptForm.value).subscribe({
-      next: () => { this.promptMsg = 'Prompt saved.'; this.promptLoading = false; this.loadPromptNames(); },
-      error: () => { this.promptMsg = 'Save failed.'; this.promptLoading = false; }
+      next: () => { this.promptMsg.set('Prompt saved.'); this.promptLoading.set(false); this.loadPromptNames(); },
+      error: () => { this.promptMsg.set('Save failed.'); this.promptLoading.set(false); }
     });
   }
 
   rollbackPrompt(name: string, version: number): void {
     this.api.rollbackPrompt(name, version).subscribe({
-      next: () => { this.promptMsg = `Rolled back to v${version}.`; this.selectPrompt(name); }
+      next: () => { this.promptMsg.set(`Rolled back to v${version}.`); this.selectPrompt(name); }
     });
   }
 
   fetchDiff(): void {
-    if (!this.selectedPrompt) return;
-    this.api.getPromptDiff(this.selectedPrompt.name, this.diffV1, this.diffV2).subscribe({
-      next: r => this.promptDiff = r.diff
+    const sp = this.selectedPrompt();
+    if (!sp) return;
+    this.api.getPromptDiff(sp.name, this.diffV1(), this.diffV2()).subscribe({
+      next: r => this.promptDiff.set(r.diff)
     });
   }
 
   /* ── Usage ── */
   loadUsage(): void {
-    this.usageLoading = true;
+    this.usageLoading.set(true);
     this.api.getUsage().subscribe({
-      next: d => { this.usage = d; this.usageLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.usageLoading = false; this.cdr.detectChanges(); }
+      next: d => { this.usage.set(d); this.usageLoading.set(false); },
+      error: () => { this.usageLoading.set(false); }
     });
   }
 
   updateLimit(): void {
     const { limit_name, value } = this.limitForm.value;
     this.api.updateLimit(limit_name, +value).subscribe({
-      next: () => { this.usageMsg = 'Limit updated.'; this.loadUsage(); }
+      next: () => { this.usageMsg.set('Limit updated.'); this.loadUsage(); }
     });
   }
 
   topUp(): void {
     const { limit_name, extra } = this.topupForm.value;
     this.api.topUpQuota(limit_name, +extra).subscribe({
-      next: () => { this.usageMsg = 'Quota topped up.'; this.loadUsage(); }
+      next: () => { this.usageMsg.set('Quota topped up.'); this.loadUsage(); }
     });
   }
 
   /* ── NBA / Leaderboard ── */
   loadLeaderboard(): void {
-    this.leaderboardLoading = true;
+    this.leaderboardLoading.set(true);
     this.api.getLeaderboard().subscribe({
-      next: d => { this.leaderboard = d.leaderboard; this.leaderboardLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.leaderboardLoading = false; this.cdr.detectChanges(); }
+      next: d => { this.leaderboard.set(d.leaderboard); this.leaderboardLoading.set(false); },
+      error: () => { this.leaderboardLoading.set(false); }
     });
   }
 
   fetchNBA(): void {
-    if (!this.nbaLeadId.trim()) return;
-    this.nbaLoading = true;
-    this.api.getNBA(this.nbaLeadId.trim()).subscribe({
-      next: r => { this.nbaResult = r; this.nbaLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.nbaLoading = false; this.cdr.detectChanges(); }
+    if (!this.nbaLeadId().trim()) return;
+    this.nbaLoading.set(true);
+    this.api.getNBA(this.nbaLeadId().trim()).subscribe({
+      next: r => { this.nbaResult.set(r); this.nbaLoading.set(false); },
+      error: () => { this.nbaLoading.set(false); }
     });
   }
 
   /* ── A/B Testing ── */
   fetchABReport(): void {
-    if (!this.abExperimentName.trim()) return;
-    this.abLoading = true;
-    this.abReport = null;
-    this.api.getABReport(this.abExperimentName.trim()).subscribe({
-      next: r => { this.abReport = r; this.abLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.abLoading = false; this.cdr.detectChanges(); }
+    if (!this.abExperimentName().trim()) return;
+    this.abLoading.set(true);
+    this.abReport.set(null);
+    this.api.getABReport(this.abExperimentName().trim()).subscribe({
+      next: r => { this.abReport.set(r); this.abLoading.set(false); },
+      error: () => { this.abLoading.set(false); }
     });
   }
 
   /* ── Autopilot / Orchestrate ── */
   runAutopilot(dryRun: boolean): void {
-    this.autopilotLoading = true;
-    this.autopilotResult = null;
+    this.autopilotLoading.set(true);
+    this.autopilotResult.set(null);
     this.api.runAutopilot(dryRun).subscribe({
-      next: r => { this.autopilotResult = r; this.autopilotLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.autopilotLoading = false; this.cdr.detectChanges(); }
+      next: r => { this.autopilotResult.set(r); this.autopilotLoading.set(false); },
+      error: () => { this.autopilotLoading.set(false); }
     });
   }
 
   orchestrate(): void {
-    this.orchestrateLoading = true;
-    this.orchestrateResult = null;
+    this.orchestrateLoading.set(true);
+    this.orchestrateResult.set(null);
     const { message, lead_id, phone, email } = this.orchestrateForm.value;
     const context: any = {};
     if (phone) context['phone'] = phone;
     if (email) context['email'] = email;
     this.api.orchestrate({ message, lead_id: lead_id || undefined, context }).subscribe({
-      next: r => { this.orchestrateResult = r; this.orchestrateLoading = false; this.cdr.detectChanges(); },
-      error: () => { this.orchestrateLoading = false; this.cdr.detectChanges(); }
+      next: r => { this.orchestrateResult.set(r); this.orchestrateLoading.set(false); },
+      error: () => { this.orchestrateLoading.set(false); }
     });
   }
 }

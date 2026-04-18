@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { Workflow, WorkflowTestResult } from '../../core/models/workflow.model';
@@ -6,23 +6,25 @@ import { Workflow, WorkflowTestResult } from '../../core/models/workflow.model';
 @Component({
   selector: 'app-workflows',
   standalone: false,
-  templateUrl: './workflows.component.html'
+  templateUrl: './workflows.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowsComponent implements OnInit {
-  workflows: Workflow[] = [];
-  loading = false;
-  error = '';
-  successMsg = '';
+  workflows  = signal<Workflow[]>([]);
+  loading    = signal(false);
+  error      = signal('');
+  successMsg = signal('');
 
-  showForm = false;
-  editingId: string | null = null;
+  showForm   = signal(false);
+  editingId  = signal<string | null>(null);
+  formLoading = signal(false);
+  formError   = signal('');
+
+  testResult  = signal<WorkflowTestResult | null>(null);
+  testLeadId  = signal('');
+  testingId   = signal<string | null>(null);
+
   form: FormGroup;
-  formLoading = false;
-  formError = '';
-
-  testResult: WorkflowTestResult | null = null;
-  testLeadId = '';
-  testingId: string | null = null;
 
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -48,24 +50,24 @@ export class WorkflowsComponent implements OnInit {
   removeStep(i: number): void { this.steps.removeAt(i); }
 
   loadWorkflows(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.api.getWorkflows().subscribe({
-      next: d => { this.workflows = d; this.loading = false; },
-      error: () => { this.error = 'Failed to load workflows.'; this.loading = false; }
+      next: d => { this.workflows.set(d); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load workflows.'); this.loading.set(false); }
     });
   }
 
   openCreate(): void {
-    this.editingId = null;
+    this.editingId.set(null);
     this.form.reset({ name: '', trigger: '', description: '' });
     this.steps.clear();
     this.addStep();
-    this.showForm = true;
-    this.formError = '';
+    this.showForm.set(true);
+    this.formError.set('');
   }
 
   openEdit(wf: Workflow): void {
-    this.editingId = wf.id;
+    this.editingId.set(wf.id);
     this.form.patchValue({ name: wf.name, trigger: wf.trigger, description: wf.description });
     this.steps.clear();
     (wf.steps || []).forEach(s => {
@@ -75,32 +77,32 @@ export class WorkflowsComponent implements OnInit {
         message_template: [s.message_template || '']
       }));
     });
-    this.showForm = true;
-    this.formError = '';
+    this.showForm.set(true);
+    this.formError.set('');
   }
 
-  cancelForm(): void { this.showForm = false; this.editingId = null; }
+  cancelForm(): void { this.showForm.set(false); this.editingId.set(null); }
 
   save(): void {
     if (this.form.invalid) return;
-    this.formLoading = true;
-    this.formError = '';
+    this.formLoading.set(true);
+    this.formError.set('');
     const payload = this.form.value;
 
-    const req$ = this.editingId
-      ? this.api.updateWorkflow(this.editingId, payload)
+    const req$ = this.editingId()
+      ? this.api.updateWorkflow(this.editingId()!, payload)
       : this.api.createWorkflow(payload);
 
     req$.subscribe({
       next: () => {
-        this.successMsg = this.editingId ? 'Workflow updated.' : 'Workflow created.';
-        this.formLoading = false;
-        this.showForm = false;
+        this.successMsg.set(this.editingId() ? 'Workflow updated.' : 'Workflow created.');
+        this.formLoading.set(false);
+        this.showForm.set(false);
         this.loadWorkflows();
       },
       error: err => {
-        this.formError = err?.error?.detail || 'Save failed.';
-        this.formLoading = false;
+        this.formError.set(err?.error?.detail || 'Save failed.');
+        this.formLoading.set(false);
       }
     });
   }
@@ -108,25 +110,25 @@ export class WorkflowsComponent implements OnInit {
   toggleActive(wf: Workflow): void {
     this.api.updateWorkflow(wf.id, { is_active: !wf.is_active }).subscribe({
       next: () => { wf.is_active = !wf.is_active; },
-      error: () => { this.error = 'Failed to toggle workflow.'; }
+      error: () => { this.error.set('Failed to toggle workflow.'); }
     });
   }
 
   delete(wf: Workflow): void {
     if (!confirm(`Delete workflow "${wf.name}"?`)) return;
     this.api.deleteWorkflow(wf.id).subscribe({
-      next: () => { this.successMsg = 'Workflow deleted.'; this.loadWorkflows(); },
-      error: () => { this.error = 'Delete failed.'; }
+      next: () => { this.successMsg.set('Workflow deleted.'); this.loadWorkflows(); },
+      error: () => { this.error.set('Delete failed.'); }
     });
   }
 
   test(wf: Workflow): void {
-    if (!this.testLeadId.trim()) { alert('Enter a lead ID to test against.'); return; }
-    this.testingId = wf.id;
-    this.testResult = null;
-    this.api.testWorkflow(wf.id, this.testLeadId.trim()).subscribe({
-      next: res => { this.testResult = res; this.testingId = null; },
-      error: () => { this.error = 'Test failed.'; this.testingId = null; }
+    if (!this.testLeadId().trim()) { alert('Enter a lead ID to test against.'); return; }
+    this.testingId.set(wf.id);
+    this.testResult.set(null);
+    this.api.testWorkflow(wf.id, this.testLeadId().trim()).subscribe({
+      next: res => { this.testResult.set(res); this.testingId.set(null); },
+      error: () => { this.error.set('Test failed.'); this.testingId.set(null); }
     });
   }
 }

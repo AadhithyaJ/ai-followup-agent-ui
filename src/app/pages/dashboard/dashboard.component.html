@@ -4,12 +4,12 @@
   <div class="db-topbar">
     <div>
       <h4 class="db-page-title">Dashboard</h4>
-      <p class="db-page-sub">{{ now | date:'EEEE, MMMM d · h:mm a' }}</p>
+      <p class="db-page-sub">{{ now() | date:'EEEE, MMMM d · h:mm a' }}</p>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <span *ngIf="error" class="db-err-pill"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</span>
-      <button class="db-refresh-btn" (click)="load()" [disabled]="loading">
-        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+      <span *ngIf="error()" class="db-err-pill"><i class="fas fa-exclamation-circle me-1"></i>{{ error() }}</span>
+      <button class="db-refresh-btn" (click)="load()" [disabled]="loading()">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading()"></i>
         Refresh
       </button>
     </div>
@@ -24,8 +24,8 @@
       </div>
       <div class="db-kpi-body">
         <div class="db-kpi-label">Total Leads</div>
-        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.total_leads ?? '—' }}</div>
-        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+        <div class="db-kpi-value" *ngIf="!loading()">{{ overview()?.total_leads ?? '—' }}</div>
+        <div class="db-skel db-skel-sm" *ngIf="loading()"></div>
       </div>
       <div class="db-kpi-badge" style="color:#6366f1;background:rgba(99,102,241,0.08)">
         <i class="fas fa-arrow-up me-1"></i>All time
@@ -38,8 +38,8 @@
       </div>
       <div class="db-kpi-body">
         <div class="db-kpi-label">Conversion Rate</div>
-        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.conversion_rate ?? '—' }}<span class="db-kpi-unit">%</span></div>
-        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+        <div class="db-kpi-value" *ngIf="!loading()">{{ overview()?.conversion_rate ?? '—' }}<span class="db-kpi-unit">%</span></div>
+        <div class="db-skel db-skel-sm" *ngIf="loading()"></div>
       </div>
       <div class="db-kpi-badge" style="color:#22c55e;background:rgba(34,197,94,0.08)">
         <i class="fas fa-star me-1"></i>Target 30%
@@ -52,8 +52,8 @@
       </div>
       <div class="db-kpi-body">
         <div class="db-kpi-label">Avg Response</div>
-        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.avg_response_time ?? '—' }}<span class="db-kpi-unit">s</span></div>
-        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+        <div class="db-kpi-value" *ngIf="!loading()">{{ overview()?.avg_response_time ?? '—' }}<span class="db-kpi-unit">s</span></div>
+        <div class="db-skel db-skel-sm" *ngIf="loading()"></div>
       </div>
       <div class="db-kpi-badge" style="color:#f59e0b;background:rgba(245,158,11,0.08)">
         <i class="fas fa-clock me-1"></i>Speed
@@ -66,8 +66,8 @@
       </div>
       <div class="db-kpi-body">
         <div class="db-kpi-label">Active Pipeline</div>
-        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.active_pipeline ?? '—' }}</div>
-        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+        <div class="db-kpi-value" *ngIf="!loading()">{{ overview()?.active_pipeline ?? '—' }}</div>
+        <div class="db-skel db-skel-sm" *ngIf="loading()"></div>
       </div>
       <div class="db-kpi-badge" style="color:#0ea5e9;background:rgba(14,165,233,0.08)">
         <i class="fas fa-circle me-1"></i>Live
@@ -86,11 +86,11 @@
         <a routerLink="/analytics" class="db-card-link">Details <i class="fas fa-arrow-right ms-1"></i></a>
       </div>
       <div class="db-card-body">
-        <div *ngIf="loading" class="db-skel-list">
+        <div *ngIf="loading()" class="db-skel-list">
           <div class="db-skel" *ngFor="let i of [1,2,3,4,5,6]"></div>
         </div>
-        <div *ngIf="!loading" class="db-funnel-list">
-          <div class="db-funnel-row" *ngFor="let s of funnelRows; trackBy: trackByFunnel">
+        <div *ngIf="!loading()" class="db-funnel-list">
+          <div class="db-funnel-row" *ngFor="let s of funnelRows(); trackBy: trackByFunnel">
             <div class="db-funnel-label">{{ s.label }}</div>
             <div class="db-funnel-bar-wrap">
               <div class="db-funnel-bar" [style.width.%]="s.pct" [style.background]="s.color"></div>
@@ -127,15 +127,15 @@
         </div>
 
         <!-- Top Agent -->
-        <div class="db-top-agent" *ngIf="!loading && bestAgent">
+        <div class="db-top-agent" *ngIf="!loading() && bestAgent()">
           <div class="db-top-agent-label">Top Performer</div>
           <div class="db-top-agent-row">
             <div class="db-top-agent-avatar">
               <i class="fas fa-robot"></i>
             </div>
             <div>
-              <div class="db-top-agent-name">{{ bestAgent.agent }}</div>
-              <div class="db-top-agent-stat">{{ bestAgent.conv_rate }}% conversion · {{ bestAgent.conversions }} deals</div>
+              <div class="db-top-agent-name">{{ bestAgent()!.agent }}</div>
+              <div class="db-top-agent-stat">{{ bestAgent()!.conv_rate }}% conversion · {{ bestAgent()!.conversions }} deals</div>
             </div>
             <div class="db-top-agent-crown ms-auto"><i class="fas fa-crown" style="color:#f59e0b"></i></div>
           </div>
@@ -150,12 +150,12 @@
         <a routerLink="/analytics" class="db-card-link">All agents <i class="fas fa-arrow-right ms-1"></i></a>
       </div>
       <div class="db-card-body">
-        <div *ngIf="loading" class="db-skel-list">
+        <div *ngIf="loading()" class="db-skel-list">
           <div class="db-skel" *ngFor="let i of [1,2,3]"></div>
         </div>
-        <div *ngIf="!loading && !agents.length" class="db-empty">No agent data yet</div>
-        <div class="db-agent-list" *ngIf="!loading && agents.length">
-          <div class="db-agent-row" *ngFor="let a of agents; trackBy: trackByAgent; let i = index">
+        <div *ngIf="!loading() && !agents().length" class="db-empty">No agent data yet</div>
+        <div class="db-agent-list" *ngIf="!loading() && agents().length">
+          <div class="db-agent-row" *ngFor="let a of agents(); trackBy: trackByAgent; let i = index">
             <div class="db-agent-rank" [class.db-rank-gold]="i===0" [class.db-rank-silver]="i===1" [class.db-rank-bronze]="i===2">
               {{ i + 1 }}
             </div>
