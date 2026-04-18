@@ -21,7 +21,7 @@ export class AnalyticsComponent implements OnInit {
 
   funnelRows: FunnelRow[] = [];
   attrRows: AttrRow[] = [];
-  cohortRows: { key: string; value: number }[] = [];
+  cohortRows: { key: string; value: { total: number; converted: number; rate: number } }[] = [];
   totalLlmCost = 0;
 
   private readonly FUNNEL_COLORS: Record<string, string> = {
@@ -83,7 +83,7 @@ export class AnalyticsComponent implements OnInit {
     return 'rgba(239,68,68,0.12)';
   }
 
-  trackByAgent(_: number, a: AgentPerformance): string { return a.agent_id; }
+  trackByAgent(_: number, a: AgentPerformance): string { return a.agent; }
   trackByFunnel(_: number, f: FunnelRow): string { return f.stage; }
   trackByAttr(_: number, a: AttrRow): string { return a.channel; }
   trackByCohort(_: number, c: { key: string }): string { return c.key; }

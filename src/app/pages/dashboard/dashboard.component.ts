@@ -66,6 +66,6 @@ export class DashboardComponent implements OnInit {
     }));
   }
 
-  trackByAgent(_: number, a: AgentPerformance): string { return a.agent_id; }
+  trackByAgent(_: number, a: AgentPerformance): string { return a.agent; }
   trackByFunnel(_: number, f: FunnelStage): string { return f.key; }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import {
@@ -66,7 +66,7 @@ export class AdminComponent implements OnInit {
   orchestrateResult: OrchestrateResult | null = null;
   orchestrateLoading = false;
 
-  constructor(private api: ApiService, private fb: FormBuilder) {
+  constructor(private api: ApiService, private fb: FormBuilder, private cdr: ChangeDetectorRef) {
     this.flagForm = this.fb.group({
       flag: ['', Validators.required],
       enabled: [true],
@@ -112,7 +112,10 @@ export class AdminComponent implements OnInit {
   /* ── Flags ── */
   loadFlags(): void {
     this.flagsLoading = true;
-    this.api.getFlags().subscribe({ next: d => { this.flags = d; this.flagsLoading = false; }, error: () => this.flagsLoading = false });
+    this.api.getFlags().subscribe({
+      next: d => { this.flags = d; this.flagsLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.flagsLoading = false; this.cdr.detectChanges(); }
+    });
   }
 
   flagEntries(): { key: string; value: boolean }[] {
@@ -135,7 +138,10 @@ export class AdminComponent implements OnInit {
   /* ── Config ── */
   loadConfig(): void {
     this.configLoading = true;
-    this.api.getConfig().subscribe({ next: d => { this.config = d; this.configLoading = false; }, error: () => this.configLoading = false });
+    this.api.getConfig().subscribe({
+      next: d => { this.config = d; this.configLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.configLoading = false; this.cdr.detectChanges(); }
+    });
   }
 
   loadConfigAudit(): void {
@@ -169,7 +175,10 @@ export class AdminComponent implements OnInit {
   /* ── Prompts ── */
   loadPromptNames(): void {
     this.promptLoading = true;
-    this.api.getPromptNames().subscribe({ next: d => { this.promptNames = d; this.promptLoading = false; }, error: () => this.promptLoading = false });
+    this.api.getPromptNames().subscribe({
+      next: d => { this.promptNames = d; this.promptLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.promptLoading = false; this.cdr.detectChanges(); }
+    });
   }
 
   selectPrompt(name: string): void {
@@ -205,7 +214,10 @@ export class AdminComponent implements OnInit {
   /* ── Usage ── */
   loadUsage(): void {
     this.usageLoading = true;
-    this.api.getUsage().subscribe({ next: d => { this.usage = d; this.usageLoading = false; }, error: () => this.usageLoading = false });
+    this.api.getUsage().subscribe({
+      next: d => { this.usage = d; this.usageLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.usageLoading = false; this.cdr.detectChanges(); }
+    });
   }
 
   updateLimit(): void {
@@ -226,8 +238,8 @@ export class AdminComponent implements OnInit {
   loadLeaderboard(): void {
     this.leaderboardLoading = true;
     this.api.getLeaderboard().subscribe({
-      next: d => { this.leaderboard = d.leaderboard; this.leaderboardLoading = false; },
-      error: () => this.leaderboardLoading = false
+      next: d => { this.leaderboard = d.leaderboard; this.leaderboardLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.leaderboardLoading = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -235,8 +247,8 @@ export class AdminComponent implements OnInit {
     if (!this.nbaLeadId.trim()) return;
     this.nbaLoading = true;
     this.api.getNBA(this.nbaLeadId.trim()).subscribe({
-      next: r => { this.nbaResult = r; this.nbaLoading = false; },
-      error: () => this.nbaLoading = false
+      next: r => { this.nbaResult = r; this.nbaLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.nbaLoading = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -246,8 +258,8 @@ export class AdminComponent implements OnInit {
     this.abLoading = true;
     this.abReport = null;
     this.api.getABReport(this.abExperimentName.trim()).subscribe({
-      next: r => { this.abReport = r; this.abLoading = false; },
-      error: () => this.abLoading = false
+      next: r => { this.abReport = r; this.abLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.abLoading = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -256,8 +268,8 @@ export class AdminComponent implements OnInit {
     this.autopilotLoading = true;
     this.autopilotResult = null;
     this.api.runAutopilot(dryRun).subscribe({
-      next: r => { this.autopilotResult = r; this.autopilotLoading = false; },
-      error: () => this.autopilotLoading = false
+      next: r => { this.autopilotResult = r; this.autopilotLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.autopilotLoading = false; this.cdr.detectChanges(); }
     });
   }
 
@@ -269,8 +281,8 @@ export class AdminComponent implements OnInit {
     if (phone) context['phone'] = phone;
     if (email) context['email'] = email;
     this.api.orchestrate({ message, lead_id: lead_id || undefined, context }).subscribe({
-      next: r => { this.orchestrateResult = r; this.orchestrateLoading = false; },
-      error: () => this.orchestrateLoading = false
+      next: r => { this.orchestrateResult = r; this.orchestrateLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.orchestrateLoading = false; this.cdr.detectChanges(); }
     });
   }
 }
