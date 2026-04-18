@@ -1,554 +1,566 @@
-<div class="container-fluid py-4">
+<div class="page-root">
 
-  <h4 class="fw-bold mb-4"><i class="fas fa-cogs me-2 text-primary"></i>Admin Panel</h4>
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h4 class="page-title">Admin Panel</h4>
+      <p class="page-sub">System control, configuration &amp; AI orchestration</p>
+    </div>
+  </div>
 
-  <!-- Tab Nav -->
-  <ul class="nav nav-tabs mb-4">
-    <li class="nav-item">
-      <button class="nav-link" [class.active]="activeTab==='flags'" (click)="setTab('flags')">
-        <i class="fas fa-toggle-on me-1"></i>Feature Flags
-      </button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" [class.active]="activeTab==='config'" (click)="setTab('config')">
-        <i class="fas fa-sliders-h me-1"></i>Config
-      </button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" [class.active]="activeTab==='prompts'" (click)="setTab('prompts')">
-        <i class="fas fa-file-alt me-1"></i>Prompts
-      </button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" [class.active]="activeTab==='usage'" (click)="setTab('usage')">
-        <i class="fas fa-tachometer-alt me-1"></i>Usage & Quota
-      </button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" [class.active]="activeTab==='nba'" (click)="setTab('nba')">
-        <i class="fas fa-trophy me-1"></i>NBA & Leaderboard
-      </button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" [class.active]="activeTab==='autopilot'" (click)="setTab('autopilot')">
-        <i class="fas fa-rocket me-1"></i>Autopilot
-      </button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" [class.active]="activeTab==='abtest'" (click)="setTab('abtest')">
-        <i class="fas fa-flask me-1"></i>A/B Testing
-      </button>
-    </li>
-  </ul>
+  <!-- Shell -->
+  <div class="adm-shell">
 
-  <!-- ── Feature Flags Tab ── -->
-  <div *ngIf="activeTab==='flags'">
-    <div class="row g-4">
-      <div class="col-12 col-lg-6">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold d-flex justify-content-between">
-            <span><i class="fas fa-toggle-on me-2 text-success"></i>Current Flags</span>
-            <button class="btn btn-sm btn-outline-secondary" (click)="loadFlags()">
-              <i class="fas fa-sync-alt"></i>
-            </button>
+    <!-- ── Sidebar ───────────────────────────────────────────── -->
+    <nav class="adm-sidebar">
+      <div class="adm-group-label">Operations</div>
+      <button class="adm-nav-btn" [class.adm-active]="activeTab==='flags'" (click)="setTab('flags')">
+        <i class="fas fa-toggle-on"></i>Feature Flags
+      </button>
+      <button class="adm-nav-btn" [class.adm-active]="activeTab==='config'" (click)="setTab('config')">
+        <i class="fas fa-sliders-h"></i>Config
+      </button>
+      <button class="adm-nav-btn" [class.adm-active]="activeTab==='prompts'" (click)="setTab('prompts')">
+        <i class="fas fa-file-alt"></i>Prompts
+      </button>
+      <button class="adm-nav-btn" [class.adm-active]="activeTab==='usage'" (click)="setTab('usage')">
+        <i class="fas fa-tachometer-alt"></i>Usage &amp; Quota
+      </button>
+
+      <div class="adm-group-label" style="margin-top:1rem">Intelligence</div>
+      <button class="adm-nav-btn" [class.adm-active]="activeTab==='nba'" (click)="setTab('nba')">
+        <i class="fas fa-trophy"></i>NBA &amp; Leaderboard
+      </button>
+      <button class="adm-nav-btn" [class.adm-active]="activeTab==='autopilot'" (click)="setTab('autopilot')">
+        <i class="fas fa-rocket"></i>Autopilot
+      </button>
+      <button class="adm-nav-btn" [class.adm-active]="activeTab==='abtest'" (click)="setTab('abtest')">
+        <i class="fas fa-flask"></i>A/B Testing
+      </button>
+    </nav>
+
+    <!-- ── Content ───────────────────────────────────────────── -->
+    <div class="adm-content">
+
+      <!-- ══ FEATURE FLAGS ══════════════════════════════════════ -->
+      <div *ngIf="activeTab==='flags'">
+        <div class="adm-panel-header">
+          <div class="adm-panel-icon" style="background:rgba(34,197,94,0.1);color:#22c55e"><i class="fas fa-toggle-on"></i></div>
+          <div>
+            <div class="adm-panel-title">Feature Flags</div>
+            <div class="adm-panel-sub">Toggle features without deployment</div>
           </div>
-          <div class="card-body p-0">
-            <div *ngIf="flagsLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>
-            <table class="table mb-0" *ngIf="!flagsLoading">
-              <tbody>
-                <tr *ngFor="let f of flagEntries()">
-                  <td class="fw-semibold">{{ f.key }}</td>
-                  <td>
-                    <span class="badge" [ngClass]="f.value ? 'bg-success' : 'bg-secondary'">
-                      {{ f.value ? 'Enabled' : 'Disabled' }}
+          <button class="adm-icon-btn ms-auto" (click)="loadFlags()" title="Refresh">
+            <i class="fas fa-sync-alt" [class.fa-spin]="flagsLoading"></i>
+          </button>
+        </div>
+
+        <div class="adm-grid-2">
+          <!-- Flags list -->
+          <div class="adm-card">
+            <div class="adm-card-title">Active Flags</div>
+            <div *ngIf="flagsLoading" class="adm-skel-wrap">
+              <div class="db-skel" *ngFor="let i of [1,2,3]"></div>
+            </div>
+            <div class="adm-empty" *ngIf="!flagsLoading && flagEntries().length===0">No flags configured.</div>
+            <div class="adm-flag-list" *ngIf="!flagsLoading">
+              <div class="adm-flag-row" *ngFor="let f of flagEntries()">
+                <div class="adm-flag-dot" [class.on]="f.value"></div>
+                <div class="adm-flag-key">{{ f.key }}</div>
+                <span class="adm-badge" [class.adm-badge-green]="f.value" [class.adm-badge-gray]="!f.value">
+                  {{ f.value ? 'Enabled' : 'Disabled' }}
+                </span>
+                <label class="adm-toggle">
+                  <input type="checkbox" [checked]="f.value" (change)="quickToggle(f.key, f.value)">
+                  <span class="adm-toggle-track"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Update flag -->
+          <div class="adm-card">
+            <div class="adm-card-title">Update Flag</div>
+            <div class="adm-msg adm-msg-info" *ngIf="flagMsg">{{ flagMsg }}</div>
+            <form [formGroup]="flagForm" (ngSubmit)="saveFlag()" class="adm-form">
+              <div class="adm-field">
+                <label>Flag Name</label>
+                <input class="adm-input" formControlName="flag" placeholder="autopilot_v2">
+              </div>
+              <div class="adm-row-2">
+                <div class="adm-field">
+                  <label>Rollout %</label>
+                  <input class="adm-input" type="number" formControlName="rollout_pct" min="0" max="100">
+                </div>
+                <div class="adm-field">
+                  <label>Expires (sec)</label>
+                  <input class="adm-input" type="number" formControlName="expires_in">
+                </div>
+              </div>
+              <label class="adm-checkbox-row">
+                <input type="checkbox" formControlName="enabled">
+                <span>Enabled</span>
+              </label>
+              <button class="adm-submit-btn" type="submit" [disabled]="flagForm.invalid">
+                <i class="fas fa-save me-2"></i>Save Flag
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CONFIG ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='config'">
+        <div class="adm-panel-header">
+          <div class="adm-panel-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6"><i class="fas fa-sliders-h"></i></div>
+          <div>
+            <div class="adm-panel-title">Dynamic Config</div>
+            <div class="adm-panel-sub">Override runtime settings with dot-notation paths</div>
+          </div>
+          <button class="adm-icon-btn ms-auto" (click)="loadConfig()" title="Refresh">
+            <i class="fas fa-sync-alt" [class.fa-spin]="configLoading"></i>
+          </button>
+        </div>
+
+        <div class="adm-grid-2">
+          <div>
+            <!-- Set config form -->
+            <div class="adm-card mb-3">
+              <div class="adm-card-title">Set Override</div>
+              <div class="adm-msg adm-msg-info" *ngIf="configMsg">{{ configMsg }}</div>
+              <form [formGroup]="configForm" (ngSubmit)="setConfig()" class="adm-form">
+                <div class="adm-field">
+                  <label>Path (dot notation)</label>
+                  <input class="adm-input" formControlName="path" placeholder="llm.temperature">
+                </div>
+                <div class="adm-field">
+                  <label>Value (JSON or scalar)</label>
+                  <input class="adm-input" formControlName="value" placeholder="0.7">
+                </div>
+                <button class="adm-submit-btn" type="submit" [disabled]="configForm.invalid">
+                  <i class="fas fa-save me-2"></i>Save Override
+                </button>
+              </form>
+            </div>
+            <!-- Audit log -->
+            <div class="adm-card">
+              <div class="adm-card-title"><i class="fas fa-history me-2 text-muted"></i>Audit Log</div>
+              <div class="adm-audit-list">
+                <div class="adm-audit-row" *ngFor="let a of configAudit">
+                  <span class="adm-audit-time">{{ a.ts * 1000 | date:'MMM d, h:mm a' }}</span>
+                  <span class="adm-badge adm-badge-blue">{{ a.op }}</span>
+                  <code class="adm-audit-path">{{ a.path }}</code>
+                  <span class="adm-audit-val">{{ a.value }}</span>
+                </div>
+                <div class="adm-empty" *ngIf="configAudit.length===0">No audit history yet.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Config table -->
+          <div class="adm-card">
+            <div class="adm-card-title">Current Overrides</div>
+            <div *ngIf="configLoading" class="adm-skel-wrap">
+              <div class="db-skel" *ngFor="let i of [1,2,3,4]"></div>
+            </div>
+            <div class="adm-empty" *ngIf="!configLoading && configEntries().length===0">No config overrides set.</div>
+            <div class="adm-config-table" *ngIf="!configLoading && configEntries().length>0">
+              <div class="adm-config-row" *ngFor="let e of configEntries()">
+                <code class="adm-config-key">{{ e.key }}</code>
+                <span class="adm-config-val">{{ e.value }}</span>
+                <button class="adm-danger-btn" (click)="deleteConfig(e.key)" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PROMPTS ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='prompts'">
+        <div class="adm-panel-header">
+          <div class="adm-panel-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6"><i class="fas fa-file-alt"></i></div>
+          <div>
+            <div class="adm-panel-title">Prompt Management</div>
+            <div class="adm-panel-sub">Edit, version, and rollback AI system prompts</div>
+          </div>
+        </div>
+
+        <div class="adm-prompts-grid">
+          <!-- Prompt list -->
+          <div class="adm-card adm-prompt-list-card">
+            <div class="adm-card-title" style="display:flex;justify-content:space-between">
+              Prompts
+              <button class="adm-icon-btn" (click)="loadPromptNames()"><i class="fas fa-sync-alt"></i></button>
+            </div>
+            <div class="adm-prompt-list">
+              <button class="adm-prompt-item" *ngFor="let name of promptNames"
+                      [class.adm-prompt-active]="selectedPrompt?.name===name"
+                      (click)="selectPrompt(name)">
+                <i class="fas fa-file-alt me-2"></i>{{ name }}
+              </button>
+              <div class="adm-empty" *ngIf="promptNames.length===0">No prompts found.</div>
+            </div>
+          </div>
+
+          <!-- Edit form -->
+          <div>
+            <div class="adm-card mb-3">
+              <div class="adm-card-title">Edit Prompt</div>
+              <div class="adm-msg adm-msg-info" *ngIf="promptMsg">{{ promptMsg }}</div>
+              <form [formGroup]="promptForm" (ngSubmit)="savePrompt()" class="adm-form">
+                <div class="adm-row-2">
+                  <div class="adm-field">
+                    <label>Prompt Name</label>
+                    <input class="adm-input" formControlName="name" placeholder="lead_scorer">
+                  </div>
+                  <div class="adm-field">
+                    <label>Change Note</label>
+                    <input class="adm-input" formControlName="note" placeholder="Tuned for India market">
+                  </div>
+                </div>
+                <div class="adm-field">
+                  <label>Content</label>
+                  <textarea class="adm-input adm-textarea adm-mono" rows="8"
+                            formControlName="content" placeholder="Analyse lead and return JSON…"></textarea>
+                </div>
+                <button class="adm-submit-btn" type="submit" [disabled]="promptForm.invalid || promptLoading">
+                  <span class="adm-spinner" *ngIf="promptLoading"></span>
+                  <i class="fas fa-save me-2" *ngIf="!promptLoading"></i>Save Prompt
+                </button>
+              </form>
+            </div>
+
+            <!-- History & Diff -->
+            <div class="adm-card" *ngIf="selectedPrompt">
+              <div class="adm-card-title"><i class="fas fa-history me-2 text-muted"></i>Version History</div>
+              <div class="adm-diff-bar">
+                <div class="adm-field" style="width:80px">
+                  <label>v1</label>
+                  <input class="adm-input" type="number" [(ngModel)]="diffV1">
+                </div>
+                <div class="adm-field" style="width:80px">
+                  <label>v2</label>
+                  <input class="adm-input" type="number" [(ngModel)]="diffV2">
+                </div>
+                <button class="adm-outline-btn" (click)="fetchDiff()">
+                  <i class="fas fa-code-branch me-1"></i>View Diff
+                </button>
+              </div>
+              <pre *ngIf="promptDiff" class="adm-diff-output">{{ promptDiff }}</pre>
+              <div class="adm-history-table">
+                <div class="adm-history-row" *ngFor="let h of promptHistory">
+                  <span class="adm-version-badge">v{{ h.version }}</span>
+                  <span class="adm-history-author">{{ h.author }}</span>
+                  <span class="adm-history-date">{{ h.ts * 1000 | date:'MMM d, h:mm a' }}</span>
+                  <button class="adm-rollback-btn" (click)="rollbackPrompt(selectedPrompt!.name, h.version)">
+                    <i class="fas fa-undo me-1"></i>Rollback
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ USAGE ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='usage'">
+        <div class="adm-panel-header">
+          <div class="adm-panel-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b"><i class="fas fa-tachometer-alt"></i></div>
+          <div>
+            <div class="adm-panel-title">Usage &amp; Quotas</div>
+            <div class="adm-panel-sub">Monitor consumption and manage rate limits</div>
+          </div>
+          <button class="adm-icon-btn ms-auto" (click)="loadUsage()" title="Refresh">
+            <i class="fas fa-sync-alt" [class.fa-spin]="usageLoading"></i>
+          </button>
+        </div>
+        <div class="adm-msg adm-msg-info" *ngIf="usageMsg">{{ usageMsg }}</div>
+
+        <div class="adm-grid-2">
+          <!-- Quota bars -->
+          <div class="adm-card">
+            <div class="adm-card-title">Quota Usage</div>
+            <div *ngIf="usageLoading" class="adm-skel-wrap">
+              <div class="db-skel" *ngFor="let i of [1,2,3]"></div>
+            </div>
+            <div class="adm-empty" *ngIf="!usageLoading && usage.length===0">No usage data.</div>
+            <div class="adm-quota-list" *ngIf="!usageLoading">
+              <div class="adm-quota-row" *ngFor="let u of usage">
+                <div class="adm-quota-header">
+                  <span class="adm-quota-name">{{ u.limit_name }}</span>
+                  <span class="adm-quota-nums">
+                    <span class="adm-quota-used">{{ u.used }}</span> / {{ u.limit }}
+                    <span class="adm-badge ms-2" [class.adm-badge-warn]="u.is_warning" [class.adm-badge-green]="!u.is_warning">
+                      {{ u.percent.toFixed(1) }}%
                     </span>
-                  </td>
-                  <td class="text-end">
-                    <div class="form-check form-switch d-inline-block mb-0">
-                      <input class="form-check-input" type="checkbox" [checked]="f.value"
-                             (change)="quickToggle(f.key, f.value)">
-                    </div>
-                  </td>
-                </tr>
-                <tr *ngIf="flagEntries().length===0"><td colspan="3" class="text-muted text-center">No flags found.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-lg-6">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold"><i class="fas fa-edit me-2 text-primary"></i>Update Flag</div>
-          <div class="card-body">
-            <div class="alert alert-info py-2 small" *ngIf="flagMsg">{{ flagMsg }}</div>
-            <form [formGroup]="flagForm" (ngSubmit)="saveFlag()">
-              <div class="mb-3">
-                <label class="form-label small">Flag Name</label>
-                <input class="form-control" formControlName="flag" placeholder="autopilot">
-              </div>
-              <div class="row g-2 mb-3">
-                <div class="col">
-                  <label class="form-label small">Rollout %</label>
-                  <input type="number" class="form-control" formControlName="rollout_pct" min="0" max="100">
-                </div>
-                <div class="col">
-                  <label class="form-label small">Expires In (sec)</label>
-                  <input type="number" class="form-control" formControlName="expires_in">
-                </div>
-              </div>
-              <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" formControlName="enabled" id="flagEnabled">
-                <label class="form-check-label" for="flagEnabled">Enabled</label>
-              </div>
-              <button class="btn btn-primary" type="submit" [disabled]="flagForm.invalid">
-                <i class="fas fa-save me-1"></i>Save Flag
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Config Tab ── -->
-  <div *ngIf="activeTab==='config'">
-    <div class="row g-4">
-      <div class="col-12 col-lg-5">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header fw-semibold"><i class="fas fa-sliders-h me-2 text-primary"></i>Set Config</div>
-          <div class="card-body">
-            <div class="alert alert-info py-2 small" *ngIf="configMsg">{{ configMsg }}</div>
-            <form [formGroup]="configForm" (ngSubmit)="setConfig()">
-              <div class="mb-3">
-                <label class="form-label small">Path (dot notation)</label>
-                <input class="form-control" formControlName="path" placeholder="llm.temperature">
-              </div>
-              <div class="mb-3">
-                <label class="form-label small">Value (JSON or scalar)</label>
-                <input class="form-control" formControlName="value" placeholder="0.7">
-              </div>
-              <button class="btn btn-primary btn-sm" type="submit" [disabled]="configForm.invalid">
-                <i class="fas fa-save me-1"></i>Save
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <!-- Audit Log -->
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold small"><i class="fas fa-history me-1 text-muted"></i>Audit Log</div>
-          <div class="card-body p-0" style="max-height:240px;overflow-y:auto">
-            <table class="table table-sm mb-0">
-              <tbody>
-                <tr *ngFor="let a of configAudit">
-                  <td class="text-muted small">{{ a.ts * 1000 | date:'short' }}</td>
-                  <td><span class="badge bg-secondary">{{ a.op }}</span></td>
-                  <td class="small"><code>{{ a.path }}</code></td>
-                  <td class="small">{{ a.value }}</td>
-                </tr>
-                <tr *ngIf="configAudit.length===0"><td colspan="4" class="text-muted text-center small py-2">No audit history.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-7">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold d-flex justify-content-between">
-            <span><i class="fas fa-database me-2 text-success"></i>Current Config</span>
-            <button class="btn btn-sm btn-outline-secondary" (click)="loadConfig()"><i class="fas fa-sync-alt"></i></button>
-          </div>
-          <div class="card-body p-0">
-            <div *ngIf="configLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>
-            <table class="table table-sm mb-0" *ngIf="!configLoading">
-              <thead class="table-light"><tr><th>Path</th><th>Value</th><th></th></tr></thead>
-              <tbody>
-                <tr *ngFor="let e of configEntries()">
-                  <td><code class="small">{{ e.key }}</code></td>
-                  <td class="small">{{ e.value }}</td>
-                  <td>
-                    <button class="btn btn-outline-danger btn-sm py-0" (click)="deleteConfig(e.key)">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </td>
-                </tr>
-                <tr *ngIf="configEntries().length===0"><td colspan="3" class="text-muted text-center small">No config overrides.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Prompts Tab ── -->
-  <div *ngIf="activeTab==='prompts'">
-    <div class="row g-4">
-      <div class="col-12 col-md-3">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold small d-flex justify-content-between">
-            <span><i class="fas fa-list me-1"></i>Prompts</span>
-            <button class="btn btn-sm btn-outline-secondary" (click)="loadPromptNames()"><i class="fas fa-sync-alt"></i></button>
-          </div>
-          <div class="list-group list-group-flush" style="max-height:340px;overflow-y:auto">
-            <button type="button" class="list-group-item list-group-item-action small"
-                    *ngFor="let name of promptNames"
-                    [class.active]="selectedPrompt?.name===name"
-                    (click)="selectPrompt(name)">
-              <i class="fas fa-file-alt me-1"></i>{{ name }}
-            </button>
-            <div *ngIf="promptNames.length===0" class="list-group-item text-muted small">No prompts found.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-9">
-        <div class="card shadow-sm mb-3">
-          <div class="card-header fw-semibold"><i class="fas fa-edit me-2 text-primary"></i>Edit Prompt</div>
-          <div class="card-body">
-            <div class="alert alert-info py-2 small" *ngIf="promptMsg">{{ promptMsg }}</div>
-            <form [formGroup]="promptForm" (ngSubmit)="savePrompt()">
-              <div class="row g-2 mb-2">
-                <div class="col-md-6">
-                  <label class="form-label small">Prompt Name</label>
-                  <input class="form-control form-control-sm" formControlName="name" placeholder="lead_scorer">
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label small">Change Note</label>
-                  <input class="form-control form-control-sm" formControlName="note" placeholder="Tuned for India market">
-                </div>
-              </div>
-              <div class="mb-2">
-                <label class="form-label small">Content</label>
-                <textarea class="form-control form-control-sm font-monospace" rows="8"
-                          formControlName="content" placeholder="Analyse lead and return JSON…"></textarea>
-              </div>
-              <button class="btn btn-primary btn-sm" type="submit" [disabled]="promptForm.invalid || promptLoading">
-                <span *ngIf="promptLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i class="fas fa-save me-1" *ngIf="!promptLoading"></i>Save Prompt
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <!-- History & Diff -->
-        <div class="card shadow-sm" *ngIf="selectedPrompt">
-          <div class="card-header fw-semibold small"><i class="fas fa-history me-1 text-muted"></i>Version History</div>
-          <div class="card-body">
-            <div class="d-flex gap-2 mb-2 align-items-end">
-              <div>
-                <label class="form-label small mb-1">v1</label>
-                <input type="number" class="form-control form-control-sm" style="width:70px" [(ngModel)]="diffV1">
-              </div>
-              <div>
-                <label class="form-label small mb-1">v2</label>
-                <input type="number" class="form-control form-control-sm" style="width:70px" [(ngModel)]="diffV2">
-              </div>
-              <button class="btn btn-outline-secondary btn-sm" (click)="fetchDiff()">
-                <i class="fas fa-code-branch me-1"></i>Diff
-              </button>
-            </div>
-            <pre *ngIf="promptDiff" class="bg-dark text-light rounded p-2 small" style="max-height:160px;overflow:auto">{{ promptDiff }}</pre>
-
-            <div class="table-responsive mt-2">
-              <table class="table table-sm mb-0">
-                <thead class="table-light"><tr><th>Version</th><th>Author</th><th>Date</th><th></th></tr></thead>
-                <tbody>
-                  <tr *ngFor="let h of promptHistory">
-                    <td>v{{ h.version }}</td>
-                    <td>{{ h.author }}</td>
-                    <td class="text-muted small">{{ h.ts * 1000 | date:'short' }}</td>
-                    <td>
-                      <button class="btn btn-outline-warning btn-sm py-0"
-                              (click)="rollbackPrompt(selectedPrompt!.name, h.version)">
-                        <i class="fas fa-undo me-1"></i>Rollback
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Usage Tab ── -->
-  <div *ngIf="activeTab==='usage'">
-    <div class="row g-4">
-      <div class="col-12 col-lg-8">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold d-flex justify-content-between">
-            <span><i class="fas fa-tachometer-alt me-2 text-primary"></i>Quota Usage</span>
-            <button class="btn btn-sm btn-outline-secondary" (click)="loadUsage()"><i class="fas fa-sync-alt"></i></button>
-          </div>
-          <div class="card-body">
-            <div *ngIf="usageLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>
-            <div *ngFor="let u of usage" class="mb-3">
-              <div class="d-flex justify-content-between mb-1">
-                <span class="small fw-semibold">{{ u.limit_name }}</span>
-                <span class="small text-muted">{{ u.used }} / {{ u.limit }}
-                  <span class="badge ms-1" [ngClass]="u.is_warning ? 'bg-warning text-dark' : 'bg-success'">
-                    {{ u.percent.toFixed(1) }}%
                   </span>
+                </div>
+                <div class="adm-quota-track">
+                  <div class="adm-quota-bar" [style.width.%]="u.percent"
+                       [class.warn]="u.is_warning"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div>
+            <div class="adm-card mb-3">
+              <div class="adm-card-title">Update Limit</div>
+              <form [formGroup]="limitForm" (ngSubmit)="updateLimit()" class="adm-form">
+                <div class="adm-field">
+                  <label>Limit Name</label>
+                  <input class="adm-input" formControlName="limit_name" placeholder="max_leads_per_month">
+                </div>
+                <div class="adm-field">
+                  <label>New Value</label>
+                  <input class="adm-input" type="number" formControlName="value" placeholder="20000">
+                </div>
+                <button class="adm-submit-btn" type="submit">
+                  <i class="fas fa-save me-2"></i>Update Limit
+                </button>
+              </form>
+            </div>
+
+            <div class="adm-card">
+              <div class="adm-card-title" style="color:#22c55e">Top-Up Quota</div>
+              <form [formGroup]="topupForm" (ngSubmit)="topUp()" class="adm-form">
+                <div class="adm-field">
+                  <label>Limit Name</label>
+                  <input class="adm-input" formControlName="limit_name" placeholder="max_llm_calls_per_day">
+                </div>
+                <div class="adm-field">
+                  <label>Extra Units</label>
+                  <input class="adm-input" type="number" formControlName="extra" placeholder="2000">
+                </div>
+                <button class="adm-submit-btn" type="submit" style="background:linear-gradient(135deg,#16a34a,#22c55e)">
+                  <i class="fas fa-plus me-2"></i>Top Up
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ NBA & LEADERBOARD ══════════════════════════════════ -->
+      <div *ngIf="activeTab==='nba'">
+        <div class="adm-panel-header">
+          <div class="adm-panel-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b"><i class="fas fa-trophy"></i></div>
+          <div>
+            <div class="adm-panel-title">NBA &amp; Leaderboard</div>
+            <div class="adm-panel-sub">Next best action recommendations and lead rankings</div>
+          </div>
+          <button class="adm-icon-btn ms-auto" (click)="loadLeaderboard()" title="Refresh">
+            <i class="fas fa-sync-alt" [class.fa-spin]="leaderboardLoading"></i>
+          </button>
+        </div>
+
+        <div class="adm-grid-2">
+          <!-- NBA -->
+          <div class="adm-card">
+            <div class="adm-card-title"><i class="fas fa-lightbulb me-2" style="color:#f59e0b"></i>Next Best Action</div>
+            <div class="adm-nba-search">
+              <input class="adm-input" [(ngModel)]="nbaLeadId" placeholder="Lead UUID…">
+              <button class="adm-submit-btn" (click)="fetchNBA()" [disabled]="nbaLoading" style="white-space:nowrap">
+                <span class="adm-spinner" *ngIf="nbaLoading"></span>
+                <i class="fas fa-magic me-2" *ngIf="!nbaLoading"></i>Get NBA
+              </button>
+            </div>
+            <div class="adm-nba-result" *ngIf="nbaResult">
+              <div class="adm-nba-header">
+                <span class="adm-nba-action">{{ nbaResult.action }}</span>
+                <span class="adm-confidence">{{ (nbaResult.confidence * 100).toFixed(0) }}% confidence</span>
+              </div>
+              <p class="adm-nba-reason">{{ nbaResult.reason }}</p>
+              <div class="adm-nba-draft">
+                <div class="adm-nba-draft-label">Draft Message</div>
+                <div class="adm-nba-draft-body">{{ nbaResult.message_draft }}</div>
+              </div>
+            </div>
+            <div class="adm-empty" *ngIf="!nbaResult && !nbaLoading">Enter a lead UUID to get the next best action.</div>
+          </div>
+
+          <!-- Leaderboard -->
+          <div class="adm-card">
+            <div class="adm-card-title"><i class="fas fa-trophy me-2" style="color:#f59e0b"></i>Conversion Leaderboard</div>
+            <div *ngIf="leaderboardLoading" class="adm-skel-wrap">
+              <div class="db-skel" *ngFor="let i of [1,2,3,4,5]"></div>
+            </div>
+            <div class="adm-empty" *ngIf="!leaderboardLoading && leaderboard.length===0">No leaderboard data.</div>
+            <div class="adm-lb-list" *ngIf="!leaderboardLoading">
+              <div class="adm-lb-row" *ngFor="let l of leaderboard; let i=index">
+                <div class="db-agent-rank" [class.db-rank-gold]="i===0" [class.db-rank-silver]="i===1" [class.db-rank-bronze]="i===2">
+                  {{ i + 1 }}
+                </div>
+                <div class="adm-lb-info">
+                  <div class="adm-lb-name">{{ l.name }}</div>
+                  <div class="adm-lb-meta">
+                    <span class="adm-badge adm-badge-blue">{{ l.stage }}</span>
+                    <span class="adm-badge" [class.adm-badge-green]="l.score==='high'" [class.adm-badge-warn]="l.score!=='high'">{{ l.score }}</span>
+                  </div>
+                </div>
+                <div class="adm-lb-prob">{{ l.conv_prob }}<span>%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ AUTOPILOT ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='autopilot'">
+        <div class="adm-panel-header">
+          <div class="adm-panel-icon" style="background:rgba(99,102,241,0.1);color:#6366f1"><i class="fas fa-rocket"></i></div>
+          <div>
+            <div class="adm-panel-title">Autopilot &amp; Orchestrator</div>
+            <div class="adm-panel-sub">Trigger AI-driven bulk actions and test the orchestration pipeline</div>
+          </div>
+        </div>
+
+        <div class="adm-grid-2">
+          <!-- Autopilot -->
+          <div class="adm-card">
+            <div class="adm-card-title">Autopilot Run</div>
+            <p class="adm-card-desc">Run the AI autopilot across all active leads. Use dry-run first to preview actions without sending any messages.</p>
+            <div class="adm-autopilot-btns">
+              <button class="adm-outline-btn adm-outline-warn" (click)="runAutopilot(true)" [disabled]="autopilotLoading">
+                <span class="adm-spinner" *ngIf="autopilotLoading"></span>
+                <i class="fas fa-vial me-2" *ngIf="!autopilotLoading"></i>Dry Run
+              </button>
+              <button class="adm-submit-btn" (click)="runAutopilot(false)" [disabled]="autopilotLoading"
+                      style="background:linear-gradient(135deg,#16a34a,#22c55e)">
+                <i class="fas fa-play me-2"></i>Run Live
+              </button>
+            </div>
+            <div class="adm-autopilot-result" *ngIf="autopilotResult">
+              <div class="adm-autopilot-stats">
+                <div class="adm-ap-stat">
+                  <div class="adm-ap-val">{{ autopilotResult.leads_processed }}</div>
+                  <div class="adm-ap-label">Processed</div>
+                </div>
+                <div class="adm-ap-stat">
+                  <div class="adm-ap-val" style="color:#22c55e">{{ autopilotResult.actions_taken }}</div>
+                  <div class="adm-ap-label">Actions</div>
+                </div>
+                <div class="adm-ap-stat">
+                  <div class="adm-ap-val" style="color:#ef4444">{{ autopilotResult.errors }}</div>
+                  <div class="adm-ap-label">Errors</div>
+                </div>
+              </div>
+              <div class="text-center mt-3">
+                <span class="adm-badge" [class.adm-badge-warn]="autopilotResult.dry_run" [class.adm-badge-green]="!autopilotResult.dry_run">
+                  {{ autopilotResult.dry_run ? '⚡ Dry Run Preview' : '✅ Live Run Complete' }}
                 </span>
               </div>
-              <div class="progress" style="height:10px">
-                <div class="progress-bar" [ngClass]="u.is_warning ? 'bg-warning' : 'bg-success'"
-                     [style.width.%]="u.percent"></div>
-              </div>
-            </div>
-            <div *ngIf="usage.length===0 && !usageLoading" class="text-muted text-center py-3">No usage data.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-4">
-        <div class="alert alert-info py-2 small" *ngIf="usageMsg">{{ usageMsg }}</div>
-
-        <div class="card shadow-sm mb-3">
-          <div class="card-header fw-semibold small"><i class="fas fa-edit me-1 text-primary"></i>Update Limit</div>
-          <div class="card-body">
-            <form [formGroup]="limitForm" (ngSubmit)="updateLimit()">
-              <div class="mb-2">
-                <input class="form-control form-control-sm" formControlName="limit_name" placeholder="max_leads_per_month">
-              </div>
-              <div class="mb-2">
-                <input type="number" class="form-control form-control-sm" formControlName="value" placeholder="20000">
-              </div>
-              <button class="btn btn-primary btn-sm w-100" type="submit">
-                <i class="fas fa-save me-1"></i>Update
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold small"><i class="fas fa-plus-circle me-1 text-success"></i>Top-Up Quota</div>
-          <div class="card-body">
-            <form [formGroup]="topupForm" (ngSubmit)="topUp()">
-              <div class="mb-2">
-                <input class="form-control form-control-sm" formControlName="limit_name" placeholder="max_llm_calls_per_day">
-              </div>
-              <div class="mb-2">
-                <input type="number" class="form-control form-control-sm" formControlName="extra" placeholder="2000">
-              </div>
-              <button class="btn btn-success btn-sm w-100" type="submit">
-                <i class="fas fa-plus me-1"></i>Top Up
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── NBA & Leaderboard Tab ── -->
-  <div *ngIf="activeTab==='nba'">
-    <div class="row g-4">
-      <div class="col-12 col-lg-5">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold"><i class="fas fa-lightbulb me-2 text-warning"></i>Next Best Action</div>
-          <div class="card-body">
-            <div class="d-flex gap-2 mb-3">
-              <input class="form-control" [(ngModel)]="nbaLeadId" placeholder="Enter Lead UUID">
-              <button class="btn btn-warning text-nowrap" (click)="fetchNBA()" [disabled]="nbaLoading">
-                <span *ngIf="nbaLoading" class="spinner-border spinner-border-sm"></span>
-                <i class="fas fa-magic" *ngIf="!nbaLoading"></i>
-              </button>
-            </div>
-            <div *ngIf="nbaResult" class="bg-light rounded p-3">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="badge bg-warning text-dark fs-6">{{ nbaResult.action }}</span>
-                <span class="text-muted small">{{ (nbaResult.confidence * 100).toFixed(0) }}% confidence</span>
-              </div>
-              <p class="text-muted small mb-2">{{ nbaResult.reason }}</p>
-              <div class="bg-white rounded border p-2 small fst-italic">{{ nbaResult.message_draft }}</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="col-12 col-lg-7">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold d-flex justify-content-between">
-            <span><i class="fas fa-trophy me-2 text-warning"></i>Conversion Leaderboard</span>
-            <button class="btn btn-sm btn-outline-secondary" (click)="loadLeaderboard()"><i class="fas fa-sync-alt"></i></button>
-          </div>
-          <div class="card-body p-0">
-            <div *ngIf="leaderboardLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm"></div></div>
-            <table class="table table-hover mb-0" *ngIf="!leaderboardLoading">
-              <thead class="table-light">
-                <tr><th>#</th><th>Lead</th><th>Stage</th><th>Score</th><th class="text-end">Conv. Prob.</th></tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let l of leaderboard; let i=index">
-                  <td class="text-muted small">{{ i + 1 }}</td>
-                  <td class="fw-semibold">{{ l.name }}</td>
-                  <td><span class="badge bg-primary">{{ l.stage }}</span></td>
-                  <td><span class="badge" [ngClass]="l.score==='high' ? 'bg-success' : 'bg-warning text-dark'">{{ l.score }}</span></td>
-                  <td class="text-end fw-bold">{{ l.conv_prob }}%</td>
-                </tr>
-                <tr *ngIf="leaderboard.length===0"><td colspan="5" class="text-muted text-center py-3">No leaderboard data.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Autopilot Tab ── -->
-  <div *ngIf="activeTab==='autopilot'">
-    <div class="row g-4">
-      <div class="col-12 col-lg-5">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header fw-semibold"><i class="fas fa-robot me-2 text-success"></i>Autopilot</div>
-          <div class="card-body">
-            <p class="text-muted small mb-3">Run the AI autopilot across all active leads. Use dry-run first to preview actions.</p>
-            <div class="d-flex gap-2">
-              <button class="btn btn-outline-warning" (click)="runAutopilot(true)" [disabled]="autopilotLoading">
-                <span *ngIf="autopilotLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i class="fas fa-vial me-1" *ngIf="!autopilotLoading"></i>Dry Run
-              </button>
-              <button class="btn btn-success" (click)="runAutopilot(false)" [disabled]="autopilotLoading">
-                <i class="fas fa-play me-1"></i>Run Live
-              </button>
-            </div>
-            <div *ngIf="autopilotResult" class="mt-3 bg-light rounded p-3">
-              <div class="row g-2 text-center">
-                <div class="col-4">
-                  <div class="fw-bold fs-5">{{ autopilotResult.leads_processed }}</div>
-                  <div class="text-muted small">Processed</div>
+          <!-- Orchestrator -->
+          <div class="adm-card">
+            <div class="adm-card-title">Orchestrator Test</div>
+            <form [formGroup]="orchestrateForm" (ngSubmit)="orchestrate()" class="adm-form">
+              <div class="adm-field">
+                <label>Message</label>
+                <textarea class="adm-input adm-textarea" rows="3" formControlName="message"
+                          placeholder="I need CRM for 50 users urgently"></textarea>
+              </div>
+              <div class="adm-row-3">
+                <div class="adm-field">
+                  <label>Lead ID</label>
+                  <input class="adm-input" formControlName="lead_id" placeholder="Optional UUID">
                 </div>
-                <div class="col-4">
-                  <div class="fw-bold fs-5 text-success">{{ autopilotResult.actions_taken }}</div>
-                  <div class="text-muted small">Actions</div>
+                <div class="adm-field">
+                  <label>Phone</label>
+                  <input class="adm-input" formControlName="phone" placeholder="+91…">
                 </div>
-                <div class="col-4">
-                  <div class="fw-bold fs-5 text-danger">{{ autopilotResult.errors }}</div>
-                  <div class="text-muted small">Errors</div>
+                <div class="adm-field">
+                  <label>Email</label>
+                  <input class="adm-input" type="email" formControlName="email">
                 </div>
               </div>
-              <div class="text-center mt-2">
-                <span class="badge" [ngClass]="autopilotResult.dry_run ? 'bg-warning text-dark' : 'bg-success'">
-                  {{ autopilotResult.dry_run ? 'Dry Run' : 'Live Run' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-lg-7">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold"><i class="fas fa-network-wired me-2 text-primary"></i>Orchestrator Test</div>
-          <div class="card-body">
-            <form [formGroup]="orchestrateForm" (ngSubmit)="orchestrate()">
-              <div class="row g-2 mb-3">
-                <div class="col-12">
-                  <label class="form-label small">Message</label>
-                  <textarea class="form-control" formControlName="message" rows="2"
-                            placeholder="I need CRM for 50 users urgently"></textarea>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small">Lead ID (optional)</label>
-                  <input class="form-control form-control-sm" formControlName="lead_id">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small">Phone</label>
-                  <input class="form-control form-control-sm" formControlName="phone" placeholder="+91…">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small">Email</label>
-                  <input class="form-control form-control-sm" formControlName="email" type="email">
-                </div>
-              </div>
-              <button class="btn btn-primary" type="submit" [disabled]="orchestrateForm.invalid || orchestrateLoading">
-                <span *ngIf="orchestrateLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i class="fas fa-play-circle me-1" *ngIf="!orchestrateLoading"></i>
+              <button class="adm-submit-btn" type="submit" [disabled]="orchestrateForm.invalid || orchestrateLoading">
+                <span class="adm-spinner" *ngIf="orchestrateLoading"></span>
+                <i class="fas fa-play-circle me-2" *ngIf="!orchestrateLoading"></i>
                 {{ orchestrateLoading ? 'Orchestrating…' : 'Run Orchestrator' }}
               </button>
             </form>
-
-            <div *ngIf="orchestrateResult" class="mt-3 bg-light rounded p-3">
-              <div class="d-flex flex-wrap gap-2 mb-2">
-                <span class="badge bg-primary">Score: {{ orchestrateResult.score }}</span>
-                <span class="badge bg-success">Stage: {{ orchestrateResult.stage_updated }}</span>
-                <span class="badge bg-secondary">{{ orchestrateResult.total_steps }} steps</span>
+            <div class="adm-orch-result" *ngIf="orchestrateResult">
+              <div class="adm-orch-badges">
+                <span class="adm-badge adm-badge-blue">Score: {{ orchestrateResult.score }}</span>
+                <span class="adm-badge adm-badge-green">Stage: {{ orchestrateResult.stage_updated }}</span>
+                <span class="adm-badge adm-badge-gray">{{ orchestrateResult.total_steps }} steps</span>
               </div>
-              <p class="mb-0 small">{{ orchestrateResult.final_summary }}</p>
+              <p class="adm-orch-summary">{{ orchestrateResult.final_summary }}</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ── A/B Testing Tab ── -->
-  <div *ngIf="activeTab==='abtest'">
-    <div class="row g-4">
-      <div class="col-12 col-lg-6">
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold">
-            <i class="fas fa-flask me-2 text-success"></i>Experiment Report
+      <!-- ══ A/B TESTING ══════════════════════════════════════ -->
+      <div *ngIf="activeTab==='abtest'">
+        <div class="adm-panel-header">
+          <div class="adm-panel-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6"><i class="fas fa-flask"></i></div>
+          <div>
+            <div class="adm-panel-title">A/B Testing</div>
+            <div class="adm-panel-sub">Multi-armed bandit experiment results and variant analysis</div>
           </div>
-          <div class="card-body">
-            <div class="d-flex gap-2 mb-4">
-              <input class="form-control" [(ngModel)]="abExperimentName" placeholder="greeting_test">
-              <button class="btn btn-success text-nowrap" (click)="fetchABReport()" [disabled]="abLoading">
-                <span *ngIf="abLoading" class="spinner-border spinner-border-sm me-1"></span>
-                <i class="fas fa-chart-bar me-1" *ngIf="!abLoading"></i>Load Report
-              </button>
+        </div>
+
+        <div class="adm-card" style="max-width:720px">
+          <div class="adm-card-title">Experiment Report</div>
+          <div class="adm-ab-search">
+            <input class="adm-input" [(ngModel)]="abExperimentName" placeholder="greeting_test">
+            <button class="adm-submit-btn" (click)="fetchABReport()" [disabled]="abLoading">
+              <span class="adm-spinner" *ngIf="abLoading"></span>
+              <i class="fas fa-chart-bar me-2" *ngIf="!abLoading"></i>Load Report
+            </button>
+          </div>
+
+          <div class="adm-empty adm-empty-lg" *ngIf="!abReport && !abLoading">
+            <i class="fas fa-flask"></i>
+            <div>Enter an experiment name to view its report</div>
+          </div>
+
+          <div *ngIf="abReport" class="adm-ab-report">
+            <div class="adm-ab-meta">
+              <span class="adm-badge adm-badge-blue" style="font-size:0.85rem;padding:0.4rem 0.8rem">{{ abReport.experiment }}</span>
+              <span class="adm-badge adm-badge-gray">{{ abReport.total_pulls }} pulls</span>
+              <span class="adm-badge" [class.adm-badge-green]="abReport.is_significant" [class.adm-badge-warn]="!abReport.is_significant">
+                <i class="fas" [class.fa-check-circle]="abReport.is_significant" [class.fa-clock]="!abReport.is_significant" style="margin-right:4px"></i>
+                {{ abReport.is_significant ? 'Statistically Significant' : 'Not Yet Significant' }}
+              </span>
             </div>
 
-            <div *ngIf="abReport">
-              <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-                <span class="badge bg-primary fs-6">{{ abReport.experiment }}</span>
-                <span class="badge bg-secondary">{{ abReport.total_pulls }} pulls</span>
-                <span class="badge" [class.bg-success]="abReport.is_significant"
-                      [class.bg-warning]="!abReport.is_significant"
-                      [class.text-dark]="!abReport.is_significant">
-                  {{ abReport.is_significant ? 'Significant' : 'Not significant' }}
-                </span>
-              </div>
-
-              <div *ngFor="let v of abReport.variants" class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                  <span class="small fw-semibold">
+            <div class="adm-ab-variants">
+              <div class="adm-ab-variant" *ngFor="let v of abReport.variants">
+                <div class="adm-ab-variant-header">
+                  <div class="adm-ab-variant-name">
                     {{ v.name }}
-                    <span *ngIf="v.is_leader" class="badge bg-warning text-dark ms-1">
-                      <i class="fas fa-crown me-1"></i>Leader
-                    </span>
-                  </span>
-                  <span class="small text-muted">{{ (v.win_rate * 100).toFixed(1) }}% win rate</span>
+                    <span class="adm-leader-badge" *ngIf="v.is_leader"><i class="fas fa-crown me-1"></i>Leader</span>
+                  </div>
+                  <div class="adm-ab-winrate">{{ (v.win_rate * 100).toFixed(1) }}%</div>
                 </div>
-                <div class="progress mb-1" style="height:10px">
-                  <div class="progress-bar"
-                       [class.bg-success]="v.is_leader" [class.bg-info]="!v.is_leader"
-                       [style.width]="(v.win_rate * 100) + '%'"></div>
+                <div class="adm-ab-track">
+                  <div class="adm-ab-bar" [style.width]="(v.win_rate*100)+'%'"
+                       [class.leader]="v.is_leader"></div>
                 </div>
-                <div class="d-flex gap-3 text-muted" style="font-size:0.75rem">
+                <div class="adm-ab-stats">
                   <span>{{ v.impressions }} impressions</span>
                   <span>{{ v.wins }} wins</span>
                   <span>UCB: {{ v.ucb_score.toFixed(3) }}</span>
                 </div>
               </div>
-
-              <div class="alert alert-info small mt-3 mb-0">
-                <i class="fas fa-lightbulb me-1"></i>{{ abReport.recommendation }}
-              </div>
             </div>
 
-            <div *ngIf="!abReport && !abLoading" class="text-center text-muted py-4">
-              <i class="fas fa-flask fa-2x mb-2 d-block"></i>Enter an experiment name to view its report.
+            <div class="adm-recommendation">
+              <i class="fas fa-lightbulb me-2" style="color:#f59e0b"></i>
+              {{ abReport.recommendation }}
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
-
 </div>

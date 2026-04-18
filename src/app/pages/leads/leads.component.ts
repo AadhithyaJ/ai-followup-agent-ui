@@ -1,16 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { Lead } from '../../core/models/lead.model';
 
+interface LeadView extends Lead {
+  _initials: string;
+  _avatarColor: string;
+  _sourceIcon: string;
+}
+
 @Component({
   selector: 'app-leads',
   standalone: false,
-  templateUrl: './leads.component.html'
+  templateUrl: './leads.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LeadsComponent implements OnInit {
-  leads: Lead[] = [];
+  leads: LeadView[] = [];
   loading = false;
   error = '';
   filterForm: FormGroup;
@@ -25,7 +32,7 @@ export class LeadsComponent implements OnInit {
   stages = ['new', 'qualified', 'contacted', 'interested', 'negotiation', 'converted', 'lost'];
   scores = ['high', 'medium', 'low'];
 
-  constructor(private api: ApiService, private fb: FormBuilder, private router: Router) {
+  constructor(private api: ApiService, private fb: FormBuilder, private router: Router, private cdr: ChangeDetectorRef) {
     this.filterForm = this.fb.group({ stage: [''], score: [''] });
     this.ingestForm = this.fb.group({
       message: [''],
@@ -44,8 +51,17 @@ export class LeadsComponent implements OnInit {
     if (stage) params.stage = stage;
     if (score) params.score = score;
     this.api.getLeads(params).subscribe({
-      next: (data) => { this.leads = data; this.loading = false; },
-      error: () => { this.error = 'Failed to load leads.'; this.loading = false; }
+      next: (data) => {
+        this.leads = data.map(l => ({
+          ...l,
+          _initials: this._initials(l.name),
+          _avatarColor: this._avatarColor(l.name),
+          _sourceIcon: this._sourceIcon(l.source)
+        }));
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => { this.error = 'Failed to load leads.'; this.loading = false; this.cdr.markForCheck(); }
     });
   }
 
@@ -90,19 +106,21 @@ export class LeadsComponent implements OnInit {
     return map[stage] || 'bg-secondary';
   }
 
-  initials(name: string): string {
+  trackByLead(_: number, l: LeadView): string { return l.id; }
+
+  private _initials(name: string): string {
     if (!name) return '?';
     return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
   }
 
-  avatarColor(name: string): string {
+  private _avatarColor(name: string): string {
     const colors = ['#6366f1','#3b82f6','#0ea5e9','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6'];
     let hash = 0;
     for (const c of (name || '')) hash = c.charCodeAt(0) + ((hash << 5) - hash);
     return colors[Math.abs(hash) % colors.length];
   }
 
-  sourceIcon(source: string | undefined): string {
+  private _sourceIcon(source: string | undefined): string {
     const map: Record<string, string> = {
       whatsapp: 'fa-brands fa-whatsapp', email: 'fa-envelope',
       web: 'fa-globe', api: 'fa-code'

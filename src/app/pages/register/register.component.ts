@@ -12,6 +12,7 @@ export class RegisterComponent {
   form: FormGroup;
   error = '';
   loading = false;
+  showPwd = false;
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.form = this.fb.group({
@@ -19,6 +20,20 @@ export class RegisterComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
       tenant_name: ['', Validators.required]
     });
+  }
+
+  get pwdStrength(): number {
+    const v = this.form.get('password')?.value || '';
+    let score = 0;
+    if (v.length >= 6)  score++;
+    if (v.length >= 10) score++;
+    if (/[A-Z]/.test(v) && /[0-9]/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+    return score;
+  }
+
+  get pwdLabel(): string {
+    return ['', 'Weak', 'Fair', 'Good', 'Strong'][this.pwdStrength] || '';
   }
 
   submit(): void {

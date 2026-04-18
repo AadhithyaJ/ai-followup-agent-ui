@@ -1,62 +1,136 @@
-<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-  <div class="card shadow-lg" style="width:100%;max-width:440px;">
-    <div class="card-body p-5">
-      <div class="text-center mb-4">
-        <i class="fas fa-user-plus fa-3x text-success mb-3"></i>
-        <h3 class="fw-bold">Create Account</h3>
-        <p class="text-muted">Start your AI revenue journey</p>
+<div class="auth-root auth-root-register">
+
+  <!-- Animated background blobs -->
+  <div class="auth-blob auth-blob-1"></div>
+  <div class="auth-blob auth-blob-2"></div>
+  <div class="auth-blob auth-blob-3"></div>
+
+  <!-- ── Left Panel ─────────────────────────────────────────── -->
+  <div class="auth-brand auth-brand-register">
+    <div class="auth-brand-inner">
+
+      <div class="auth-logo">
+        <i class="fas fa-bolt"></i>
       </div>
 
-      <div class="alert alert-danger d-flex align-items-center" *ngIf="error">
-        <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+      <h1 class="auth-headline">
+        Start closing deals<br>
+        <span class="auth-headline-accent">in minutes</span>
+      </h1>
+      <p class="auth-tagline">Set up your AI Revenue Engine in under 5 minutes. No credit card required.</p>
+
+      <!-- Steps -->
+      <div class="auth-steps">
+        <div class="auth-step">
+          <div class="auth-step-num">1</div>
+          <div>
+            <div class="auth-step-title">Create your workspace</div>
+            <div class="auth-step-desc">Register with your company email</div>
+          </div>
+        </div>
+        <div class="auth-step">
+          <div class="auth-step-num">2</div>
+          <div>
+            <div class="auth-step-title">Configure your agents</div>
+            <div class="auth-step-desc">Set up AI agents for your pipeline</div>
+          </div>
+        </div>
+        <div class="auth-step">
+          <div class="auth-step-num">3</div>
+          <div>
+            <div class="auth-step-title">Start growing revenue</div>
+            <div class="auth-step-desc">Watch leads convert automatically</div>
+          </div>
+        </div>
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <div class="mb-3">
-          <label class="form-label">Company / Tenant Name</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-building"></i></span>
-            <input type="text" class="form-control" formControlName="tenant_name"
-                   placeholder="My Company"
-                   [ngClass]="{'is-invalid': form.get('tenant_name')?.invalid && form.get('tenant_name')?.touched}">
-            <div class="invalid-feedback">Company name is required.</div>
-          </div>
-        </div>
+      <div class="auth-trust">
+        <i class="fas fa-shield-alt me-2"></i>
+        SOC 2 ready · End-to-end encrypted · GDPR compliant
+      </div>
 
-        <div class="mb-3">
-          <label class="form-label">Email address</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-            <input type="email" class="form-control" formControlName="email"
-                   placeholder="you@company.com"
-                   [ngClass]="{'is-invalid': form.get('email')?.invalid && form.get('email')?.touched}">
-            <div class="invalid-feedback">Please enter a valid email.</div>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <label class="form-label">Password</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-lock"></i></span>
-            <input type="password" class="form-control" formControlName="password"
-                   placeholder="Min 6 characters"
-                   [ngClass]="{'is-invalid': form.get('password')?.invalid && form.get('password')?.touched}">
-            <div class="invalid-feedback">Password must be at least 6 characters.</div>
-          </div>
-        </div>
-
-        <button class="btn btn-success w-100 py-2" type="submit" [disabled]="loading || form.invalid">
-          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-          <i class="fas fa-user-check me-2" *ngIf="!loading"></i>
-          {{ loading ? 'Creating account…' : 'Create Account' }}
-        </button>
-      </form>
-
-      <hr class="my-4">
-      <p class="text-center text-muted mb-0">
-        Already have an account?
-        <a routerLink="/login" class="fw-semibold">Sign in</a>
-      </p>
     </div>
   </div>
+
+  <!-- ── Right Panel: Form ──────────────────────────────────── -->
+  <div class="auth-form-panel">
+    <div class="auth-card">
+
+      <div class="auth-card-header">
+        <h2 class="auth-card-title">Create your account</h2>
+        <p class="auth-card-sub">Free forever on the starter plan</p>
+      </div>
+
+      <div class="auth-error" *ngIf="error">
+        <i class="fas fa-exclamation-circle"></i>{{ error }}
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" autocomplete="on" class="auth-form">
+
+        <div class="af-field">
+          <label class="af-label">Company / Workspace Name</label>
+          <div class="af-input-wrap" [class.af-invalid]="form.get('tenant_name')?.invalid && form.get('tenant_name')?.touched">
+            <i class="fas fa-building af-icon"></i>
+            <input type="text" class="af-input" formControlName="tenant_name"
+                   placeholder="Acme Corp" autocomplete="organization">
+          </div>
+          <span class="af-err" *ngIf="form.get('tenant_name')?.invalid && form.get('tenant_name')?.touched">Company name is required</span>
+        </div>
+
+        <div class="af-field">
+          <label class="af-label">Work Email</label>
+          <div class="af-input-wrap" [class.af-invalid]="form.get('email')?.invalid && form.get('email')?.touched">
+            <i class="fas fa-envelope af-icon"></i>
+            <input type="email" class="af-input" formControlName="email"
+                   placeholder="you@company.com" autocomplete="email">
+          </div>
+          <span class="af-err" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">Enter a valid email</span>
+        </div>
+
+        <div class="af-field">
+          <label class="af-label">Password</label>
+          <div class="af-input-wrap" [class.af-invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+            <i class="fas fa-lock af-icon"></i>
+            <input [type]="showPwd ? 'text' : 'password'" class="af-input"
+                   formControlName="password" placeholder="Min 6 characters" autocomplete="new-password">
+            <button type="button" class="af-eye" (click)="showPwd=!showPwd" tabindex="-1">
+              <i class="fas" [class.fa-eye]="!showPwd" [class.fa-eye-slash]="showPwd"></i>
+            </button>
+          </div>
+          <!-- Password strength -->
+          <div class="pwd-strength" *ngIf="form.get('password')?.value">
+            <div class="pwd-bars">
+              <div class="pwd-bar" [class.active]="pwdStrength >= 1" [class.weak]="pwdStrength === 1" [class.fair]="pwdStrength === 2" [class.good]="pwdStrength >= 3"></div>
+              <div class="pwd-bar" [class.active]="pwdStrength >= 2" [class.fair]="pwdStrength === 2" [class.good]="pwdStrength >= 3"></div>
+              <div class="pwd-bar" [class.active]="pwdStrength >= 3" [class.good]="pwdStrength >= 3"></div>
+              <div class="pwd-bar" [class.active]="pwdStrength >= 4" [class.strong]="pwdStrength === 4"></div>
+            </div>
+            <span class="pwd-label" [class.weak]="pwdStrength===1" [class.fair]="pwdStrength===2" [class.good]="pwdStrength===3" [class.strong]="pwdStrength===4">
+              {{ pwdLabel }}
+            </span>
+          </div>
+          <span class="af-err" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">Password must be at least 6 characters</span>
+        </div>
+
+        <button class="af-submit" type="submit" [disabled]="loading || form.invalid">
+          <span class="af-spinner" *ngIf="loading"></span>
+          <span>{{ loading ? 'Creating account…' : 'Create Free Account' }}</span>
+          <i class="fas fa-arrow-right ms-2" *ngIf="!loading"></i>
+        </button>
+
+        <p class="af-terms">
+          By creating an account you agree to our
+          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </p>
+
+      </form>
+
+      <div class="auth-switch">
+        Already have an account?
+        <a routerLink="/login" class="auth-switch-link">Sign in</a>
+      </div>
+
+    </div>
+  </div>
+
 </div>

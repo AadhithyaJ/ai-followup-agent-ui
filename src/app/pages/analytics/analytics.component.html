@@ -61,12 +61,12 @@
         <div class="db-skel-list" *ngIf="loading">
           <div class="db-skel" *ngFor="let i of [1,2,3,4,5,6,7]"></div>
         </div>
-        <div *ngIf="!loading && funnel">
-          <div class="an-funnel-row" *ngFor="let stage of funnelStages">
-            <div class="an-funnel-label">{{ stage | titlecase }}</div>
+        <div *ngIf="!loading">
+          <div class="an-funnel-row" *ngFor="let row of funnelRows; trackBy: trackByFunnel">
+            <div class="an-funnel-label">{{ row.stage | titlecase }}</div>
             <div class="an-funnel-track">
-              <div class="an-funnel-bar" [style.width.%]="funnelWidth(stage)" [style.background]="funnelColor(stage)">
-                <span class="an-funnel-val">{{ funnelCount(stage) }}</span>
+              <div class="an-funnel-bar" [style.width.%]="row.pct" [style.background]="row.color">
+                <span class="an-funnel-val">{{ row.count }}</span>
               </div>
             </div>
           </div>
@@ -85,7 +85,7 @@
         </div>
         <div class="db-empty" *ngIf="!loading && agents.length === 0">No agent data yet</div>
         <div class="an-agent-table" *ngIf="!loading && agents.length > 0">
-          <div class="an-agent-row" *ngFor="let a of agents; let i = index">
+          <div class="an-agent-row" *ngFor="let a of agents; trackBy: trackByAgent; let i = index">
             <div class="db-agent-rank" [class.db-rank-gold]="i===0" [class.db-rank-silver]="i===1" [class.db-rank-bronze]="i===2">{{ i+1 }}</div>
             <div class="db-agent-avatar"><i class="fas fa-robot"></i></div>
             <div class="db-agent-info">
@@ -121,14 +121,14 @@
         <div class="db-card-title"><i class="fas fa-dollar-sign me-2" style="color:#22c55e"></i>LLM Cost</div>
       </div>
       <div class="db-card-body">
-        <div class="an-stat-big">${{ totalLlmCost().toFixed(4) }}</div>
+        <div class="an-stat-big">${{ totalLlmCost.toFixed(4) }}</div>
         <div class="an-stat-sub">total spend</div>
-        <div class="an-attribution" *ngIf="attributionEntries().length">
+        <div class="an-attribution" *ngIf="attrRows.length">
           <div class="an-stat-label" style="margin-bottom:0.5rem">Revenue Attribution</div>
-          <div class="an-attr-row" *ngFor="let e of attributionEntries()">
+          <div class="an-attr-row" *ngFor="let e of attrRows; trackBy: trackByAttr">
             <span class="an-attr-channel">{{ e.channel | titlecase }}</span>
             <div class="an-attr-bar-wrap">
-              <div class="an-attr-bar" [style.width.%]="attrPct(e.count)"></div>
+              <div class="an-attr-bar" [style.width.%]="e.pct"></div>
             </div>
             <span class="an-attr-count">{{ e.count }}</span>
           </div>
@@ -137,7 +137,7 @@
     </div>
 
     <!-- Cohort Table -->
-    <div class="db-card an-cohort" *ngIf="!loading && advanced && cohortEntries().length">
+    <div class="db-card an-cohort" *ngIf="!loading && cohortRows.length">
       <div class="db-card-header">
         <div class="db-card-title"><i class="fas fa-layer-group me-2" style="color:#8b5cf6"></i>Cohort Conversion</div>
       </div>
@@ -147,7 +147,7 @@
             <tr><th>Cohort</th><th>Total</th><th>Converted</th><th>Rate</th></tr>
           </thead>
           <tbody>
-            <tr *ngFor="let e of cohortEntries()">
+            <tr *ngFor="let e of cohortRows; trackBy: trackByCohort">
               <td class="an-td-bold">{{ e.key }}</td>
               <td>{{ e.value.total }}</td>
               <td>{{ e.value.converted }}</td>

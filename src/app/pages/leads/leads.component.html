@@ -127,11 +127,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let lead of leads" (click)="openLead(lead.id)" class="lead-row">
+        <tr *ngFor="let lead of leads; trackBy: trackByLead" (click)="openLead(lead.id)" class="lead-row">
           <td>
             <div class="lead-identity">
-              <div class="lead-avatar" [style.background]="avatarColor(lead.name)">
-                {{ initials(lead.name) }}
+              <div class="lead-avatar" [style.background]="lead._avatarColor">
+                {{ lead._initials }}
               </div>
               <div>
                 <div class="lead-name">{{ lead.name }}</div>
@@ -145,7 +145,7 @@
           </td>
           <td><span class="stage-pill stage-{{ lead.stage }}">{{ lead.stage | titlecase }}</span></td>
           <td class="source-cell">
-            <i class="fas {{ sourceIcon(lead.source) }} me-1"></i>{{ lead.source || '—' }}
+            <i class="fas {{ lead._sourceIcon }} me-1"></i>{{ lead.source || '—' }}
           </td>
           <td class="agent-cell">{{ lead.assigned_agent || '—' }}</td>
           <td class="date-cell">{{ lead.created_at | date:'MMM d, y' }}</td>

@@ -90,12 +90,12 @@
           <div class="db-skel" *ngFor="let i of [1,2,3,4,5,6]"></div>
         </div>
         <div *ngIf="!loading" class="db-funnel-list">
-          <div class="db-funnel-row" *ngFor="let s of funnelStages()">
+          <div class="db-funnel-row" *ngFor="let s of funnelRows; trackBy: trackByFunnel">
             <div class="db-funnel-label">{{ s.label }}</div>
             <div class="db-funnel-bar-wrap">
-              <div class="db-funnel-bar" [style.width.%]="funnelPct(s.key)" [style.background]="s.color"></div>
+              <div class="db-funnel-bar" [style.width.%]="s.pct" [style.background]="s.color"></div>
             </div>
-            <div class="db-funnel-count">{{ funnel ? funnel[s.key] : 0 }}</div>
+            <div class="db-funnel-count">{{ s.count }}</div>
           </div>
         </div>
       </div>
@@ -127,15 +127,15 @@
         </div>
 
         <!-- Top Agent -->
-        <div class="db-top-agent" *ngIf="!loading && topAgent()">
+        <div class="db-top-agent" *ngIf="!loading && bestAgent">
           <div class="db-top-agent-label">Top Performer</div>
           <div class="db-top-agent-row">
             <div class="db-top-agent-avatar">
               <i class="fas fa-robot"></i>
             </div>
             <div>
-              <div class="db-top-agent-name">{{ topAgent()?.agent }}</div>
-              <div class="db-top-agent-stat">{{ topAgent()?.conv_rate }}% conversion · {{ topAgent()?.conversions }} deals</div>
+              <div class="db-top-agent-name">{{ bestAgent.agent }}</div>
+              <div class="db-top-agent-stat">{{ bestAgent.conv_rate }}% conversion · {{ bestAgent.conversions }} deals</div>
             </div>
             <div class="db-top-agent-crown ms-auto"><i class="fas fa-crown" style="color:#f59e0b"></i></div>
           </div>
@@ -155,7 +155,7 @@
         </div>
         <div *ngIf="!loading && !agents.length" class="db-empty">No agent data yet</div>
         <div class="db-agent-list" *ngIf="!loading && agents.length">
-          <div class="db-agent-row" *ngFor="let a of agents; let i = index">
+          <div class="db-agent-row" *ngFor="let a of agents; trackBy: trackByAgent; let i = index">
             <div class="db-agent-rank" [class.db-rank-gold]="i===0" [class.db-rank-silver]="i===1" [class.db-rank-bronze]="i===2">
               {{ i + 1 }}
             </div>
