@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
@@ -45,7 +45,8 @@ export class LeadDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private api: ApiService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     this.stageForm = this.fb.group({ stage: ['', Validators.required] });
     this.triggerForm = this.fb.group({
@@ -56,9 +57,20 @@ export class LeadDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id')!;
+    console.log('Loading lead with id:', id);
     this.api.getLead(id).subscribe({
-      next: (data) => { this.lead = data; this.loading = false; },
-      error: () => { this.error = 'Failed to load lead.'; this.loading = false; }
+      next: (data) => {
+        console.log('Lead data received:', data);
+        this.lead = data;
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error loading lead:', err);
+        this.error = 'Failed to load lead.';
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
