@@ -3,8 +3,10 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../core/api.service';
+import { BrandingService } from '../../core/branding.service';
 
 type SettingsTab =
+  | 'branding'
   | 'smtp' | 'alerts' | 'llm' | 'agents' | 'channels' | 'whatsapp'
   | 'followup' | 'optout' | 'imap' | 'limits' | 'reports' | 'language'
   | 'scoring' | 'pipeline' | 'ab' | 'personalization' | 'security'
@@ -56,7 +58,26 @@ export class SettingsComponent implements OnInit {
 
   llmModels = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'];
 
+  brandingForm!: FormGroup;
+  brandingMsg = '';
+
+  logoIcons = [
+    'fa-bolt','fa-rocket','fa-brain','fa-fire','fa-star',
+    'fa-cube','fa-leaf','fa-gem','fa-dragon','fa-crown'
+  ];
+  colorPresets = [
+    { label: 'Indigo',  primary: '#6366f1', dark: '#4f46e5', light: 'rgba(99,102,241,0.12)' },
+    { label: 'Blue',    primary: '#3b82f6', dark: '#2563eb', light: 'rgba(59,130,246,0.12)' },
+    { label: 'Violet',  primary: '#8b5cf6', dark: '#7c3aed', light: 'rgba(139,92,246,0.12)' },
+    { label: 'Rose',    primary: '#f43f5e', dark: '#e11d48', light: 'rgba(244,63,94,0.12)'  },
+    { label: 'Orange',  primary: '#f97316', dark: '#ea580c', light: 'rgba(249,115,22,0.12)' },
+    { label: 'Teal',    primary: '#14b8a6', dark: '#0f766e', light: 'rgba(20,184,166,0.12)' },
+    { label: 'Green',   primary: '#22c55e', dark: '#16a34a', light: 'rgba(34,197,94,0.12)'  },
+    { label: 'Custom',  primary: '',        dark: '',        light: ''                       },
+  ];
+
   tabs: { key: SettingsTab; label: string; icon: string }[] = [
+    { key: 'branding',        label: 'Branding',          icon: 'fa-palette' },
     { key: 'smtp',            label: 'SMTP / Email',      icon: 'fa-mail-bulk' },
     { key: 'alerts',          label: 'Alerts',            icon: 'fa-bell' },
     { key: 'llm',             label: 'LLM / AI',          icon: 'fa-robot' },
@@ -79,14 +100,23 @@ export class SettingsComponent implements OnInit {
     { key: 'cost',            label: 'Cost Control',      icon: 'fa-dollar-sign' },
   ];
 
-  constructor(private api: ApiService, private fb: FormBuilder) {}
+  constructor(private api: ApiService, private fb: FormBuilder, public branding: BrandingService) {}
 
   ngOnInit(): void {
     this.buildForms();
-    this.loadTab('smtp');
+    this.loadTab('branding');
   }
 
   buildForms(): void {
+    const c = this.branding.config;
+    this.brandingForm = this.fb.group({
+      appName:      [c.appName],
+      appSub:       [c.appSub],
+      logoIcon:     [c.logoIcon],
+      primaryColor: [c.primaryColor],
+      primaryDark:  [c.primaryDark],
+      primaryLight: [c.primaryLight],
+    });
     this.smtpForm = this.fb.group({
       host: [''], port: [587], user: [''], password: [''], from_: ['']
     });
@@ -160,8 +190,9 @@ export class SettingsComponent implements OnInit {
     this.loadTab(tab);
   }
 
-  tabGroup(group: 'messaging' | 'ai' | 'automation' | 'growth' | 'infra') {
+  tabGroup(group: 'general' | 'messaging' | 'ai' | 'automation' | 'growth' | 'infra') {
     const map: Record<string, SettingsTab[]> = {
+      general:    ['branding'],
       messaging:  ['smtp', 'alerts', 'channels', 'whatsapp'],
       ai:         ['llm', 'agents', 'scoring', 'language'],
       automation: ['followup', 'optout', 'imap', 'pipeline'],
@@ -169,6 +200,26 @@ export class SettingsComponent implements OnInit {
       infra:      ['limits', 'cost', 'reports', 'security', 'scaling', 'queue']
     };
     return this.tabs.filter(t => (map[group] ?? []).includes(t.key));
+  }
+
+  applyPreset(p: typeof this.colorPresets[0]): void {
+    if (!p.primary) return;
+    this.brandingForm.patchValue({ primaryColor: p.primary, primaryDark: p.dark, primaryLight: p.light });
+    this.branding.applyCssVars({ ...this.branding.config, primaryColor: p.primary, primaryDark: p.dark, primaryLight: p.light });
+  }
+
+  saveBranding(): void {
+    this.branding.save(this.brandingForm.value);
+    this.brandingMsg = 'Branding updated.';
+    setTimeout(() => this.brandingMsg = '', 3000);
+  }
+
+  resetBranding(): void {
+    this.branding.reset();
+    const c = this.branding.config;
+    this.brandingForm.patchValue(c);
+    this.brandingMsg = 'Reset to defaults.';
+    setTimeout(() => this.brandingMsg = '', 3000);
   }
 
   private fetch<T>(tab: SettingsTab, obs: Observable<T>, onNext: (d: T) => void): void {

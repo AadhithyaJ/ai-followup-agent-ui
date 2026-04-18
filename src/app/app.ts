@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from './core/auth.service';
+import { BrandingService } from './core/branding.service';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +8,10 @@ import { AuthService } from './core/auth.service';
   standalone: false,
   styleUrl: './app.css'
 })
-export class App {
-  constructor(public auth: AuthService) {}
+export class App implements OnInit {
+  constructor(public auth: AuthService, private branding: BrandingService) {}
+
+  ngOnInit(): void {
+    this.branding.applyCssVars();
+  }
 }

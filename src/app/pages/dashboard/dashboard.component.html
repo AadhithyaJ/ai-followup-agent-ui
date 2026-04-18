@@ -1,117 +1,191 @@
-<div class="container-fluid py-4">
+<div class="db-root">
 
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <h4 class="fw-bold mb-0"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard</h4>
-    <button class="btn btn-outline-primary btn-sm" (click)="loadOverview()">
-      <i class="fas fa-sync-alt me-1"></i>Refresh
-    </button>
-  </div>
-
-  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-
-  <!-- KPI Cards -->
-  <div class="row g-4 mb-4">
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card border-0 shadow-sm h-100 kpi-card kpi-primary">
-        <div class="card-body d-flex align-items-center gap-3">
-          <div class="kpi-icon bg-primary-soft rounded-circle">
-            <i class="fas fa-users fa-lg text-primary"></i>
-          </div>
-          <div>
-            <div class="text-muted small">Total Leads</div>
-            <div class="fs-3 fw-bold" *ngIf="!loading">{{ overview?.total_leads ?? '—' }}</div>
-            <div class="placeholder-glow" *ngIf="loading"><span class="placeholder col-6"></span></div>
-          </div>
-        </div>
-      </div>
+  <!-- ── Top bar ────────────────────────────────────────────── -->
+  <div class="db-topbar">
+    <div>
+      <h4 class="db-page-title">Dashboard</h4>
+      <p class="db-page-sub">{{ now | date:'EEEE, MMMM d · h:mm a' }}</p>
     </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card border-0 shadow-sm h-100 kpi-card kpi-success">
-        <div class="card-body d-flex align-items-center gap-3">
-          <div class="kpi-icon bg-success-soft rounded-circle">
-            <i class="fas fa-chart-line fa-lg text-success"></i>
-          </div>
-          <div>
-            <div class="text-muted small">Conversion Rate</div>
-            <div class="fs-3 fw-bold" *ngIf="!loading">{{ overview?.conversion_rate ?? '—' }}%</div>
-            <div class="placeholder-glow" *ngIf="loading"><span class="placeholder col-6"></span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card border-0 shadow-sm h-100 kpi-card kpi-warning">
-        <div class="card-body d-flex align-items-center gap-3">
-          <div class="kpi-icon bg-warning-soft rounded-circle">
-            <i class="fas fa-clock fa-lg text-warning"></i>
-          </div>
-          <div>
-            <div class="text-muted small">Avg Response Time</div>
-            <div class="fs-3 fw-bold" *ngIf="!loading">{{ overview?.avg_response_time ?? '—' }}s</div>
-            <div class="placeholder-glow" *ngIf="loading"><span class="placeholder col-6"></span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-sm-6 col-xl-3">
-      <div class="card border-0 shadow-sm h-100 kpi-card kpi-info">
-        <div class="card-body d-flex align-items-center gap-3">
-          <div class="kpi-icon bg-info-soft rounded-circle">
-            <i class="fas fa-funnel-dollar fa-lg text-info"></i>
-          </div>
-          <div>
-            <div class="text-muted small">Active Pipeline</div>
-            <div class="fs-3 fw-bold" *ngIf="!loading">{{ overview?.active_pipeline ?? '—' }}</div>
-            <div class="placeholder-glow" *ngIf="loading"><span class="placeholder col-6"></span></div>
-          </div>
-        </div>
-      </div>
+    <div class="d-flex align-items-center gap-2">
+      <span *ngIf="error" class="db-err-pill"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</span>
+      <button class="db-refresh-btn" (click)="load()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Refresh
+      </button>
     </div>
   </div>
 
-  <!-- Quick Actions + Realtime Feed -->
-  <div class="row g-4">
-    <div class="col-12 col-lg-5">
-      <div class="card shadow-sm mb-4">
-        <div class="card-header fw-semibold">
-          <i class="fas fa-bolt me-2 text-warning"></i>Quick Actions
+  <!-- ── KPI Row ────────────────────────────────────────────── -->
+  <div class="db-kpi-row">
+
+    <div class="db-kpi-card">
+      <div class="db-kpi-icon" style="background:rgba(99,102,241,0.1);color:#6366f1">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="db-kpi-body">
+        <div class="db-kpi-label">Total Leads</div>
+        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.total_leads ?? '—' }}</div>
+        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+      </div>
+      <div class="db-kpi-badge" style="color:#6366f1;background:rgba(99,102,241,0.08)">
+        <i class="fas fa-arrow-up me-1"></i>All time
+      </div>
+    </div>
+
+    <div class="db-kpi-card">
+      <div class="db-kpi-icon" style="background:rgba(34,197,94,0.1);color:#22c55e">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <div class="db-kpi-body">
+        <div class="db-kpi-label">Conversion Rate</div>
+        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.conversion_rate ?? '—' }}<span class="db-kpi-unit">%</span></div>
+        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+      </div>
+      <div class="db-kpi-badge" style="color:#22c55e;background:rgba(34,197,94,0.08)">
+        <i class="fas fa-star me-1"></i>Target 30%
+      </div>
+    </div>
+
+    <div class="db-kpi-card">
+      <div class="db-kpi-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <div class="db-kpi-body">
+        <div class="db-kpi-label">Avg Response</div>
+        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.avg_response_time ?? '—' }}<span class="db-kpi-unit">s</span></div>
+        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+      </div>
+      <div class="db-kpi-badge" style="color:#f59e0b;background:rgba(245,158,11,0.08)">
+        <i class="fas fa-clock me-1"></i>Speed
+      </div>
+    </div>
+
+    <div class="db-kpi-card">
+      <div class="db-kpi-icon" style="background:rgba(14,165,233,0.1);color:#0ea5e9">
+        <i class="fas fa-filter"></i>
+      </div>
+      <div class="db-kpi-body">
+        <div class="db-kpi-label">Active Pipeline</div>
+        <div class="db-kpi-value" *ngIf="!loading">{{ overview?.active_pipeline ?? '—' }}</div>
+        <div class="db-skel db-skel-sm" *ngIf="loading"></div>
+      </div>
+      <div class="db-kpi-badge" style="color:#0ea5e9;background:rgba(14,165,233,0.08)">
+        <i class="fas fa-circle me-1"></i>Live
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Main grid ──────────────────────────────────────────── -->
+  <div class="db-grid">
+
+    <!-- Funnel -->
+    <div class="db-card db-funnel-card">
+      <div class="db-card-header">
+        <div class="db-card-title"><i class="fas fa-filter me-2" style="color:#6366f1"></i>Pipeline Funnel</div>
+        <a routerLink="/analytics" class="db-card-link">Details <i class="fas fa-arrow-right ms-1"></i></a>
+      </div>
+      <div class="db-card-body">
+        <div *ngIf="loading" class="db-skel-list">
+          <div class="db-skel" *ngFor="let i of [1,2,3,4,5,6]"></div>
         </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-6">
-              <a routerLink="/leads" class="card text-decoration-none border-0 bg-primary-soft p-3 d-flex align-items-center gap-2 rounded">
-                <i class="fas fa-user-plus text-primary"></i>
-                <span class="fw-semibold small text-primary">Ingest Lead</span>
-              </a>
+        <div *ngIf="!loading" class="db-funnel-list">
+          <div class="db-funnel-row" *ngFor="let s of funnelStages()">
+            <div class="db-funnel-label">{{ s.label }}</div>
+            <div class="db-funnel-bar-wrap">
+              <div class="db-funnel-bar" [style.width.%]="funnelPct(s.key)" [style.background]="s.color"></div>
             </div>
-            <div class="col-6">
-              <a routerLink="/workflows" class="card text-decoration-none border-0 bg-success-soft p-3 d-flex align-items-center gap-2 rounded">
-                <i class="fas fa-sitemap text-success"></i>
-                <span class="fw-semibold small text-success">New Workflow</span>
-              </a>
-            </div>
-            <div class="col-6">
-              <a routerLink="/analytics" class="card text-decoration-none border-0 bg-info-soft p-3 d-flex align-items-center gap-2 rounded">
-                <i class="fas fa-chart-bar text-info"></i>
-                <span class="fw-semibold small text-info">View Analytics</span>
-              </a>
-            </div>
-            <div class="col-6">
-              <a routerLink="/admin" class="card text-decoration-none border-0 bg-warning-soft p-3 d-flex align-items-center gap-2 rounded">
-                <i class="fas fa-cogs text-warning"></i>
-                <span class="fw-semibold small text-warning">Admin Panel</span>
-              </a>
-            </div>
+            <div class="db-funnel-count">{{ funnel ? funnel[s.key] : 0 }}</div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-12 col-lg-7">
-      <app-realtime-feed mode="sse" channel="dashboard"></app-realtime-feed>
+    <!-- Quick Actions -->
+    <div class="db-card db-actions-card">
+      <div class="db-card-header">
+        <div class="db-card-title"><i class="fas fa-zap me-2" style="color:#f59e0b"></i>Quick Actions</div>
+      </div>
+      <div class="db-card-body">
+        <div class="db-actions-grid">
+          <a routerLink="/leads" class="db-action-tile" style="--c:#6366f1;--cb:rgba(99,102,241,0.08)">
+            <div class="db-action-icon"><i class="fas fa-user-plus"></i></div>
+            <div class="db-action-label">Leads</div>
+          </a>
+          <a routerLink="/analytics" class="db-action-tile" style="--c:#0ea5e9;--cb:rgba(14,165,233,0.08)">
+            <div class="db-action-icon"><i class="fas fa-chart-bar"></i></div>
+            <div class="db-action-label">Analytics</div>
+          </a>
+          <a routerLink="/admin" class="db-action-tile" style="--c:#f59e0b;--cb:rgba(245,158,11,0.08)">
+            <div class="db-action-icon"><i class="fas fa-sliders-h"></i></div>
+            <div class="db-action-label">Admin</div>
+          </a>
+          <a routerLink="/settings" class="db-action-tile" style="--c:#22c55e;--cb:rgba(34,197,94,0.08)">
+            <div class="db-action-icon"><i class="fas fa-cog"></i></div>
+            <div class="db-action-label">Settings</div>
+          </a>
+        </div>
+
+        <!-- Top Agent -->
+        <div class="db-top-agent" *ngIf="!loading && topAgent()">
+          <div class="db-top-agent-label">Top Performer</div>
+          <div class="db-top-agent-row">
+            <div class="db-top-agent-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div>
+              <div class="db-top-agent-name">{{ topAgent()?.agent }}</div>
+              <div class="db-top-agent-stat">{{ topAgent()?.conv_rate }}% conversion · {{ topAgent()?.conversions }} deals</div>
+            </div>
+            <div class="db-top-agent-crown ms-auto"><i class="fas fa-crown" style="color:#f59e0b"></i></div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Agent Leaderboard -->
+    <div class="db-card db-agents-card">
+      <div class="db-card-header">
+        <div class="db-card-title"><i class="fas fa-robot me-2" style="color:#0ea5e9"></i>Agent Performance</div>
+        <a routerLink="/analytics" class="db-card-link">All agents <i class="fas fa-arrow-right ms-1"></i></a>
+      </div>
+      <div class="db-card-body">
+        <div *ngIf="loading" class="db-skel-list">
+          <div class="db-skel" *ngFor="let i of [1,2,3]"></div>
+        </div>
+        <div *ngIf="!loading && !agents.length" class="db-empty">No agent data yet</div>
+        <div class="db-agent-list" *ngIf="!loading && agents.length">
+          <div class="db-agent-row" *ngFor="let a of agents; let i = index">
+            <div class="db-agent-rank" [class.db-rank-gold]="i===0" [class.db-rank-silver]="i===1" [class.db-rank-bronze]="i===2">
+              {{ i + 1 }}
+            </div>
+            <div class="db-agent-avatar"><i class="fas fa-robot"></i></div>
+            <div class="db-agent-info">
+              <div class="db-agent-name">{{ a.agent }}</div>
+              <div class="db-agent-bar-wrap">
+                <div class="db-agent-bar" [style.width.%]="a.conv_rate"></div>
+              </div>
+            </div>
+            <div class="db-agent-rate">{{ a.conv_rate }}%</div>
+            <div class="db-agent-conv">{{ a.conversions }} <span>deals</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Realtime Feed -->
+    <div class="db-card db-feed-card">
+      <div class="db-card-header">
+        <div class="db-card-title">
+          <i class="fas fa-circle me-2" style="color:#22c55e;font-size:0.5rem;vertical-align:middle"></i>
+          Live Activity Feed
+        </div>
+        <span class="db-live-pill">Live</span>
+      </div>
+      <div class="db-card-body db-feed-body">
+        <app-realtime-feed mode="sse" channel="dashboard"></app-realtime-feed>
+      </div>
+    </div>
+
   </div>
 </div>

@@ -89,4 +89,24 @@ export class LeadsComponent implements OnInit {
     };
     return map[stage] || 'bg-secondary';
   }
+
+  initials(name: string): string {
+    if (!name) return '?';
+    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  avatarColor(name: string): string {
+    const colors = ['#6366f1','#3b82f6','#0ea5e9','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6'];
+    let hash = 0;
+    for (const c of (name || '')) hash = c.charCodeAt(0) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  sourceIcon(source: string | undefined): string {
+    const map: Record<string, string> = {
+      whatsapp: 'fa-brands fa-whatsapp', email: 'fa-envelope',
+      web: 'fa-globe', api: 'fa-code'
+    };
+    return (source && map[source]) || 'fa-question-circle';
+  }
 }

@@ -12,6 +12,7 @@ export class LoginComponent {
   form: FormGroup;
   error = '';
   loading = false;
+  showPwd = false;
 
   constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
     this.form = this.fb.group({

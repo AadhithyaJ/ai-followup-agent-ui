@@ -22,8 +22,16 @@
     <!-- ── Sidebar ─────────────────────────────────────────────── -->
     <nav class="settings-sidebar">
 
+      <!-- General -->
+      <div class="settings-group-label">General</div>
+      <button *ngFor="let t of tabGroup('general')"
+              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              (click)="setTab(t.key)">
+        <i class="fas {{ t.icon }}"></i>{{ t.label }}
+      </button>
+
       <!-- Messaging -->
-      <div class="settings-group-label">Messaging</div>
+      <div class="settings-group-label" style="margin-top:0.5rem">Messaging</div>
       <button *ngFor="let t of tabGroup('messaging')"
               class="settings-nav-btn" [class.s-active]="activeTab===t.key"
               (click)="setTab(t.key)">
@@ -66,19 +74,101 @@
     <!-- ── Content ─────────────────────────────────────────────── -->
     <div class="settings-content">
 
-      <!-- Shared skeleton -->
-      <ng-template #skeleton>
-        <div class="s-skeleton">
-          <div class="s-skel-line" style="width:40%"></div>
-          <div class="s-skel-line" style="width:70%"></div>
-          <div class="s-skel-line" style="width:55%"></div>
-          <div class="s-skel-line" style="width:80%"></div>
+      <!-- ══ BRANDING ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='branding'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:rgba(99,102,241,0.1);color:#6366f1"><i class="fas fa-palette"></i></div>
+          <div>
+            <div class="s-title">Branding</div>
+            <div class="s-desc">Customize your app name, logo icon, and primary color scheme.</div>
+          </div>
         </div>
-      </ng-template>
 
+        <span *ngIf="brandingMsg" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ brandingMsg }}</span>
 
+        <form [formGroup]="brandingForm" (ngSubmit)="saveBranding()">
 
-      <!-- ══ SMTP ══════════════════════════════════════════════ -->
+          <!-- Live Preview -->
+          <div class="brand-preview">
+            <div class="brand-preview-sidebar">
+              <div class="brand-preview-logo" [style.background]="'linear-gradient(135deg,' + brandingForm.value.primaryColor + ',' + brandingForm.value.primaryDark + ')'">
+                <i class="fas {{ brandingForm.value.logoIcon }}"></i>
+              </div>
+              <div>
+                <div class="brand-preview-name">{{ brandingForm.value.appName || 'App Name' }}</div>
+                <div class="brand-preview-sub">{{ brandingForm.value.appSub || 'Subtitle' }}</div>
+              </div>
+            </div>
+            <div class="brand-preview-label">Live Preview</div>
+          </div>
+
+          <hr class="s-divider">
+
+          <!-- App Name & Sub -->
+          <div class="s-section-label">Identity</div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-5 s-field">
+              <label>App Name</label>
+              <input class="form-control" formControlName="appName" placeholder="Revenue AI">
+            </div>
+            <div class="col-md-3 s-field">
+              <label>Subtitle</label>
+              <input class="form-control" formControlName="appSub" placeholder="Engine">
+            </div>
+          </div>
+
+          <!-- Logo Icon -->
+          <div class="s-section-label">Logo Icon</div>
+          <div class="brand-icon-grid mb-4">
+            <button type="button" class="brand-icon-btn"
+                    *ngFor="let icon of logoIcons"
+                    [class.selected]="brandingForm.value.logoIcon === icon"
+                    (click)="brandingForm.patchValue({logoIcon: icon})"
+                    [style.border-color]="brandingForm.value.logoIcon === icon ? brandingForm.value.primaryColor : ''">
+              <i class="fas {{ icon }}"></i>
+            </button>
+          </div>
+
+          <!-- Color -->
+          <div class="s-section-label">Color Scheme</div>
+          <div class="brand-color-row mb-3">
+            <button type="button" class="brand-color-swatch"
+                    *ngFor="let p of colorPresets"
+                    [class.selected]="brandingForm.value.primaryColor === p.primary"
+                    [title]="p.label"
+                    (click)="applyPreset(p)"
+                    [style.background]="p.primary || '#e5e7eb'">
+              <i class="fas fa-check" *ngIf="brandingForm.value.primaryColor === p.primary && p.primary"></i>
+              <i class="fas fa-pen" *ngIf="!p.primary" style="color:#9ca3af;font-size:0.7rem"></i>
+            </button>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-3 s-field">
+              <label>Primary Color</label>
+              <div class="brand-color-input-wrap">
+                <input type="color" class="brand-color-swatch-input" formControlName="primaryColor">
+                <input class="form-control" formControlName="primaryColor" placeholder="#6366f1">
+              </div>
+            </div>
+            <div class="col-md-3 s-field">
+              <label>Dark Shade</label>
+              <div class="brand-color-input-wrap">
+                <input type="color" class="brand-color-swatch-input" formControlName="primaryDark">
+                <input class="form-control" formControlName="primaryDark" placeholder="#4f46e5">
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-3">
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Apply Branding</button>
+            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="resetBranding()">
+              <i class="fas fa-undo me-1"></i>Reset to Defaults
+            </button>
+          </div>
+        </form>
+      </div>
+
+<!-- ══ SMTP ══════════════════════════════════════════════ -->
       <div *ngIf="activeTab==='smtp'" class="settings-panel">
         <div class="d-flex align-items-center gap-3 mb-4">
           <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-mail-bulk"></i></div>
@@ -88,12 +178,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-
-        <ng-container *ngIf="loading['smtp']; else tplSmtp">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplSmtp>
-          <span *ngIf="msg['smtp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['smtp'] }}</span>
+                  <span *ngIf="msg['smtp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['smtp'] }}</span>
           <form [formGroup]="smtpForm" (ngSubmit)="save('smtp')">
             <div class="s-section-label">Server</div>
             <div class="row g-3 mb-4">
@@ -123,7 +208,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save SMTP Settings</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ ALERTS ══════════════════════════════════════════════ -->
@@ -136,12 +220,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-
-        <ng-container *ngIf="loading['alerts']; else tplAlerts">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplAlerts>
-          <span *ngIf="msg['alerts']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['alerts'] }}</span>
+                  <span *ngIf="msg['alerts']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['alerts'] }}</span>
           <form [formGroup]="alertForm" (ngSubmit)="save('alerts')">
             <div class="s-section-label">Recipients</div>
             <div class="s-field mb-4">
@@ -181,7 +260,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Alert Settings</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ CHANNELS ══════════════════════════════════════════ -->
@@ -194,11 +272,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['channels']; else tplChan">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplChan>
-          <span *ngIf="msg['channels']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['channels'] }}</span>
+                  <span *ngIf="msg['channels']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['channels'] }}</span>
           <form [formGroup]="channelForm" (ngSubmit)="save('channels')">
             <div class="d-flex flex-column gap-2 mb-4">
               <label class="toggle-row" for="ce">
@@ -246,7 +320,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Channels</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ WHATSAPP ══════════════════════════════════════════ -->
@@ -259,11 +332,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['whatsapp']; else tplWa">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplWa>
-          <span *ngIf="msg['whatsapp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['whatsapp'] }}</span>
+                  <span *ngIf="msg['whatsapp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['whatsapp'] }}</span>
           <form [formGroup]="whatsappForm" (ngSubmit)="save('whatsapp')">
             <div class="s-section-label">Provider</div>
             <div class="row g-3 mb-4">
@@ -332,7 +401,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save WhatsApp</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ LLM ══════════════════════════════════════════════ -->
@@ -345,11 +413,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['llm']; else tplLlm">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplLlm>
-          <span *ngIf="msg['llm']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['llm'] }}</span>
+                  <span *ngIf="msg['llm']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['llm'] }}</span>
           <form [formGroup]="llmForm" (ngSubmit)="save('llm')">
             <div class="row g-4 mb-4">
               <div class="col-md-4 s-field">
@@ -373,7 +437,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save LLM Settings</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ AGENTS ══════════════════════════════════════════ -->
@@ -386,11 +449,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['agents']; else tplAgents">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplAgents>
-          <div class="d-flex flex-column gap-4">
+                  <div class="d-flex flex-column gap-4">
             <div *ngFor="let name of agentNames" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
               <div class="d-flex align-items-center gap-3 px-4 py-3" style="background:#f9fafb;border-bottom:1px solid #e5e7eb">
                 <div class="s-page-icon bg-primary-soft text-primary" style="width:34px;height:34px;border-radius:8px;font-size:0.8rem">
@@ -427,7 +486,6 @@
               </div>
             </div>
           </div>
-        </ng-template>
       </div>
 
       <!-- ══ SCORING ══════════════════════════════════════════ -->
@@ -440,11 +498,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['scoring']; else tplScoring">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplScoring>
-          <span *ngIf="msg['scoring']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['scoring'] }}</span>
+                  <span *ngIf="msg['scoring']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['scoring'] }}</span>
           <form [formGroup]="scoringForm" (ngSubmit)="save('scoring')">
             <label class="toggle-row mb-4" for="scen">
               <div>
@@ -468,7 +522,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Scoring</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ LANGUAGE ══════════════════════════════════════════ -->
@@ -481,11 +534,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['language']; else tplLang">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplLang>
-          <span *ngIf="msg['language']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['language'] }}</span>
+                  <span *ngIf="msg['language']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['language'] }}</span>
           <form [formGroup]="languageForm" (ngSubmit)="save('language')">
             <div class="row g-3 mb-3">
               <div class="col-md-4 s-field">
@@ -537,7 +586,6 @@
               <i class="fas fa-check me-1"></i>{{ detectResult.resolved_language }} — {{ detectResult.language_name }}
             </span>
           </div>
-        </ng-template>
       </div>
 
       <!-- ══ FOLLOW-UP ══════════════════════════════════════════ -->
@@ -550,11 +598,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['followup']; else tplFollowup">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplFollowup>
-          <span *ngIf="msg['followup']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['followup'] }}</span>
+                  <span *ngIf="msg['followup']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['followup'] }}</span>
           <form [formGroup]="followupForm" (ngSubmit)="save('followup')">
             <label class="toggle-row mb-4" for="fen">
               <div>
@@ -602,7 +646,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Follow-up</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ OPT-OUT ══════════════════════════════════════════ -->
@@ -615,11 +658,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['optout']; else tplOptout">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplOptout>
-          <span *ngIf="optoutMsg" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ optoutMsg }}</span>
+                  <span *ngIf="optoutMsg" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ optoutMsg }}</span>
           <div class="s-field mb-4">
             <label>Keywords <span class="fw-normal text-muted">(comma-separated)</span></label>
             <textarea class="form-control" rows="4" [(ngModel)]="optoutKeywords"
@@ -627,7 +666,6 @@
             <div class="form-text">Case-insensitive matching. Lead is marked opted_out, stage set to lost.</div>
           </div>
           <button class="s-save-btn" (click)="saveOptout()"><i class="fas fa-save me-2"></i>Save Keywords</button>
-        </ng-template>
       </div>
 
       <!-- ══ IMAP ══════════════════════════════════════════════ -->
@@ -640,11 +678,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['imap']; else tplImap">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplImap>
-          <span *ngIf="msg['imap']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['imap'] }}</span>
+                  <span *ngIf="msg['imap']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['imap'] }}</span>
           <form [formGroup]="imapForm" (ngSubmit)="save('imap')">
             <label class="toggle-row mb-4" for="imaen">
               <div>
@@ -664,7 +698,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save IMAP</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ PIPELINE ══════════════════════════════════════════ -->
@@ -677,11 +710,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['pipeline']; else tplPipeline">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplPipeline>
-          <span *ngIf="msg['pipeline']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['pipeline'] }}</span>
+                  <span *ngIf="msg['pipeline']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['pipeline'] }}</span>
           <form [formGroup]="pipelineForm" (ngSubmit)="save('pipeline')">
             <div class="d-flex flex-column gap-2 mb-4">
               <label class="toggle-row" for="aaa">
@@ -705,7 +734,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Pipeline</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ A/B TESTING ══════════════════════════════════════ -->
@@ -721,11 +749,7 @@
             <i class="fas fa-plus me-1"></i>Add Experiment
           </button>
         </div>
-        <ng-container *ngIf="loading['ab']; else tplAb">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplAb>
-          <span *ngIf="msg['ab']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['ab'] }}</span>
+                  <span *ngIf="msg['ab']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['ab'] }}</span>
           <form [formGroup]="abForm" (ngSubmit)="save('ab')">
             <label class="toggle-row mb-4" for="aben">
               <div>
@@ -763,7 +787,6 @@
             </div>
             <button class="s-save-btn mt-3" type="submit"><i class="fas fa-save me-2"></i>Save A/B Config</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ PERSONALIZATION ═══════════════════════════════════ -->
@@ -779,11 +802,7 @@
             <i class="fas fa-plus me-1"></i>Add Rule
           </button>
         </div>
-        <ng-container *ngIf="loading['personalization']; else tplPersonalization">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplPersonalization>
-          <span *ngIf="msg['personalization']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['personalization'] }}</span>
+                  <span *ngIf="msg['personalization']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['personalization'] }}</span>
           <form [formGroup]="personalizationForm" (ngSubmit)="save('personalization')">
             <label class="toggle-row mb-4" for="pen">
               <div>
@@ -824,7 +843,6 @@
             </div>
             <button class="s-save-btn mt-3" type="submit"><i class="fas fa-save me-2"></i>Save Rules</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ LIMITS ════════════════════════════════════════════ -->
@@ -837,11 +855,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['limits']; else tplLimits">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplLimits>
-          <span *ngIf="msg['limits']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['limits'] }}</span>
+                  <span *ngIf="msg['limits']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['limits'] }}</span>
           <form [formGroup]="limitsForm" (ngSubmit)="save('limits')">
             <div class="row g-4 mb-4">
               <div class="col-md-5 s-field">
@@ -855,7 +869,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Limits</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ COST CONTROL ══════════════════════════════════════ -->
@@ -868,11 +881,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['cost']; else tplCost">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplCost>
-          <span *ngIf="msg['cost']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['cost'] }}</span>
+                  <span *ngIf="msg['cost']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['cost'] }}</span>
           <form [formGroup]="costForm" (ngSubmit)="save('cost')">
             <div class="row g-3 mb-3">
               <div class="col-md-4 s-field">
@@ -891,7 +900,6 @@
             </label>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Cost Control</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ REPORTS ════════════════════════════════════════════ -->
@@ -903,11 +911,7 @@
             <div class="s-desc">Automated summary email with pipeline stats, conversions, and LLM cost breakdown.</div>
           </div>
         </div>
-        <ng-container *ngIf="loading['reports']; else tplReports">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplReports>
-          <span *ngIf="msg['reports']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['reports'] }}</span>
+                  <span *ngIf="msg['reports']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['reports'] }}</span>
           <form [formGroup]="reportsForm" (ngSubmit)="save('reports')">
             <label class="toggle-row mb-4" for="rep">
               <div>
@@ -924,7 +928,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Reports</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ SECURITY ═══════════════════════════════════════════ -->
@@ -937,11 +940,7 @@
           </div>
           <span class="live-pill ms-auto">Live</span>
         </div>
-        <ng-container *ngIf="loading['security']; else tplSecurity">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplSecurity>
-          <span *ngIf="msg['security']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['security'] }}</span>
+                  <span *ngIf="msg['security']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['security'] }}</span>
           <form [formGroup]="securityForm" (ngSubmit)="save('security')">
             <div class="col-md-4 s-field mb-4">
               <label>Rate Limit (requests / minute)</label>
@@ -949,7 +948,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Security</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ SCALING ════════════════════════════════════════════ -->
@@ -961,11 +959,7 @@
             <div class="s-desc">Record target instance counts. Apply via your container orchestrator (Kubernetes / ECS).</div>
           </div>
         </div>
-        <ng-container *ngIf="loading['scaling']; else tplScaling">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplScaling>
-          <span *ngIf="msg['scaling']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['scaling'] }}</span>
+                  <span *ngIf="msg['scaling']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['scaling'] }}</span>
           <form [formGroup]="scalingForm" (ngSubmit)="save('scaling')">
             <div class="row g-4 mb-4">
               <div class="col-md-4 s-field">
@@ -983,7 +977,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Scaling</button>
           </form>
-        </ng-template>
       </div>
 
       <!-- ══ QUEUE ══════════════════════════════════════════════ -->
@@ -995,11 +988,7 @@
             <div class="s-desc">Tune retry behaviour and worker concurrency for the background task queue.</div>
           </div>
         </div>
-        <ng-container *ngIf="loading['queue']; else tplQueue">
-          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
-        </ng-container>
-        <ng-template #tplQueue>
-          <span *ngIf="msg['queue']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['queue'] }}</span>
+                  <span *ngIf="msg['queue']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['queue'] }}</span>
           <form [formGroup]="queueForm" (ngSubmit)="save('queue')">
             <div class="row g-4 mb-4">
               <div class="col-md-4 s-field">
@@ -1018,7 +1007,6 @@
             </div>
             <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Queue</button>
           </form>
-        </ng-template>
       </div>
 
     </div><!-- /content -->

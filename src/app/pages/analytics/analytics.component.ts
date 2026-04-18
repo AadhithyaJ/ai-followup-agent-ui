@@ -65,4 +65,21 @@ export class AnalyticsComponent implements OnInit {
     if (!this.advanced?.revenue_attribution) return [];
     return Object.entries(this.advanced.revenue_attribution).map(([channel, count]) => ({ channel, count }));
   }
+
+  cohortEntries() {
+    if (!this.advanced?.cohort_conversion) return [];
+    return Object.entries(this.advanced.cohort_conversion).map(([key, value]) => ({ key, value }));
+  }
+
+  attrPct(count: number): number {
+    const entries = this.attributionEntries();
+    const max = Math.max(...entries.map(e => e.count), 1);
+    return Math.round((count / max) * 100);
+  }
+
+  rateColor(rate: number): string {
+    if (rate >= 30) return 'rgba(34,197,94,0.15)';
+    if (rate >= 15) return 'rgba(245,158,11,0.15)';
+    return 'rgba(239,68,68,0.12)';
+  }
 }
