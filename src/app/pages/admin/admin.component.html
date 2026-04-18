@@ -8,47 +8,49 @@
     </div>
   </div>
 
-  <!-- Shell -->
-  <div class="adm-shell">
+  <!-- Shell — same structure as Settings -->
+  <div class="settings-wrap">
 
-    <!-- ── Sidebar ───────────────────────────────────────────── -->
-    <nav class="adm-sidebar">
-      <div class="adm-group-label">Operations</div>
-      <button class="adm-nav-btn" [class.adm-active]="activeTab==='flags'" (click)="setTab('flags')">
+    <!-- ── Sidebar ─────────────────────────────────────────────── -->
+    <nav class="settings-sidebar">
+
+      <div class="settings-group-label">Operations</div>
+      <button class="settings-nav-btn" [class.s-active]="activeTab==='flags'" (click)="setTab('flags')">
         <i class="fas fa-toggle-on"></i>Feature Flags
       </button>
-      <button class="adm-nav-btn" [class.adm-active]="activeTab==='config'" (click)="setTab('config')">
+      <button class="settings-nav-btn" [class.s-active]="activeTab==='config'" (click)="setTab('config')">
         <i class="fas fa-sliders-h"></i>Config
       </button>
-      <button class="adm-nav-btn" [class.adm-active]="activeTab==='prompts'" (click)="setTab('prompts')">
+      <button class="settings-nav-btn" [class.s-active]="activeTab==='prompts'" (click)="setTab('prompts')">
         <i class="fas fa-file-alt"></i>Prompts
       </button>
-      <button class="adm-nav-btn" [class.adm-active]="activeTab==='usage'" (click)="setTab('usage')">
+      <button class="settings-nav-btn" [class.s-active]="activeTab==='usage'" (click)="setTab('usage')">
         <i class="fas fa-tachometer-alt"></i>Usage &amp; Quota
       </button>
 
-      <div class="adm-group-label" style="margin-top:1rem">Intelligence</div>
-      <button class="adm-nav-btn" [class.adm-active]="activeTab==='nba'" (click)="setTab('nba')">
+      <div class="settings-group-label" style="margin-top:0.5rem">Intelligence</div>
+      <button class="settings-nav-btn" [class.s-active]="activeTab==='nba'" (click)="setTab('nba')">
         <i class="fas fa-trophy"></i>NBA &amp; Leaderboard
       </button>
-      <button class="adm-nav-btn" [class.adm-active]="activeTab==='autopilot'" (click)="setTab('autopilot')">
+      <button class="settings-nav-btn" [class.s-active]="activeTab==='autopilot'" (click)="setTab('autopilot')">
         <i class="fas fa-rocket"></i>Autopilot
       </button>
-      <button class="adm-nav-btn" [class.adm-active]="activeTab==='abtest'" (click)="setTab('abtest')">
+      <button class="settings-nav-btn" [class.s-active]="activeTab==='abtest'" (click)="setTab('abtest')">
         <i class="fas fa-flask"></i>A/B Testing
       </button>
+
     </nav>
 
-    <!-- ── Content ───────────────────────────────────────────── -->
-    <div class="adm-content">
+    <!-- ── Content ─────────────────────────────────────────────── -->
+    <div class="settings-content">
 
-      <!-- ══ FEATURE FLAGS ══════════════════════════════════════ -->
-      <div *ngIf="activeTab==='flags'">
-        <div class="adm-panel-header">
-          <div class="adm-panel-icon" style="background:rgba(34,197,94,0.1);color:#22c55e"><i class="fas fa-toggle-on"></i></div>
+      <!-- ══ FEATURE FLAGS ═══════════════════════════════════════ -->
+      <div *ngIf="activeTab==='flags'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:rgba(34,197,94,0.1);color:#22c55e"><i class="fas fa-toggle-on"></i></div>
           <div>
-            <div class="adm-panel-title">Feature Flags</div>
-            <div class="adm-panel-sub">Toggle features without deployment</div>
+            <div class="s-title">Feature Flags</div>
+            <div class="s-desc">Toggle features without deployment. Changes apply instantly.</div>
           </div>
           <button class="adm-icon-btn ms-auto" (click)="loadFlags()" title="Refresh">
             <i class="fas fa-sync-alt" [class.fa-spin]="flagsLoading"></i>
@@ -58,7 +60,7 @@
         <div class="adm-grid-2">
           <!-- Flags list -->
           <div class="adm-card">
-            <div class="adm-card-title">Active Flags</div>
+            <div class="adm-card-title"><i class="fas fa-list me-2"></i>Active Flags</div>
             <div *ngIf="flagsLoading" class="adm-skel-wrap">
               <div class="db-skel" *ngFor="let i of [1,2,3]"></div>
             </div>
@@ -80,7 +82,7 @@
 
           <!-- Update flag -->
           <div class="adm-card">
-            <div class="adm-card-title">Update Flag</div>
+            <div class="adm-card-title"><i class="fas fa-edit me-2" style="color:#6366f1"></i>Update Flag</div>
             <div class="adm-msg adm-msg-info" *ngIf="flagMsg">{{ flagMsg }}</div>
             <form [formGroup]="flagForm" (ngSubmit)="saveFlag()" class="adm-form">
               <div class="adm-field">
@@ -110,12 +112,12 @@
       </div>
 
       <!-- ══ CONFIG ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='config'">
-        <div class="adm-panel-header">
-          <div class="adm-panel-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6"><i class="fas fa-sliders-h"></i></div>
+      <div *ngIf="activeTab==='config'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6"><i class="fas fa-sliders-h"></i></div>
           <div>
-            <div class="adm-panel-title">Dynamic Config</div>
-            <div class="adm-panel-sub">Override runtime settings with dot-notation paths</div>
+            <div class="s-title">Dynamic Config</div>
+            <div class="s-desc">Override runtime settings with dot-notation paths. No restart required.</div>
           </div>
           <button class="adm-icon-btn ms-auto" (click)="loadConfig()" title="Refresh">
             <i class="fas fa-sync-alt" [class.fa-spin]="configLoading"></i>
@@ -124,9 +126,8 @@
 
         <div class="adm-grid-2">
           <div>
-            <!-- Set config form -->
             <div class="adm-card mb-3">
-              <div class="adm-card-title">Set Override</div>
+              <div class="adm-card-title"><i class="fas fa-pen me-2" style="color:#6366f1"></i>Set Override</div>
               <div class="adm-msg adm-msg-info" *ngIf="configMsg">{{ configMsg }}</div>
               <form [formGroup]="configForm" (ngSubmit)="setConfig()" class="adm-form">
                 <div class="adm-field">
@@ -142,9 +143,8 @@
                 </button>
               </form>
             </div>
-            <!-- Audit log -->
             <div class="adm-card">
-              <div class="adm-card-title"><i class="fas fa-history me-2 text-muted"></i>Audit Log</div>
+              <div class="adm-card-title"><i class="fas fa-history me-2" style="color:#9ca3af"></i>Audit Log</div>
               <div class="adm-audit-list">
                 <div class="adm-audit-row" *ngFor="let a of configAudit">
                   <span class="adm-audit-time">{{ a.ts * 1000 | date:'MMM d, h:mm a' }}</span>
@@ -157,9 +157,8 @@
             </div>
           </div>
 
-          <!-- Config table -->
           <div class="adm-card">
-            <div class="adm-card-title">Current Overrides</div>
+            <div class="adm-card-title"><i class="fas fa-layer-group me-2" style="color:#6366f1"></i>Current Overrides</div>
             <div *ngIf="configLoading" class="adm-skel-wrap">
               <div class="db-skel" *ngFor="let i of [1,2,3,4]"></div>
             </div>
@@ -177,21 +176,20 @@
         </div>
       </div>
 
-      <!-- ══ PROMPTS ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='prompts'">
-        <div class="adm-panel-header">
-          <div class="adm-panel-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6"><i class="fas fa-file-alt"></i></div>
+      <!-- ══ PROMPTS ═════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='prompts'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6"><i class="fas fa-file-alt"></i></div>
           <div>
-            <div class="adm-panel-title">Prompt Management</div>
-            <div class="adm-panel-sub">Edit, version, and rollback AI system prompts</div>
+            <div class="s-title">Prompt Management</div>
+            <div class="s-desc">Edit, version, and rollback AI system prompts for every agent.</div>
           </div>
         </div>
 
         <div class="adm-prompts-grid">
-          <!-- Prompt list -->
           <div class="adm-card adm-prompt-list-card">
             <div class="adm-card-title" style="display:flex;justify-content:space-between">
-              Prompts
+              <span><i class="fas fa-list me-2" style="color:#8b5cf6"></i>Prompts</span>
               <button class="adm-icon-btn" (click)="loadPromptNames()"><i class="fas fa-sync-alt"></i></button>
             </div>
             <div class="adm-prompt-list">
@@ -204,10 +202,9 @@
             </div>
           </div>
 
-          <!-- Edit form -->
           <div>
             <div class="adm-card mb-3">
-              <div class="adm-card-title">Edit Prompt</div>
+              <div class="adm-card-title"><i class="fas fa-edit me-2" style="color:#8b5cf6"></i>Edit Prompt</div>
               <div class="adm-msg adm-msg-info" *ngIf="promptMsg">{{ promptMsg }}</div>
               <form [formGroup]="promptForm" (ngSubmit)="savePrompt()" class="adm-form">
                 <div class="adm-row-2">
@@ -232,9 +229,8 @@
               </form>
             </div>
 
-            <!-- History & Diff -->
             <div class="adm-card" *ngIf="selectedPrompt">
-              <div class="adm-card-title"><i class="fas fa-history me-2 text-muted"></i>Version History</div>
+              <div class="adm-card-title"><i class="fas fa-history me-2" style="color:#9ca3af"></i>Version History</div>
               <div class="adm-diff-bar">
                 <div class="adm-field" style="width:80px">
                   <label>v1</label>
@@ -264,24 +260,24 @@
         </div>
       </div>
 
-      <!-- ══ USAGE ══════════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='usage'">
-        <div class="adm-panel-header">
-          <div class="adm-panel-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b"><i class="fas fa-tachometer-alt"></i></div>
+      <!-- ══ USAGE & QUOTA ═══════════════════════════════════════ -->
+      <div *ngIf="activeTab==='usage'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b"><i class="fas fa-tachometer-alt"></i></div>
           <div>
-            <div class="adm-panel-title">Usage &amp; Quotas</div>
-            <div class="adm-panel-sub">Monitor consumption and manage rate limits</div>
+            <div class="s-title">Usage &amp; Quotas</div>
+            <div class="s-desc">Monitor tenant consumption and manage rate limits in real time.</div>
           </div>
-          <button class="adm-icon-btn ms-auto" (click)="loadUsage()" title="Refresh">
+          <span class="live-pill ms-auto">Live</span>
+          <button class="adm-icon-btn" (click)="loadUsage()" title="Refresh">
             <i class="fas fa-sync-alt" [class.fa-spin]="usageLoading"></i>
           </button>
         </div>
         <div class="adm-msg adm-msg-info" *ngIf="usageMsg">{{ usageMsg }}</div>
 
         <div class="adm-grid-2">
-          <!-- Quota bars -->
           <div class="adm-card">
-            <div class="adm-card-title">Quota Usage</div>
+            <div class="adm-card-title"><i class="fas fa-chart-bar me-2" style="color:#f59e0b"></i>Quota Usage</div>
             <div *ngIf="usageLoading" class="adm-skel-wrap">
               <div class="db-skel" *ngFor="let i of [1,2,3]"></div>
             </div>
@@ -298,17 +294,15 @@
                   </span>
                 </div>
                 <div class="adm-quota-track">
-                  <div class="adm-quota-bar" [style.width.%]="u.percent"
-                       [class.warn]="u.is_warning"></div>
+                  <div class="adm-quota-bar" [style.width.%]="u.percent" [class.warn]="u.is_warning"></div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Controls -->
           <div>
             <div class="adm-card mb-3">
-              <div class="adm-card-title">Update Limit</div>
+              <div class="adm-card-title"><i class="fas fa-pen me-2" style="color:#6366f1"></i>Update Limit</div>
               <form [formGroup]="limitForm" (ngSubmit)="updateLimit()" class="adm-form">
                 <div class="adm-field">
                   <label>Limit Name</label>
@@ -325,7 +319,7 @@
             </div>
 
             <div class="adm-card">
-              <div class="adm-card-title" style="color:#22c55e">Top-Up Quota</div>
+              <div class="adm-card-title" style="color:#22c55e"><i class="fas fa-plus-circle me-2"></i>Top-Up Quota</div>
               <form [formGroup]="topupForm" (ngSubmit)="topUp()" class="adm-form">
                 <div class="adm-field">
                   <label>Limit Name</label>
@@ -344,13 +338,13 @@
         </div>
       </div>
 
-      <!-- ══ NBA & LEADERBOARD ══════════════════════════════════ -->
-      <div *ngIf="activeTab==='nba'">
-        <div class="adm-panel-header">
-          <div class="adm-panel-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b"><i class="fas fa-trophy"></i></div>
+      <!-- ══ NBA & LEADERBOARD ═══════════════════════════════════ -->
+      <div *ngIf="activeTab==='nba'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b"><i class="fas fa-trophy"></i></div>
           <div>
-            <div class="adm-panel-title">NBA &amp; Leaderboard</div>
-            <div class="adm-panel-sub">Next best action recommendations and lead rankings</div>
+            <div class="s-title">NBA &amp; Leaderboard</div>
+            <div class="s-desc">Next best action recommendations and lead conversion rankings.</div>
           </div>
           <button class="adm-icon-btn ms-auto" (click)="loadLeaderboard()" title="Refresh">
             <i class="fas fa-sync-alt" [class.fa-spin]="leaderboardLoading"></i>
@@ -358,7 +352,6 @@
         </div>
 
         <div class="adm-grid-2">
-          <!-- NBA -->
           <div class="adm-card">
             <div class="adm-card-title"><i class="fas fa-lightbulb me-2" style="color:#f59e0b"></i>Next Best Action</div>
             <div class="adm-nba-search">
@@ -382,7 +375,6 @@
             <div class="adm-empty" *ngIf="!nbaResult && !nbaLoading">Enter a lead UUID to get the next best action.</div>
           </div>
 
-          <!-- Leaderboard -->
           <div class="adm-card">
             <div class="adm-card-title"><i class="fas fa-trophy me-2" style="color:#f59e0b"></i>Conversion Leaderboard</div>
             <div *ngIf="leaderboardLoading" class="adm-skel-wrap">
@@ -408,20 +400,19 @@
         </div>
       </div>
 
-      <!-- ══ AUTOPILOT ══════════════════════════════════════════ -->
-      <div *ngIf="activeTab==='autopilot'">
-        <div class="adm-panel-header">
-          <div class="adm-panel-icon" style="background:rgba(99,102,241,0.1);color:#6366f1"><i class="fas fa-rocket"></i></div>
+      <!-- ══ AUTOPILOT ═══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='autopilot'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:rgba(99,102,241,0.1);color:#6366f1"><i class="fas fa-rocket"></i></div>
           <div>
-            <div class="adm-panel-title">Autopilot &amp; Orchestrator</div>
-            <div class="adm-panel-sub">Trigger AI-driven bulk actions and test the orchestration pipeline</div>
+            <div class="s-title">Autopilot &amp; Orchestrator</div>
+            <div class="s-desc">Trigger AI-driven bulk actions and test the orchestration pipeline end-to-end.</div>
           </div>
         </div>
 
         <div class="adm-grid-2">
-          <!-- Autopilot -->
           <div class="adm-card">
-            <div class="adm-card-title">Autopilot Run</div>
+            <div class="adm-card-title"><i class="fas fa-play-circle me-2" style="color:#22c55e"></i>Autopilot Run</div>
             <p class="adm-card-desc">Run the AI autopilot across all active leads. Use dry-run first to preview actions without sending any messages.</p>
             <div class="adm-autopilot-btns">
               <button class="adm-outline-btn adm-outline-warn" (click)="runAutopilot(true)" [disabled]="autopilotLoading">
@@ -456,9 +447,8 @@
             </div>
           </div>
 
-          <!-- Orchestrator -->
           <div class="adm-card">
-            <div class="adm-card-title">Orchestrator Test</div>
+            <div class="adm-card-title"><i class="fas fa-sitemap me-2" style="color:#6366f1"></i>Orchestrator Test</div>
             <form [formGroup]="orchestrateForm" (ngSubmit)="orchestrate()" class="adm-form">
               <div class="adm-field">
                 <label>Message</label>
@@ -497,18 +487,18 @@
         </div>
       </div>
 
-      <!-- ══ A/B TESTING ══════════════════════════════════════ -->
-      <div *ngIf="activeTab==='abtest'">
-        <div class="adm-panel-header">
-          <div class="adm-panel-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6"><i class="fas fa-flask"></i></div>
+      <!-- ══ A/B TESTING ════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='abtest'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:rgba(20,184,166,0.1);color:#14b8a6"><i class="fas fa-flask"></i></div>
           <div>
-            <div class="adm-panel-title">A/B Testing</div>
-            <div class="adm-panel-sub">Multi-armed bandit experiment results and variant analysis</div>
+            <div class="s-title">A/B Testing</div>
+            <div class="s-desc">Multi-armed bandit experiment results and variant performance analysis.</div>
           </div>
         </div>
 
         <div class="adm-card" style="max-width:720px">
-          <div class="adm-card-title">Experiment Report</div>
+          <div class="adm-card-title"><i class="fas fa-chart-bar me-2" style="color:#14b8a6"></i>Experiment Report</div>
           <div class="adm-ab-search">
             <input class="adm-input" [(ngModel)]="abExperimentName" placeholder="greeting_test">
             <button class="adm-submit-btn" (click)="fetchABReport()" [disabled]="abLoading">
@@ -517,9 +507,9 @@
             </button>
           </div>
 
-          <div class="adm-empty adm-empty-lg" *ngIf="!abReport && !abLoading">
-            <i class="fas fa-flask"></i>
-            <div>Enter an experiment name to view its report</div>
+          <div class="adm-empty" *ngIf="!abReport && !abLoading">
+            <i class="fas fa-flask" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.3"></i>
+            Enter an experiment name to view its report
           </div>
 
           <div *ngIf="abReport" class="adm-ab-report">
@@ -542,8 +532,7 @@
                   <div class="adm-ab-winrate">{{ (v.win_rate * 100).toFixed(1) }}%</div>
                 </div>
                 <div class="adm-ab-track">
-                  <div class="adm-ab-bar" [style.width]="(v.win_rate*100)+'%'"
-                       [class.leader]="v.is_leader"></div>
+                  <div class="adm-ab-bar" [style.width]="(v.win_rate*100)+'%'" [class.leader]="v.is_leader"></div>
                 </div>
                 <div class="adm-ab-stats">
                   <span>{{ v.impressions }} impressions</span>
@@ -561,6 +550,6 @@
         </div>
       </div>
 
-    </div>
-  </div>
+    </div><!-- /settings-content -->
+  </div><!-- /settings-wrap -->
 </div>
