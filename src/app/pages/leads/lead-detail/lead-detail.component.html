@@ -1,139 +1,409 @@
 <div class="container-fluid py-4">
-  <div class="mb-4">
+  <div class="mb-3 d-flex align-items-center gap-3">
     <a routerLink="/leads" class="btn btn-outline-secondary btn-sm">
       <i class="fas fa-arrow-left me-1"></i>Back to Leads
     </a>
+    <h5 class="mb-0 fw-bold text-truncate" *ngIf="lead">{{ lead.name }}</h5>
   </div>
 
   <div *ngIf="loading" class="text-center py-5"><div class="spinner-border text-primary"></div></div>
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
   <div *ngIf="lead && !loading">
-    <div class="row g-4">
 
-      <!-- Lead Profile -->
-      <div class="col-12 col-lg-5">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header fw-semibold">
-            <i class="fas fa-id-card me-2 text-primary"></i>Lead Profile
-          </div>
-          <div class="card-body">
-            <h4 class="fw-bold mb-1">{{ lead.name }}</h4>
-            <p class="text-muted mb-3">{{ lead.email || lead.phone || 'No contact info' }}</p>
+    <!-- Tab Nav -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab==='overview'" (click)="setTab('overview')">
+          <i class="fas fa-id-card me-1"></i>Overview
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab==='thread'" (click)="setTab('thread')">
+          <i class="fas fa-comments me-1"></i>Thread
+          <span *ngIf="thread" class="badge bg-primary ms-1">{{ thread.thread.length }}</span>
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" [class.active]="activeTab==='advisory'" (click)="setTab('advisory')">
+          <i class="fas fa-brain me-1"></i>AI Advisory
+          <span *ngIf="advisory" class="badge ms-1"
+                [style.background-color]="healthColor(advisory.deal_health_label)">
+            {{ advisory.deal_health }}
+          </span>
+        </button>
+      </li>
+    </ul>
 
-            <div class="d-flex flex-wrap gap-2 mb-3">
-              <span class="badge fs-6 {{ scoreBadge(lead.score) }}">
-                <i class="fas fa-star me-1"></i>{{ lead.score | titlecase }} Score
-              </span>
-              <span class="badge fs-6 {{ stageBadge(lead.stage) }}">
-                <i class="fas fa-flag me-1"></i>{{ lead.stage | titlecase }}
-              </span>
+    <!-- ── OVERVIEW TAB ─────────────────────────────────── -->
+    <div *ngIf="activeTab==='overview'">
+      <div class="row g-4">
+
+        <!-- Lead Profile -->
+        <div class="col-12 col-lg-5">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header fw-semibold">
+              <i class="fas fa-id-card me-2 text-primary"></i>Lead Profile
             </div>
+            <div class="card-body">
+              <h4 class="fw-bold mb-1">{{ lead.name }}</h4>
+              <p class="text-muted mb-3">{{ lead.email || lead.phone || 'No contact info' }}</p>
 
-            <table class="table table-borderless table-sm mb-0">
-              <tbody>
-                <tr><th class="text-muted fw-normal ps-0" style="width:130px"><i class="fas fa-share-alt me-1"></i>Source</th><td>{{ lead.source || '—' }}</td></tr>
-                <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-brain me-1"></i>Intent</th><td>{{ lead.intent || '—' }}</td></tr>
-                <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-robot me-1"></i>Agent</th><td>{{ lead.assigned_agent || '—' }}</td></tr>
-                <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-phone me-1"></i>Phone</th><td>{{ lead.phone || '—' }}</td></tr>
-                <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-envelope me-1"></i>Email</th><td>{{ lead.email || '—' }}</td></tr>
-                <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-tasks me-1"></i>Follow-ups</th><td>{{ lead.followup_tasks_scheduled ?? '—' }}</td></tr>
-                <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-calendar me-1"></i>Created</th><td>{{ lead.created_at | date:'medium' }}</td></tr>
-              </tbody>
-            </table>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge fs-6 {{ scoreBadge(lead.score) }}">
+                  <i class="fas fa-star me-1"></i>{{ lead.score | titlecase }} Score
+                </span>
+                <span class="badge fs-6 {{ stageBadge(lead.stage) }}">
+                  <i class="fas fa-flag me-1"></i>{{ lead.stage | titlecase }}
+                </span>
+              </div>
 
-            <div *ngIf="lead.message" class="mt-3">
-              <div class="text-muted small mb-1"><i class="fas fa-comment me-1"></i>Original Message</div>
-              <div class="bg-light rounded p-3 text-sm">{{ lead.message }}</div>
+              <table class="table table-borderless table-sm mb-0">
+                <tbody>
+                  <tr><th class="text-muted fw-normal ps-0" style="width:130px"><i class="fas fa-share-alt me-1"></i>Source</th><td>{{ lead.source || '—' }}</td></tr>
+                  <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-brain me-1"></i>Intent</th><td>{{ lead.intent || '—' }}</td></tr>
+                  <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-robot me-1"></i>Agent</th><td>{{ lead.assigned_agent || '—' }}</td></tr>
+                  <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-phone me-1"></i>Phone</th><td>{{ lead.phone || '—' }}</td></tr>
+                  <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-envelope me-1"></i>Email</th><td>{{ lead.email || '—' }}</td></tr>
+                  <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-tasks me-1"></i>Follow-ups</th><td>{{ lead.followup_tasks_scheduled ?? '—' }}</td></tr>
+                  <tr><th class="text-muted fw-normal ps-0"><i class="fas fa-calendar me-1"></i>Created</th><td>{{ lead.created_at | date:'medium' }}</td></tr>
+                </tbody>
+              </table>
+
+              <div *ngIf="lead.message" class="mt-3">
+                <div class="text-muted small mb-1"><i class="fas fa-comment me-1"></i>Original Message</div>
+                <div class="bg-light rounded p-3 small">{{ lead.message }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NBA Card -->
+          <div class="card shadow-sm">
+            <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-lightbulb me-2 text-warning"></i>Next Best Action</span>
+              <button class="btn btn-sm btn-outline-warning" (click)="loadNBA()" [disabled]="nbaLoading">
+                <span *ngIf="nbaLoading" class="spinner-border spinner-border-sm"></span>
+                <i class="fas fa-magic" *ngIf="!nbaLoading"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <div *ngIf="!nba && !nbaLoading" class="text-center text-muted py-3">
+                <i class="fas fa-robot fa-2x mb-2 d-block"></i>
+                Click the button to get an AI recommendation.
+              </div>
+              <div *ngIf="nbaLoading" class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-warning"></div>
+              </div>
+              <div *ngIf="nba">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge bg-warning text-dark fs-6">{{ nba.action }}</span>
+                  <small class="text-muted">{{ (nba.confidence * 100).toFixed(0) }}% confidence</small>
+                </div>
+                <p class="text-muted small mb-2">{{ nba.reason }}</p>
+                <div class="bg-light rounded p-2 small"><em>{{ nba.message_draft }}</em></div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- NBA Card -->
-        <div class="card shadow-sm">
-          <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-lightbulb me-2 text-warning"></i>Next Best Action</span>
-            <button class="btn btn-sm btn-outline-warning" (click)="loadNBA()" [disabled]="nbaLoading">
-              <span *ngIf="nbaLoading" class="spinner-border spinner-border-sm"></span>
-              <i class="fas fa-magic" *ngIf="!nbaLoading"></i>
-            </button>
+        <!-- Actions -->
+        <div class="col-12 col-lg-7">
+          <!-- Stage Update -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-header fw-semibold">
+              <i class="fas fa-exchange-alt me-2 text-success"></i>Update Stage
+            </div>
+            <div class="card-body">
+              <div class="alert alert-success py-2" *ngIf="stageSuccess">{{ stageSuccess }}</div>
+              <div class="alert alert-danger py-2" *ngIf="stageError">{{ stageError }}</div>
+              <form [formGroup]="stageForm" (ngSubmit)="updateStage()" class="d-flex gap-2">
+                <select class="form-select" formControlName="stage">
+                  <option value="">Select stage…</option>
+                  <option *ngFor="let s of stages" [value]="s">{{ s | titlecase }}</option>
+                </select>
+                <button class="btn btn-success text-nowrap" type="submit" [disabled]="stageForm.invalid">
+                  <i class="fas fa-check me-1"></i>Update
+                </button>
+              </form>
+            </div>
           </div>
-          <div class="card-body">
-            <div *ngIf="!nba && !nbaLoading" class="text-center text-muted py-3">
-              <i class="fas fa-robot fa-2x mb-2 d-block"></i>
-              Click the button to get an AI recommendation.
+
+          <!-- Behavioral Trigger -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-header fw-semibold">
+              <i class="fas fa-bolt me-2 text-warning"></i>Behavioral Trigger
             </div>
-            <div *ngIf="nbaLoading" class="text-center py-3">
-              <div class="spinner-border spinner-border-sm text-warning"></div>
+            <div class="card-body">
+              <div class="alert alert-success py-2" *ngIf="triggerSuccess">{{ triggerSuccess }}</div>
+              <div class="alert alert-danger py-2" *ngIf="triggerError">{{ triggerError }}</div>
+              <form [formGroup]="triggerForm" (ngSubmit)="sendTrigger()">
+                <div class="row g-2">
+                  <div class="col-md-5">
+                    <label class="form-label small">Event Type</label>
+                    <select class="form-select" formControlName="event">
+                      <option *ngFor="let e of eventTypes" [value]="e">{{ e }}</option>
+                    </select>
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label small">Metadata (JSON)</label>
+                    <input class="form-control" formControlName="metadata" placeholder='{"url":"https://..."}'>
+                  </div>
+                  <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-warning w-100" type="submit">
+                      <i class="fas fa-bolt me-1"></i>Fire
+                    </button>
+                  </div>
+                </div>
+              </form>
             </div>
-            <div *ngIf="nba">
-              <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="badge bg-warning text-dark fs-6">{{ nba.action }}</span>
-                <small class="text-muted">{{ (nba.confidence * 100).toFixed(0) }}% confidence</small>
+          </div>
+
+          <!-- Realtime Feed -->
+          <app-realtime-feed mode="sse" channel="leads"></app-realtime-feed>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── THREAD TAB ───────────────────────────────────── -->
+    <div *ngIf="activeTab==='thread'">
+      <div *ngIf="threadLoading" class="text-center py-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Loading communication thread…</p>
+      </div>
+      <div *ngIf="threadError" class="alert alert-danger">{{ threadError }}</div>
+
+      <div *ngIf="thread && !threadLoading">
+        <!-- Thread Stats -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="card shadow-sm text-center">
+              <div class="card-body py-3">
+                <div class="fs-3 fw-bold text-primary">{{ thread.total_followups }}</div>
+                <div class="text-muted small">Follow-ups Sent</div>
               </div>
-              <p class="text-muted small mb-2">{{ nba.reason }}</p>
-              <div class="bg-light rounded p-2 text-sm"><em>{{ nba.message_draft }}</em></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card shadow-sm text-center">
+              <div class="card-body py-3">
+                <div class="fs-3 fw-bold text-success">{{ thread.total_replies }}</div>
+                <div class="text-muted small">Replies Received</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card shadow-sm text-center">
+              <div class="card-body py-3">
+                <span class="badge fs-6 {{ stageBadge(thread.stage) }}">{{ thread.stage | titlecase }}</span>
+                <div class="text-muted small mt-1">Current Stage</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card shadow-sm text-center">
+              <div class="card-body py-3">
+                <div class="fw-semibold text-truncate">{{ thread.agent }}</div>
+                <div class="text-muted small">Assigned Agent</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Thread -->
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold">
+            <i class="fas fa-comments me-2 text-primary"></i>Full Communication Thread
+            <span class="badge bg-secondary ms-2">{{ thread.thread.length }} messages</span>
+          </div>
+          <div class="card-body p-3" style="max-height:600px;overflow-y:auto">
+            <div *ngFor="let msg of thread.thread" class="mb-3">
+              <div class="d-flex" [class.justify-content-end]="msg.direction==='outbound'">
+                <div style="max-width:75%">
+                  <!-- Channel + time label -->
+                  <div class="d-flex align-items-center gap-2 mb-1"
+                       [class.justify-content-end]="msg.direction==='outbound'">
+                    <small class="text-muted">
+                      <i class="fas fa-{{ msg.channel==='email' ? 'envelope' : msg.channel==='whatsapp' ? 'whatsapp' : 'comment' }} me-1"></i>
+                      {{ msg.channel }}
+                    </small>
+                    <small class="text-muted">{{ msg.sent_at | date:'short' }}</small>
+                    <span class="badge bg-light text-dark border small">{{ msg.status }}</span>
+                  </div>
+                  <!-- Bubble -->
+                  <div class="rounded-3 p-3 small"
+                       [style.background]="msg.direction==='outbound' ? '#0d6efd' : '#f8f9fa'"
+                       [style.color]="msg.direction==='outbound' ? '#fff' : '#212529'">
+                    {{ msg.message }}
+                  </div>
+                  <div class="text-muted" style="font-size:0.7rem"
+                       [class.text-end]="msg.direction==='outbound'">
+                    {{ msg.direction === 'outbound' ? 'AI Agent' : thread.lead_name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="thread.thread.length===0" class="text-center text-muted py-4">
+              <i class="fas fa-comment-slash fa-2x mb-2 d-block"></i>No messages yet.
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Actions -->
-      <div class="col-12 col-lg-7">
+      <!-- Load button if thread not loaded yet -->
+      <div *ngIf="!thread && !threadLoading && !threadError" class="text-center py-5">
+        <button class="btn btn-primary" (click)="loadThread()">
+          <i class="fas fa-sync me-2"></i>Load Thread
+        </button>
+      </div>
+    </div>
 
-        <!-- Stage Update -->
-        <div class="card shadow-sm mb-4">
-          <div class="card-header fw-semibold">
-            <i class="fas fa-exchange-alt me-2 text-success"></i>Update Stage
-          </div>
-          <div class="card-body">
-            <div class="alert alert-success py-2" *ngIf="stageSuccess">{{ stageSuccess }}</div>
-            <div class="alert alert-danger py-2" *ngIf="stageError">{{ stageError }}</div>
-            <form [formGroup]="stageForm" (ngSubmit)="updateStage()" class="d-flex gap-2">
-              <select class="form-select" formControlName="stage">
-                <option value="">Select stage…</option>
-                <option *ngFor="let s of stages" [value]="s">{{ s | titlecase }}</option>
-              </select>
-              <button class="btn btn-success text-nowrap" type="submit" [disabled]="stageForm.invalid">
-                <i class="fas fa-check me-1"></i>Update
-              </button>
-            </form>
+    <!-- ── AI ADVISORY TAB ──────────────────────────────── -->
+    <div *ngIf="activeTab==='advisory'">
+      <div *ngIf="advisoryLoading" class="text-center py-5">
+        <div class="spinner-border text-warning"></div>
+        <p class="mt-2 text-muted">Generating AI advisory… this may take a moment.</p>
+      </div>
+      <div *ngIf="advisoryError" class="alert alert-danger">{{ advisoryError }}</div>
+
+      <div *ngIf="advisory && !advisoryLoading">
+
+        <!-- Deal Health Banner -->
+        <div class="card shadow-sm mb-4"
+             [style.border-left]="'4px solid ' + healthColor(advisory.deal_health_label)">
+          <div class="card-body d-flex align-items-center gap-4 flex-wrap">
+            <!-- Gauge -->
+            <div class="text-center" style="min-width:120px">
+              <div class="display-4 fw-bold" [style.color]="healthColor(advisory.deal_health_label)">
+                {{ advisory.deal_health }}
+              </div>
+              <div class="fw-semibold" [style.color]="healthColor(advisory.deal_health_label)">
+                <i class="fas {{ healthIcon(advisory.deal_health_label) }} me-1"></i>
+                {{ advisory.deal_health_label | titlecase }}
+              </div>
+              <div class="text-muted small">Deal Health Score</div>
+            </div>
+            <!-- Progress bar -->
+            <div class="flex-grow-1">
+              <div class="progress mb-2" style="height:12px">
+                <div class="progress-bar" role="progressbar"
+                     [style.width]="advisory.deal_health + '%'"
+                     [style.background-color]="healthColor(advisory.deal_health_label)">
+                </div>
+              </div>
+              <!-- Risk Flags -->
+              <div *ngIf="advisory.risk_flags.length > 0" class="d-flex flex-wrap gap-2 mb-2">
+                <span *ngFor="let flag of advisory.risk_flags" class="badge bg-danger">
+                  <i class="fas fa-exclamation-triangle me-1"></i>{{ flag }}
+                </span>
+              </div>
+              <p class="text-muted small mb-0">{{ advisory.summary }}</p>
+            </div>
           </div>
         </div>
 
-        <!-- Behavioral Trigger -->
-        <div class="card shadow-sm mb-4">
-          <div class="card-header fw-semibold">
-            <i class="fas fa-bolt me-2 text-warning"></i>Behavioral Trigger
+        <div class="row g-4">
+
+          <!-- Suggestions -->
+          <div class="col-12 col-lg-7">
+            <div class="card shadow-sm mb-4">
+              <div class="card-header fw-semibold">
+                <i class="fas fa-list-ol me-2 text-success"></i>Priority Actions
+              </div>
+              <div class="card-body p-0">
+                <div *ngFor="let s of advisory.suggestions; let i=index"
+                     class="d-flex gap-3 p-3 border-bottom">
+                  <div class="flex-shrink-0">
+                    <span class="badge rounded-circle fs-6"
+                          [class.bg-danger]="s.priority===1"
+                          [class.bg-warning]="s.priority===2"
+                          [class.bg-primary]="s.priority===3"
+                          [class.bg-secondary]="s.priority>3"
+                          style="width:32px;height:32px;line-height:20px;display:flex;align-items:center;justify-content:center;">
+                      {{ s.priority }}
+                    </span>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ s.action }}</div>
+                    <div class="text-muted small mb-1">{{ s.reason }}</div>
+                    <div class="d-flex gap-2 flex-wrap">
+                      <span class="badge bg-light text-dark border small">
+                        <i class="fas fa-bullseye me-1"></i>{{ s.expected_outcome }}
+                      </span>
+                      <span class="badge bg-warning text-dark small">
+                        <i class="fas fa-clock me-1"></i>{{ s.deadline }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
-            <div class="alert alert-success py-2" *ngIf="triggerSuccess">{{ triggerSuccess }}</div>
-            <div class="alert alert-danger py-2" *ngIf="triggerError">{{ triggerError }}</div>
-            <form [formGroup]="triggerForm" (ngSubmit)="sendTrigger()">
-              <div class="row g-2">
-                <div class="col-md-5">
-                  <label class="form-label small">Event Type</label>
-                  <select class="form-select" formControlName="event">
-                    <option *ngFor="let e of eventTypes" [value]="e">{{ e }}</option>
-                  </select>
-                </div>
-                <div class="col-md-5">
-                  <label class="form-label small">Metadata (JSON)</label>
-                  <input class="form-control" formControlName="metadata" placeholder='{"url":"https://..."}'>
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                  <button class="btn btn-warning w-100" type="submit">
-                    <i class="fas fa-bolt me-1"></i>Fire
+
+          <!-- Talking Points -->
+          <div class="col-12 col-lg-5">
+            <div class="card shadow-sm mb-4">
+              <div class="card-header fw-semibold">
+                <i class="fas fa-microphone me-2 text-info"></i>Talking Points
+              </div>
+              <ul class="list-group list-group-flush">
+                <li *ngFor="let pt of advisory.talking_points" class="list-group-item">
+                  <i class="fas fa-check-circle text-success me-2"></i>{{ pt }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Message Drafts -->
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header fw-semibold">
+                <i class="fas fa-pen-fancy me-2 text-primary"></i>Ready-to-Send Message Drafts
+              </div>
+              <!-- Channel Selector -->
+              <div class="card-body pb-0">
+                <div class="d-flex gap-2 flex-wrap">
+                  <button *ngFor="let draft of advisory.message_drafts; let i=index"
+                          class="btn btn-sm"
+                          [class.btn-primary]="activeDraftChannel===i"
+                          [class.btn-outline-secondary]="activeDraftChannel!==i"
+                          (click)="activeDraftChannel=i">
+                    <i class="fab {{ draftIcon(draft.channel) }} me-1"></i>
+                    {{ draft.channel | titlecase }}
                   </button>
                 </div>
               </div>
-            </form>
+              <div class="card-body" *ngIf="advisory.message_drafts[activeDraftChannel] as draft">
+                <div *ngIf="draft.subject" class="mb-2">
+                  <strong>Subject:</strong> {{ draft.subject }}
+                </div>
+                <div class="bg-light rounded p-3 small" style="white-space:pre-wrap;font-family:inherit">{{ draft.body }}</div>
+                <button class="btn btn-sm btn-outline-primary mt-2"
+                        (click)="copyDraft(draft.body)">
+                  <i class="fas fa-copy me-1"></i>Copy
+                </button>
+              </div>
+            </div>
           </div>
+
         </div>
 
-        <!-- Realtime Feed -->
-        <app-realtime-feed mode="sse" channel="leads"></app-realtime-feed>
+        <div class="text-muted small text-end mt-2">
+          Generated at {{ advisory.generated_at | date:'medium' }}
+          <button class="btn btn-sm btn-link p-0 ms-2" (click)="advisory=null; loadAdvisory()">
+            <i class="fas fa-sync"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Load button if advisory not loaded -->
+      <div *ngIf="!advisory && !advisoryLoading && !advisoryError" class="text-center py-5">
+        <i class="fas fa-brain fa-3x text-warning mb-3 d-block"></i>
+        <p class="text-muted">GPT-4o will analyse this lead and return a full intelligence report.</p>
+        <button class="btn btn-warning btn-lg" (click)="loadAdvisory()">
+          <i class="fas fa-magic me-2"></i>Generate AI Advisory
+        </button>
       </div>
     </div>
+
   </div>
 </div>

@@ -37,6 +37,11 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     loadChildren: () => import('./pages/admin/admin.module').then(m => m.AdminModule)
   },
+  {
+    path: 'settings',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./pages/settings/settings.module').then(m => m.SettingsModule)
+  },
   { path: '**', redirectTo: 'dashboard' }
 ];
 

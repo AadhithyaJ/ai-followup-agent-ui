@@ -1,0 +1,1026 @@
+<div class="container-fluid py-4">
+
+  <!-- Page Header -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+      <h4 class="fw-bold mb-0" style="color:#111827">Settings</h4>
+      <p class="text-muted small mb-0">Manage your AI Revenue Engine configuration</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span *ngIf="seedMsg" class="s-toast"><i class="fas fa-check-circle"></i>{{ seedMsg }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="seed()" [disabled]="seedLoading"
+              style="border-radius:8px;font-size:0.825rem;font-weight:500">
+        <span *ngIf="seedLoading" class="spinner-border spinner-border-sm me-1"></span>
+        <i class="fas fa-database me-1" *ngIf="!seedLoading"></i>Seed Defaults
+      </button>
+    </div>
+  </div>
+
+  <!-- Settings Shell -->
+  <div class="settings-wrap">
+
+    <!-- ── Sidebar ─────────────────────────────────────────────── -->
+    <nav class="settings-sidebar">
+
+      <!-- Messaging -->
+      <div class="settings-group-label">Messaging</div>
+      <button *ngFor="let t of tabGroup('messaging')"
+              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              (click)="setTab(t.key)">
+        <i class="fas {{ t.icon }}"></i>{{ t.label }}
+      </button>
+
+      <!-- AI & Agents -->
+      <div class="settings-group-label" style="margin-top:0.5rem">AI & Agents</div>
+      <button *ngFor="let t of tabGroup('ai')"
+              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              (click)="setTab(t.key)">
+        <i class="fas {{ t.icon }}"></i>{{ t.label }}
+      </button>
+
+      <!-- Automation -->
+      <div class="settings-group-label" style="margin-top:0.5rem">Automation</div>
+      <button *ngFor="let t of tabGroup('automation')"
+              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              (click)="setTab(t.key)">
+        <i class="fas {{ t.icon }}"></i>{{ t.label }}
+      </button>
+
+      <!-- Growth -->
+      <div class="settings-group-label" style="margin-top:0.5rem">Growth</div>
+      <button *ngFor="let t of tabGroup('growth')"
+              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              (click)="setTab(t.key)">
+        <i class="fas {{ t.icon }}"></i>{{ t.label }}
+      </button>
+
+      <!-- Infrastructure -->
+      <div class="settings-group-label" style="margin-top:0.5rem">Infrastructure</div>
+      <button *ngFor="let t of tabGroup('infra')"
+              class="settings-nav-btn" [class.s-active]="activeTab===t.key"
+              (click)="setTab(t.key)">
+        <i class="fas {{ t.icon }}"></i>{{ t.label }}
+      </button>
+    </nav>
+
+    <!-- ── Content ─────────────────────────────────────────────── -->
+    <div class="settings-content">
+
+      <!-- Shared skeleton -->
+      <ng-template #skeleton>
+        <div class="s-skeleton">
+          <div class="s-skel-line" style="width:40%"></div>
+          <div class="s-skel-line" style="width:70%"></div>
+          <div class="s-skel-line" style="width:55%"></div>
+          <div class="s-skel-line" style="width:80%"></div>
+        </div>
+      </ng-template>
+
+
+
+      <!-- ══ SMTP ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='smtp'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-mail-bulk"></i></div>
+          <div>
+            <div class="s-title">SMTP / Email</div>
+            <div class="s-desc">Configure your outbound email provider. Changes apply immediately — no restart needed.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+
+        <ng-container *ngIf="loading['smtp']; else tplSmtp">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplSmtp>
+          <span *ngIf="msg['smtp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['smtp'] }}</span>
+          <form [formGroup]="smtpForm" (ngSubmit)="save('smtp')">
+            <div class="s-section-label">Server</div>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6 s-field">
+                <label>SMTP Host</label>
+                <input class="form-control" formControlName="host" placeholder="smtp.gmail.com">
+              </div>
+              <div class="col-md-2 s-field">
+                <label>Port</label>
+                <input class="form-control" type="number" formControlName="port">
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Username</label>
+                <input class="form-control" formControlName="user">
+              </div>
+            </div>
+            <div class="s-section-label">Credentials</div>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6 s-field">
+                <label>Password</label>
+                <input class="form-control" type="password" formControlName="password" placeholder="Leave blank to keep existing">
+              </div>
+              <div class="col-md-6 s-field">
+                <label>From Address</label>
+                <input class="form-control" formControlName="from_" placeholder="noreply@company.com">
+              </div>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save SMTP Settings</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ ALERTS ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='alerts'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-warning-soft" style="color:#d97706"><i class="fas fa-bell"></i></div>
+          <div>
+            <div class="s-title">Sales Alerts</div>
+            <div class="s-desc">Get notified when high-value leads arrive, reply, or reach negotiation stage.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+
+        <ng-container *ngIf="loading['alerts']; else tplAlerts">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplAlerts>
+          <span *ngIf="msg['alerts']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['alerts'] }}</span>
+          <form [formGroup]="alertForm" (ngSubmit)="save('alerts')">
+            <div class="s-section-label">Recipients</div>
+            <div class="s-field mb-4">
+              <label>Alert Email Addresses</label>
+              <input class="form-control" formControlName="emails" placeholder="sales@co.com, manager@co.com">
+              <div class="form-text">Comma-separated list of addresses that receive all alert types.</div>
+            </div>
+            <div class="s-section-label">Trigger Conditions</div>
+            <div class="d-flex flex-column gap-2 mb-4">
+              <label class="toggle-row" for="ahl">
+                <div>
+                  <div class="toggle-label"><i class="fas fa-fire text-danger me-2"></i>Hot Lead Alert</div>
+                  <div class="toggle-sub">Fires when a new lead scores high with buying intent</div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="alert_on_high_lead" id="ahl">
+                </div>
+              </label>
+              <label class="toggle-row" for="alr">
+                <div>
+                  <div class="toggle-label"><i class="fas fa-reply text-success me-2"></i>Reply Alert</div>
+                  <div class="toggle-sub">Fires when a lead replies to any email</div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="alert_on_reply" id="alr">
+                </div>
+              </label>
+              <label class="toggle-row" for="aln">
+                <div>
+                  <div class="toggle-label"><i class="fas fa-handshake text-primary me-2"></i>Negotiation Alert</div>
+                  <div class="toggle-sub">Fires when a lead stage moves to negotiation</div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="alert_on_negotiation" id="aln">
+                </div>
+              </label>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Alert Settings</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ CHANNELS ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='channels'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-success-soft text-success"><i class="fas fa-broadcast-tower"></i></div>
+          <div>
+            <div class="s-title">Communication Channels</div>
+            <div class="s-desc">Enable or disable each outbound communication channel. Applies immediately.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['channels']; else tplChan">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplChan>
+          <span *ngIf="msg['channels']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['channels'] }}</span>
+          <form [formGroup]="channelForm" (ngSubmit)="save('channels')">
+            <div class="d-flex flex-column gap-2 mb-4">
+              <label class="toggle-row" for="ce">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="s-page-icon bg-primary-soft text-primary" style="width:36px;height:36px;border-radius:8px;font-size:0.85rem">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <div>
+                    <div class="toggle-label">Email</div>
+                    <div class="toggle-sub">SMTP-based outbound emails to leads</div>
+                  </div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="email_enabled" id="ce">
+                </div>
+              </label>
+              <label class="toggle-row" for="cw">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="s-page-icon bg-success-soft text-success" style="width:36px;height:36px;border-radius:8px;font-size:0.85rem">
+                    <i class="fab fa-whatsapp"></i>
+                  </div>
+                  <div>
+                    <div class="toggle-label">WhatsApp</div>
+                    <div class="toggle-sub">MSG91 or Twilio WhatsApp Business</div>
+                  </div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="whatsapp_enabled" id="cw">
+                </div>
+              </label>
+              <label class="toggle-row" for="cs">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="s-page-icon bg-warning-soft" style="width:36px;height:36px;border-radius:8px;font-size:0.85rem;color:#d97706">
+                    <i class="fas fa-sms"></i>
+                  </div>
+                  <div>
+                    <div class="toggle-label">SMS</div>
+                    <div class="toggle-sub">Text message follow-ups via configured provider</div>
+                  </div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="sms_enabled" id="cs">
+                </div>
+              </label>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Channels</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ WHATSAPP ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='whatsapp'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-success-soft text-success" style="font-size:1.1rem"><i class="fab fa-whatsapp"></i></div>
+          <div>
+            <div class="s-title">WhatsApp Provider</div>
+            <div class="s-desc">Switch between MSG91 (India) and Twilio (global) without restarting the server.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['whatsapp']; else tplWa">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplWa>
+          <span *ngIf="msg['whatsapp']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['whatsapp'] }}</span>
+          <form [formGroup]="whatsappForm" (ngSubmit)="save('whatsapp')">
+            <div class="s-section-label">Provider</div>
+            <div class="row g-3 mb-4">
+              <div class="col-md-5">
+                <div class="provider-card" [class.selected]="whatsappForm.get('provider')?.value==='twilio'"
+                     (click)="whatsappForm.patchValue({provider:'twilio'})">
+                  <i class="fas fa-phone-square-alt text-primary fs-5"></i>
+                  <div>
+                    <div class="fw-semibold small">Twilio</div>
+                    <div style="font-size:0.72rem;color:#6b7280">Global — recommended for international</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-5">
+                <div class="provider-card" [class.selected]="whatsappForm.get('provider')?.value==='msg91'"
+                     (click)="whatsappForm.patchValue({provider:'msg91'})">
+                  <i class="fas fa-comment-dots text-success fs-5"></i>
+                  <div>
+                    <div class="fw-semibold small">MSG91</div>
+                    <div style="font-size:0.72rem;color:#6b7280">India — lower cost, local support</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2 d-flex align-items-center">
+                <label class="toggle-row w-100" for="waen" style="padding:0.6rem 0.8rem">
+                  <span class="small fw-semibold">Enabled</span>
+                  <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" formControlName="enabled" id="waen">
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- MSG91 creds -->
+            <div *ngIf="whatsappForm.get('provider')?.value==='msg91'" class="cred-block mb-4">
+              <div class="cred-block-title">MSG91 Credentials</div>
+              <div class="row g-3">
+                <div class="col-md-6 s-field">
+                  <label>Auth Key</label>
+                  <input class="form-control" formControlName="msg91_authkey">
+                </div>
+                <div class="col-md-6 s-field">
+                  <label>Integrated Number</label>
+                  <input class="form-control" formControlName="msg91_integrated_number" placeholder="919XXXXXXXXX">
+                  <div class="form-text">Digits only, no + prefix</div>
+                </div>
+              </div>
+            </div>
+            <!-- Twilio creds -->
+            <div *ngIf="whatsappForm.get('provider')?.value==='twilio'" class="cred-block mb-4">
+              <div class="cred-block-title">Twilio Credentials</div>
+              <div class="row g-3">
+                <div class="col-md-6 s-field">
+                  <label>Account SID</label>
+                  <input class="form-control" formControlName="twilio_account_sid">
+                </div>
+                <div class="col-md-6 s-field">
+                  <label>Auth Token</label>
+                  <input class="form-control" type="password" formControlName="twilio_auth_token">
+                </div>
+                <div class="col-md-6 s-field">
+                  <label>From Number</label>
+                  <input class="form-control" formControlName="twilio_from" placeholder="whatsapp:+14155238886">
+                </div>
+              </div>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save WhatsApp</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ LLM ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='llm'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-info-soft text-info"><i class="fas fa-robot"></i></div>
+          <div>
+            <div class="s-title">LLM / AI Model</div>
+            <div class="s-desc">Control the AI model, creativity level, and token budget for all agents.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['llm']; else tplLlm">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplLlm>
+          <span *ngIf="msg['llm']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['llm'] }}</span>
+          <form [formGroup]="llmForm" (ngSubmit)="save('llm')">
+            <div class="row g-4 mb-4">
+              <div class="col-md-4 s-field">
+                <label>Model</label>
+                <select class="form-select" formControlName="model">
+                  <option *ngFor="let m of llmModels" [value]="m">{{ m }}</option>
+                </select>
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Temperature <span class="text-muted fw-normal">(0 = focused, 1 = creative)</span></label>
+                <input class="form-control" type="number" step="0.1" min="0" max="1" formControlName="temperature">
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Max Tokens per Response</label>
+                <input class="form-control" type="number" formControlName="max_tokens">
+              </div>
+            </div>
+            <div class="s-info-box mb-4">
+              <i class="fas fa-bolt" style="margin-top:1px"></i>
+              Changes apply to the next AI call — no server restart required.
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save LLM Settings</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ AGENTS ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='agents'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-user-astronaut"></i></div>
+          <div>
+            <div class="s-title">Agent Configuration</div>
+            <div class="s-desc">Override the model, tone, and system prompt for each AI agent independently.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['agents']; else tplAgents">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplAgents>
+          <div class="d-flex flex-column gap-4">
+            <div *ngFor="let name of agentNames" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
+              <div class="d-flex align-items-center gap-3 px-4 py-3" style="background:#f9fafb;border-bottom:1px solid #e5e7eb">
+                <div class="s-page-icon bg-primary-soft text-primary" style="width:34px;height:34px;border-radius:8px;font-size:0.8rem">
+                  <i class="fas fa-robot"></i>
+                </div>
+                <div class="fw-semibold" style="color:#111827">{{ name }}</div>
+                <span *ngIf="agentMsg[name]" class="s-toast ms-auto"><i class="fas fa-check-circle me-1"></i>{{ agentMsg[name] }}</span>
+              </div>
+              <div class="p-4">
+                <form [formGroup]="agentForms[name]" (ngSubmit)="saveAgent(name)">
+                  <div class="row g-3 mb-3">
+                    <div class="col-md-4 s-field">
+                      <label>Model</label>
+                      <select class="form-select" formControlName="model">
+                        <option *ngFor="let m of llmModels" [value]="m">{{ m }}</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4 s-field">
+                      <label>Tone</label>
+                      <input class="form-control" formControlName="tone" placeholder="persuasive, helpful, friendly…">
+                    </div>
+                  </div>
+                  <div class="s-field mb-3">
+                    <label>System Prompt Override</label>
+                    <textarea class="form-control font-monospace" rows="4"
+                              formControlName="system_prompt"
+                              placeholder="Leave blank to use the default built-in prompt for this agent…"
+                              style="font-size:0.8rem;line-height:1.6"></textarea>
+                  </div>
+                  <button class="s-save-btn" type="submit" style="font-size:0.8rem;padding:0.45rem 1.2rem">
+                    <i class="fas fa-save me-2"></i>Save {{ name }}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- ══ SCORING ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='scoring'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-warning-soft" style="color:#d97706"><i class="fas fa-star"></i></div>
+          <div>
+            <div class="s-title">Lead Scoring</div>
+            <div class="s-desc">Tune the LLM scoring prompt and the entity fields extracted from each lead message.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['scoring']; else tplScoring">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplScoring>
+          <span *ngIf="msg['scoring']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['scoring'] }}</span>
+          <form [formGroup]="scoringForm" (ngSubmit)="save('scoring')">
+            <label class="toggle-row mb-4" for="scen">
+              <div>
+                <div class="toggle-label">Lead Scoring Enabled</div>
+                <div class="toggle-sub">Score, intent, urgency, and sentiment extracted from every lead message</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="enabled" id="scen">
+              </div>
+            </label>
+            <div class="s-field mb-3">
+              <label>Entity Fields to Extract <span class="fw-normal text-muted">(comma-separated)</span></label>
+              <input class="form-control" formControlName="entity_fields_csv"
+                     placeholder="name, requirement, contact, location, budget">
+            </div>
+            <div class="s-field mb-4">
+              <label>Scoring Prompt Override</label>
+              <textarea class="form-control font-monospace" rows="7" formControlName="prompt"
+                        placeholder="Leave blank to use the default scoring prompt…"
+                        style="font-size:0.8rem;line-height:1.6"></textarea>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Scoring</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ LANGUAGE ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='language'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-info-soft text-info"><i class="fas fa-language"></i></div>
+          <div>
+            <div class="s-title">Language & Localisation</div>
+            <div class="s-desc">Set the default reply language, enable auto-detection, and map locations to languages.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['language']; else tplLang">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplLang>
+          <span *ngIf="msg['language']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['language'] }}</span>
+          <form [formGroup]="languageForm" (ngSubmit)="save('language')">
+            <div class="row g-3 mb-3">
+              <div class="col-md-4 s-field">
+                <label>Default Language Code</label>
+                <input class="form-control" formControlName="default_language" placeholder="en, hi, ta, te…">
+              </div>
+            </div>
+            <label class="toggle-row mb-3" for="ald">
+              <div>
+                <div class="toggle-label">Auto-detect Language</div>
+                <div class="toggle-sub">Detect language from the lead's message text and location</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="auto_detect" id="ald">
+              </div>
+            </label>
+            <div class="s-field mb-4">
+              <label>Location → Language Mapping <span class="fw-normal text-muted">(JSON)</span></label>
+              <textarea class="form-control font-monospace" rows="4" formControlName="location_mapping_json"
+                        placeholder='{ "bangalore": "kn", "hyderabad": "te", "chennai": "ta" }'
+                        style="font-size:0.8rem;line-height:1.6"></textarea>
+            </div>
+            <button class="s-save-btn me-3" type="submit"><i class="fas fa-save me-2"></i>Save Language</button>
+          </form>
+
+          <hr class="s-divider">
+          <div class="s-section-label">Test Language Detection</div>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5 s-field">
+              <label>Sample Text</label>
+              <input class="form-control" [(ngModel)]="detectText" placeholder="मुझे CRM चाहिए">
+            </div>
+            <div class="col-md-3 s-field">
+              <label>Location <span class="fw-normal text-muted">(optional)</span></label>
+              <input class="form-control" [(ngModel)]="detectLocation" placeholder="Delhi">
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-outline-primary w-100" (click)="detectLanguage()" [disabled]="detectLoading"
+                      style="border-radius:8px;font-size:0.875rem">
+                <span *ngIf="detectLoading" class="spinner-border spinner-border-sm"></span>
+                <i class="fas fa-search" *ngIf="!detectLoading"></i> Detect
+              </button>
+            </div>
+          </div>
+          <div *ngIf="detectResult" class="mt-3 d-flex gap-2 flex-wrap">
+            <span class="badge bg-primary rounded-pill px-3 py-2">Text → {{ detectResult.detected_from_text }}</span>
+            <span class="badge bg-secondary rounded-pill px-3 py-2">Location → {{ detectResult.detected_from_location }}</span>
+            <span class="badge bg-success rounded-pill px-3 py-2">
+              <i class="fas fa-check me-1"></i>{{ detectResult.resolved_language }} — {{ detectResult.language_name }}
+            </span>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- ══ FOLLOW-UP ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='followup'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-warning-soft" style="color:#d97706"><i class="fas fa-redo"></i></div>
+          <div>
+            <div class="s-title">Follow-up Automation</div>
+            <div class="s-desc">Control re-engagement timing, fatigue limits, and the no-reply scheduler.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['followup']; else tplFollowup">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplFollowup>
+          <span *ngIf="msg['followup']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['followup'] }}</span>
+          <form [formGroup]="followupForm" (ngSubmit)="save('followup')">
+            <label class="toggle-row mb-4" for="fen">
+              <div>
+                <div class="toggle-label">Follow-up Automation Enabled</div>
+                <div class="toggle-sub">Master switch — disabling stops all automated follow-ups</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="enabled" id="fen">
+              </div>
+            </label>
+            <label class="toggle-row mb-4" for="nren">
+              <div>
+                <div class="toggle-label">No-reply Scheduler</div>
+                <div class="toggle-sub">Hourly background job that re-engages leads who haven't replied</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="no_reply_enabled" id="nren">
+              </div>
+            </label>
+            <div class="s-section-label">Timing</div>
+            <div class="row g-3 mb-4">
+              <div class="col-md-4 s-field">
+                <label>No-reply Wait (days)</label>
+                <input class="form-control" type="number" formControlName="no_reply_days">
+                <div class="form-text">Days since last contact before auto re-follow-up</div>
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Max No-reply Follow-ups</label>
+                <input class="form-control" type="number" formControlName="no_reply_max">
+                <div class="form-text">Per lead before giving up</div>
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Max Follow-ups per Day</label>
+                <input class="form-control" type="number" formControlName="max_followups_per_day">
+                <div class="form-text">Fatigue guard per lead</div>
+              </div>
+              <div class="col-md-4 s-field">
+                <label>High Intent Delay (sec)</label>
+                <input class="form-control" type="number" formControlName="high_intent_delay_sec">
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Low Intent Delay (sec)</label>
+                <input class="form-control" type="number" formControlName="low_intent_delay_sec">
+              </div>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Follow-up</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ OPT-OUT ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='optout'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:#fef2f2;color:#dc2626"><i class="fas fa-ban"></i></div>
+          <div>
+            <div class="s-title">Opt-out Keywords</div>
+            <div class="s-desc">When a lead replies with any of these words, all follow-ups stop and a confirmation is sent.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['optout']; else tplOptout">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplOptout>
+          <span *ngIf="optoutMsg" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ optoutMsg }}</span>
+          <div class="s-field mb-4">
+            <label>Keywords <span class="fw-normal text-muted">(comma-separated)</span></label>
+            <textarea class="form-control" rows="4" [(ngModel)]="optoutKeywords"
+                      placeholder="stop, unsubscribe, opt out, opt-out, remove me, don't contact…"></textarea>
+            <div class="form-text">Case-insensitive matching. Lead is marked opted_out, stage set to lost.</div>
+          </div>
+          <button class="s-save-btn" (click)="saveOptout()"><i class="fas fa-save me-2"></i>Save Keywords</button>
+        </ng-template>
+      </div>
+
+      <!-- ══ IMAP ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='imap'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-info-soft text-info"><i class="fas fa-inbox"></i></div>
+          <div>
+            <div class="s-title">IMAP / Reply Poller</div>
+            <div class="s-desc">Polls Gmail IMAP for lead replies using UID-based deduplication.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['imap']; else tplImap">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplImap>
+          <span *ngIf="msg['imap']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['imap'] }}</span>
+          <form [formGroup]="imapForm" (ngSubmit)="save('imap')">
+            <label class="toggle-row mb-4" for="imaen">
+              <div>
+                <div class="toggle-label">IMAP Polling Enabled</div>
+                <div class="toggle-sub">Gmail inbox poller — detects replies, re-scores, and auto-responds</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="enabled" id="imaen">
+              </div>
+            </label>
+            <div class="row g-3 mb-4">
+              <div class="col-md-4 s-field">
+                <label>Poll Interval (seconds)</label>
+                <input class="form-control" type="number" formControlName="poll_interval_sec">
+                <div class="form-text">Takes effect on next poll cycle</div>
+              </div>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save IMAP</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ PIPELINE ══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='pipeline'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-project-diagram"></i></div>
+          <div>
+            <div class="s-title">Pipeline Automation</div>
+            <div class="s-desc">Control how leads move through stages and which agent handles them automatically.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['pipeline']; else tplPipeline">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplPipeline>
+          <span *ngIf="msg['pipeline']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['pipeline'] }}</span>
+          <form [formGroup]="pipelineForm" (ngSubmit)="save('pipeline')">
+            <div class="d-flex flex-column gap-2 mb-4">
+              <label class="toggle-row" for="aaa">
+                <div>
+                  <div class="toggle-label">Auto-assign Agent on Ingest</div>
+                  <div class="toggle-sub">Picks the best agent based on lead score immediately after ingestion</div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="auto_assign_agent" id="aaa">
+                </div>
+              </label>
+              <label class="toggle-row" for="ams">
+                <div>
+                  <div class="toggle-label">Auto-advance Stage on Reply</div>
+                  <div class="toggle-sub">Moves contacted/qualified leads to "interested" when they reply</div>
+                </div>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" formControlName="auto_move_stage" id="ams">
+                </div>
+              </label>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Pipeline</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ A/B TESTING ══════════════════════════════════════ -->
+      <div *ngIf="activeTab==='ab'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-success-soft text-success"><i class="fas fa-flask"></i></div>
+          <div>
+            <div class="s-title">A/B Testing</div>
+            <div class="s-desc">Configure UCB1 bandit experiments. Variants are selected automatically based on win rates.</div>
+          </div>
+          <button class="btn btn-sm ms-auto" (click)="addExperiment()"
+                  style="border:1px dashed #10b981;color:#10b981;border-radius:8px;font-size:0.8rem;padding:0.3rem 0.8rem">
+            <i class="fas fa-plus me-1"></i>Add Experiment
+          </button>
+        </div>
+        <ng-container *ngIf="loading['ab']; else tplAb">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplAb>
+          <span *ngIf="msg['ab']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['ab'] }}</span>
+          <form [formGroup]="abForm" (ngSubmit)="save('ab')">
+            <label class="toggle-row mb-4" for="aben">
+              <div>
+                <div class="toggle-label">A/B Testing Enabled</div>
+                <div class="toggle-sub">UCB1 bandit algorithm — learns and routes traffic to winning variants</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="enabled" id="aben">
+              </div>
+            </label>
+            <div formArrayName="experiments" class="d-flex flex-column gap-3 mb-4">
+              <div *ngFor="let exp of abExperiments.controls; let i=index" [formGroupName]="i" class="exp-row">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="s-section-label mb-0">Experiment {{ i + 1 }}</span>
+                  <button type="button" class="btn btn-sm btn-link text-danger p-0" (click)="removeExperiment(i)">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+                <div class="row g-2">
+                  <div class="col-md-4 s-field">
+                    <label>Name</label>
+                    <input class="form-control" formControlName="name" placeholder="greeting_test">
+                  </div>
+                  <div class="col-md-8 s-field">
+                    <label>Variants <span class="fw-normal text-muted">(comma-separated)</span></label>
+                    <input class="form-control" formControlName="variants_csv" placeholder="Hi, how can I help?, Hello there!, Hey!">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="abExperiments.length===0" class="text-center text-muted py-4"
+                 style="border:1px dashed #e5e7eb;border-radius:10px">
+              <i class="fas fa-flask fa-2x mb-2 d-block" style="opacity:0.3"></i>
+              No experiments yet. Click "Add Experiment" to create one.
+            </div>
+            <button class="s-save-btn mt-3" type="submit"><i class="fas fa-save me-2"></i>Save A/B Config</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ PERSONALIZATION ═══════════════════════════════════ -->
+      <div *ngIf="activeTab==='personalization'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-info-soft text-info"><i class="fas fa-user-tag"></i></div>
+          <div>
+            <div class="s-title">Personalization Rules</div>
+            <div class="s-desc">Condition-based rules that override language or message content for specific lead attributes.</div>
+          </div>
+          <button class="btn btn-sm ms-auto" (click)="addRule()"
+                  style="border:1px dashed #0ea5e9;color:#0ea5e9;border-radius:8px;font-size:0.8rem;padding:0.3rem 0.8rem">
+            <i class="fas fa-plus me-1"></i>Add Rule
+          </button>
+        </div>
+        <ng-container *ngIf="loading['personalization']; else tplPersonalization">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplPersonalization>
+          <span *ngIf="msg['personalization']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['personalization'] }}</span>
+          <form [formGroup]="personalizationForm" (ngSubmit)="save('personalization')">
+            <label class="toggle-row mb-4" for="pen">
+              <div>
+                <div class="toggle-label">Personalization Enabled</div>
+                <div class="toggle-sub">Rules are evaluated against each lead on ingest and reply</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="enabled" id="pen">
+              </div>
+            </label>
+            <div formArrayName="rules" class="d-flex flex-column gap-3 mb-4">
+              <div *ngFor="let rule of personalizationRules.controls; let i=index" [formGroupName]="i" class="exp-row">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <span class="s-section-label mb-0">Rule {{ i + 1 }}</span>
+                  <button type="button" class="btn btn-sm btn-link text-danger p-0" (click)="removeRule(i)">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+                <div class="row g-2">
+                  <div class="col-md-4 s-field">
+                    <label>Condition</label>
+                    <input class="form-control" formControlName="condition" placeholder="location == 'India'">
+                  </div>
+                  <div class="col-md-2 s-field">
+                    <label>Language</label>
+                    <input class="form-control" formControlName="language" placeholder="ta, hi…">
+                  </div>
+                  <div class="col-md-6 s-field">
+                    <label>Message Override</label>
+                    <input class="form-control" formControlName="message" placeholder="Welcome back!">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="personalizationRules.length===0" class="text-center text-muted py-4"
+                 style="border:1px dashed #e5e7eb;border-radius:10px">
+              <i class="fas fa-user-tag fa-2x mb-2 d-block" style="opacity:0.3"></i>No rules yet.
+            </div>
+            <button class="s-save-btn mt-3" type="submit"><i class="fas fa-save me-2"></i>Save Rules</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ LIMITS ════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='limits'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-warning-soft" style="color:#d97706"><i class="fas fa-tachometer-alt"></i></div>
+          <div>
+            <div class="s-title">Usage Limits</div>
+            <div class="s-desc">Per-tenant quota caps. Requests beyond these limits return 429.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['limits']; else tplLimits">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplLimits>
+          <span *ngIf="msg['limits']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['limits'] }}</span>
+          <form [formGroup]="limitsForm" (ngSubmit)="save('limits')">
+            <div class="row g-4 mb-4">
+              <div class="col-md-5 s-field">
+                <label>Max Leads / Month</label>
+                <input class="form-control" type="number" formControlName="max_leads_per_month">
+              </div>
+              <div class="col-md-5 s-field">
+                <label>Max LLM Calls / Lead</label>
+                <input class="form-control" type="number" formControlName="max_llm_calls_per_lead">
+              </div>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Limits</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ COST CONTROL ══════════════════════════════════════ -->
+      <div *ngIf="activeTab==='cost'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-success-soft text-success"><i class="fas fa-dollar-sign"></i></div>
+          <div>
+            <div class="s-title">Cost Control</div>
+            <div class="s-desc">Guard against runaway LLM spend with per-lead call caps and smart routing.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['cost']; else tplCost">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplCost>
+          <span *ngIf="msg['cost']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['cost'] }}</span>
+          <form [formGroup]="costForm" (ngSubmit)="save('cost')">
+            <div class="row g-3 mb-3">
+              <div class="col-md-4 s-field">
+                <label>Max LLM Calls / Lead</label>
+                <input class="form-control" type="number" formControlName="max_llm_calls_per_lead">
+              </div>
+            </div>
+            <label class="toggle-row mb-4" for="slf">
+              <div>
+                <div class="toggle-label">Skip LLM for Low-score Leads</div>
+                <div class="toggle-sub">Use deterministic rules instead of GPT for low-priority leads</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="skip_llm_for_low_score" id="slf">
+              </div>
+            </label>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Cost Control</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ REPORTS ════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='reports'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:#f3f4f6;color:#6b7280"><i class="fas fa-file-alt"></i></div>
+          <div>
+            <div class="s-title">Daily Reports</div>
+            <div class="s-desc">Automated summary email with pipeline stats, conversions, and LLM cost breakdown.</div>
+          </div>
+        </div>
+        <ng-container *ngIf="loading['reports']; else tplReports">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplReports>
+          <span *ngIf="msg['reports']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['reports'] }}</span>
+          <form [formGroup]="reportsForm" (ngSubmit)="save('reports')">
+            <label class="toggle-row mb-4" for="rep">
+              <div>
+                <div class="toggle-label">Daily Summary Email</div>
+                <div class="toggle-sub">Sends to all addresses configured in Alerts settings</div>
+              </div>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" formControlName="daily_enabled" id="rep">
+              </div>
+            </label>
+            <div class="col-md-3 s-field mb-4">
+              <label>Send Hour <span class="fw-normal text-muted">(UTC, 0–23)</span></label>
+              <input class="form-control" type="number" min="0" max="23" formControlName="daily_hour">
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Reports</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ SECURITY ═══════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='security'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:#fef2f2;color:#dc2626"><i class="fas fa-shield-alt"></i></div>
+          <div>
+            <div class="s-title">Security</div>
+            <div class="s-desc">Rate limiting and API access controls to protect your tenant from abuse.</div>
+          </div>
+          <span class="live-pill ms-auto">Live</span>
+        </div>
+        <ng-container *ngIf="loading['security']; else tplSecurity">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplSecurity>
+          <span *ngIf="msg['security']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['security'] }}</span>
+          <form [formGroup]="securityForm" (ngSubmit)="save('security')">
+            <div class="col-md-4 s-field mb-4">
+              <label>Rate Limit (requests / minute)</label>
+              <input class="form-control" type="number" formControlName="rate_limit_per_minute">
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Security</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ SCALING ════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='scaling'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon" style="background:#f3f4f6;color:#6b7280"><i class="fas fa-server"></i></div>
+          <div>
+            <div class="s-title">Scaling</div>
+            <div class="s-desc">Record target instance counts. Apply via your container orchestrator (Kubernetes / ECS).</div>
+          </div>
+        </div>
+        <ng-container *ngIf="loading['scaling']; else tplScaling">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplScaling>
+          <span *ngIf="msg['scaling']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['scaling'] }}</span>
+          <form [formGroup]="scalingForm" (ngSubmit)="save('scaling')">
+            <div class="row g-4 mb-4">
+              <div class="col-md-4 s-field">
+                <label>API Instances</label>
+                <input class="form-control" type="number" formControlName="api_instances">
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Worker Instances</label>
+                <input class="form-control" type="number" formControlName="worker_instances">
+              </div>
+            </div>
+            <div class="s-warn-box mb-4">
+              <i class="fas fa-exclamation-triangle" style="margin-top:1px"></i>
+              Changing instance counts here records the target — you still need to apply it via your orchestrator.
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Scaling</button>
+          </form>
+        </ng-template>
+      </div>
+
+      <!-- ══ QUEUE ══════════════════════════════════════════════ -->
+      <div *ngIf="activeTab==='queue'" class="settings-panel">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="s-page-icon bg-primary-soft text-primary"><i class="fas fa-layer-group"></i></div>
+          <div>
+            <div class="s-title">Queue (Celery)</div>
+            <div class="s-desc">Tune retry behaviour and worker concurrency for the background task queue.</div>
+          </div>
+        </div>
+        <ng-container *ngIf="loading['queue']; else tplQueue">
+          <ng-container *ngTemplateOutlet="skeleton"></ng-container>
+        </ng-container>
+        <ng-template #tplQueue>
+          <span *ngIf="msg['queue']" class="s-toast mb-3 d-inline-flex"><i class="fas fa-check-circle me-1"></i>{{ msg['queue'] }}</span>
+          <form [formGroup]="queueForm" (ngSubmit)="save('queue')">
+            <div class="row g-4 mb-4">
+              <div class="col-md-4 s-field">
+                <label>Max Retries</label>
+                <input class="form-control" type="number" formControlName="max_retries">
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Retry Delay (sec)</label>
+                <input class="form-control" type="number" formControlName="retry_delay_sec">
+              </div>
+              <div class="col-md-4 s-field">
+                <label>Follow-up Workers</label>
+                <input class="form-control" type="number" formControlName="followup_workers">
+                <div class="form-text">Requires Celery restart</div>
+              </div>
+            </div>
+            <button class="s-save-btn" type="submit"><i class="fas fa-save me-2"></i>Save Queue</button>
+          </form>
+        </ng-template>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /settings-wrap -->
+</div>

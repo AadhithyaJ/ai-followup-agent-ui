@@ -47,3 +47,50 @@ export interface LeadListParams {
   limit?: number;
   offset?: number;
 }
+
+export interface CommunicationMessage {
+  direction: 'inbound' | 'outbound';
+  channel: string;
+  status: string;
+  message: string;
+  sent_at: string;
+}
+
+export interface CommunicationThread {
+  lead_id: string;
+  lead_name: string;
+  email: string;
+  stage: string;
+  score: string;
+  agent: string;
+  total_followups: number;
+  total_replies: number;
+  thread: CommunicationMessage[];
+}
+
+export interface AdvisorySuggestion {
+  priority: number;
+  action: string;
+  reason: string;
+  expected_outcome: string;
+  deadline: string;
+}
+
+export interface MessageDraft {
+  channel: string;
+  subject: string | null;
+  body: string;
+}
+
+export interface LeadAdvisory {
+  lead_id: string;
+  lead_name: string;
+  deal_health: number;
+  deal_health_label: 'hot' | 'warm' | 'cooling' | 'cold' | 'dead';
+  risk_flags: string[];
+  talking_points: string[];
+  summary: string;
+  suggestions: AdvisorySuggestion[];
+  message_drafts: MessageDraft[];
+  generated_at: string;
+}

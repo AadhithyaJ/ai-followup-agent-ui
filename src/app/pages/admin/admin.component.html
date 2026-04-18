@@ -34,6 +34,11 @@
         <i class="fas fa-rocket me-1"></i>Autopilot
       </button>
     </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="activeTab==='abtest'" (click)="setTab('abtest')">
+        <i class="fas fa-flask me-1"></i>A/B Testing
+      </button>
+    </li>
   </ul>
 
   <!-- ── Feature Flags Tab ── -->
@@ -475,6 +480,70 @@
                 <span class="badge bg-secondary">{{ orchestrateResult.total_steps }} steps</span>
               </div>
               <p class="mb-0 small">{{ orchestrateResult.final_summary }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── A/B Testing Tab ── -->
+  <div *ngIf="activeTab==='abtest'">
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-header fw-semibold">
+            <i class="fas fa-flask me-2 text-success"></i>Experiment Report
+          </div>
+          <div class="card-body">
+            <div class="d-flex gap-2 mb-4">
+              <input class="form-control" [(ngModel)]="abExperimentName" placeholder="greeting_test">
+              <button class="btn btn-success text-nowrap" (click)="fetchABReport()" [disabled]="abLoading">
+                <span *ngIf="abLoading" class="spinner-border spinner-border-sm me-1"></span>
+                <i class="fas fa-chart-bar me-1" *ngIf="!abLoading"></i>Load Report
+              </button>
+            </div>
+
+            <div *ngIf="abReport">
+              <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                <span class="badge bg-primary fs-6">{{ abReport.experiment }}</span>
+                <span class="badge bg-secondary">{{ abReport.total_pulls }} pulls</span>
+                <span class="badge" [class.bg-success]="abReport.is_significant"
+                      [class.bg-warning]="!abReport.is_significant"
+                      [class.text-dark]="!abReport.is_significant">
+                  {{ abReport.is_significant ? 'Significant' : 'Not significant' }}
+                </span>
+              </div>
+
+              <div *ngFor="let v of abReport.variants" class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="small fw-semibold">
+                    {{ v.name }}
+                    <span *ngIf="v.is_leader" class="badge bg-warning text-dark ms-1">
+                      <i class="fas fa-crown me-1"></i>Leader
+                    </span>
+                  </span>
+                  <span class="small text-muted">{{ (v.win_rate * 100).toFixed(1) }}% win rate</span>
+                </div>
+                <div class="progress mb-1" style="height:10px">
+                  <div class="progress-bar"
+                       [class.bg-success]="v.is_leader" [class.bg-info]="!v.is_leader"
+                       [style.width]="(v.win_rate * 100) + '%'"></div>
+                </div>
+                <div class="d-flex gap-3 text-muted" style="font-size:0.75rem">
+                  <span>{{ v.impressions }} impressions</span>
+                  <span>{{ v.wins }} wins</span>
+                  <span>UCB: {{ v.ucb_score.toFixed(3) }}</span>
+                </div>
+              </div>
+
+              <div class="alert alert-info small mt-3 mb-0">
+                <i class="fas fa-lightbulb me-1"></i>{{ abReport.recommendation }}
+              </div>
+            </div>
+
+            <div *ngIf="!abReport && !abLoading" class="text-center text-muted py-4">
+              <i class="fas fa-flask fa-2x mb-2 d-block"></i>Enter an experiment name to view its report.
             </div>
           </div>
         </div>

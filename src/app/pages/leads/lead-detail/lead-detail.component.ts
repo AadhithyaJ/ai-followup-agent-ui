@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiService } from '../../../core/api.service';
-import { Lead } from '../../../core/models/lead.model';
+import { Lead, CommunicationThread, LeadAdvisory } from '../../../core/models/lead.model';
 import { NBAResult } from '../../../core/models/admin.model';
+
+type DetailTab = 'overview' | 'thread' | 'advisory';
 
 @Component({
   selector: 'app-lead-detail',
@@ -15,6 +17,8 @@ export class LeadDetailComponent implements OnInit {
   loading = true;
   error = '';
 
+  activeTab: DetailTab = 'overview';
+
   stageForm: FormGroup;
   stageSuccess = '';
   stageError = '';
@@ -25,6 +29,15 @@ export class LeadDetailComponent implements OnInit {
 
   nba: NBAResult | null = null;
   nbaLoading = false;
+
+  thread: CommunicationThread | null = null;
+  threadLoading = false;
+  threadError = '';
+
+  advisory: LeadAdvisory | null = null;
+  advisoryLoading = false;
+  advisoryError = '';
+  activeDraftChannel = 0;
 
   stages = ['new', 'qualified', 'contacted', 'interested', 'negotiation', 'converted', 'lost'];
   eventTypes = ['link_click', 'form_submit', 'meeting_booked', 'demo_requested', 'email_opened'];
@@ -46,6 +59,32 @@ export class LeadDetailComponent implements OnInit {
     this.api.getLead(id).subscribe({
       next: (data) => { this.lead = data; this.loading = false; },
       error: () => { this.error = 'Failed to load lead.'; this.loading = false; }
+    });
+  }
+
+  setTab(tab: DetailTab): void {
+    this.activeTab = tab;
+    if (tab === 'thread' && !this.thread && this.lead) this.loadThread();
+    if (tab === 'advisory' && !this.advisory && this.lead) this.loadAdvisory();
+  }
+
+  loadThread(): void {
+    if (!this.lead) return;
+    this.threadLoading = true;
+    this.threadError = '';
+    this.api.getLeadCommunications(this.lead.id).subscribe({
+      next: (data) => { this.thread = data; this.threadLoading = false; },
+      error: () => { this.threadError = 'Failed to load communications.'; this.threadLoading = false; }
+    });
+  }
+
+  loadAdvisory(): void {
+    if (!this.lead) return;
+    this.advisoryLoading = true;
+    this.advisoryError = '';
+    this.api.getLeadSuggest(this.lead.id).subscribe({
+      next: (data) => { this.advisory = data; this.advisoryLoading = false; },
+      error: () => { this.advisoryError = 'Failed to load advisory.'; this.advisoryLoading = false; }
     });
   }
 
@@ -81,6 +120,32 @@ export class LeadDetailComponent implements OnInit {
       next: (data) => { this.nba = data; this.nbaLoading = false; },
       error: () => { this.nbaLoading = false; }
     });
+  }
+
+  healthColor(label: string): string {
+    const map: Record<string, string> = {
+      hot: '#198754', warm: '#0d6efd', cooling: '#ffc107', cold: '#6c757d', dead: '#dc3545'
+    };
+    return map[label] || '#6c757d';
+  }
+
+  healthIcon(label: string): string {
+    const map: Record<string, string> = {
+      hot: 'fa-fire', warm: 'fa-thermometer-half', cooling: 'fa-snowflake',
+      cold: 'fa-icicles', dead: 'fa-skull-crossbones'
+    };
+    return map[label] || 'fa-circle';
+  }
+
+  copyDraft(text: string): void {
+    navigator.clipboard.writeText(text);
+  }
+
+  draftIcon(channel: string): string {
+    const map: Record<string, string> = {
+      email: 'fa-envelope', whatsapp: 'fa-whatsapp', call_script: 'fa-phone'
+    };
+    return map[channel] || 'fa-comment';
   }
 
   scoreBadge(score: string): string {

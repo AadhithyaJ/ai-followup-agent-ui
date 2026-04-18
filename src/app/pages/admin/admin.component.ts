@@ -4,10 +4,10 @@ import { ApiService } from '../../core/api.service';
 import {
   FeatureFlags, DynamicConfig, ConfigAuditEntry,
   Prompt, PromptHistory, UsageEntry,
-  LeaderboardEntry, AutopilotResult, OrchestrateResult
+  LeaderboardEntry, AutopilotResult, OrchestrateResult, ABReport
 } from '../../core/models/admin.model';
 
-type AdminTab = 'flags' | 'config' | 'prompts' | 'usage' | 'nba' | 'autopilot';
+type AdminTab = 'flags' | 'config' | 'prompts' | 'usage' | 'nba' | 'autopilot' | 'abtest';
 
 @Component({
   selector: 'app-admin',
@@ -53,6 +53,11 @@ export class AdminComponent implements OnInit {
   nbaLeadId = '';
   nbaResult: any = null;
   nbaLoading = false;
+
+  /* ── A/B Testing ── */
+  abExperimentName = '';
+  abReport: ABReport | null = null;
+  abLoading = false;
 
   /* ── Autopilot / Orchestrate ── */
   autopilotResult: AutopilotResult | null = null;
@@ -232,6 +237,17 @@ export class AdminComponent implements OnInit {
     this.api.getNBA(this.nbaLeadId.trim()).subscribe({
       next: r => { this.nbaResult = r; this.nbaLoading = false; },
       error: () => this.nbaLoading = false
+    });
+  }
+
+  /* ── A/B Testing ── */
+  fetchABReport(): void {
+    if (!this.abExperimentName.trim()) return;
+    this.abLoading = true;
+    this.abReport = null;
+    this.api.getABReport(this.abExperimentName.trim()).subscribe({
+      next: r => { this.abReport = r; this.abLoading = false; },
+      error: () => this.abLoading = false
     });
   }
 
