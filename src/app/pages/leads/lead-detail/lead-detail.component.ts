@@ -164,6 +164,12 @@ export class LeadDetailComponent implements OnInit {
     return map[channel] || 'fa-comment';
   }
 
+  isBeforeCurrentStage(stage: string): boolean {
+    const currentIdx = this.stages.indexOf(this.lead()?.stage || '');
+    const stageIdx   = this.stages.indexOf(stage);
+    return stageIdx < currentIdx;
+  }
+
   scoreBadge(score: string): string {
     return score === 'high' ? 'bg-success' : score === 'medium' ? 'bg-warning text-dark' : 'bg-secondary';
   }
