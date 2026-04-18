@@ -1,6 +1,6 @@
 <div class="page-root">
 
-  <!-- Header -->
+  <!-- ── Header ─────────────────────────────────────────────────── -->
   <div class="page-header">
     <div>
       <h4 class="page-title">Workflows</h4>
@@ -11,206 +11,237 @@
     </button>
   </div>
 
-  <!-- Alerts -->
+  <!-- ── Alerts ─────────────────────────────────────────────────── -->
   <div class="alert-success-pill" *ngIf="successMsg">
     <i class="fas fa-check-circle"></i>{{ successMsg }}
-    <button type="button" style="background:none;border:none;cursor:pointer;margin-left:auto;color:inherit;opacity:0.6" (click)="successMsg=''"><i class="fas fa-times"></i></button>
+    <button type="button" class="wf-btn-cancel" style="background:none;border:none;padding:0;margin-left:auto;height:auto;color:inherit;opacity:0.5;min-width:0" (click)="successMsg=''">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
   <div class="alert-danger-pill" *ngIf="error">
     <i class="fas fa-exclamation-circle"></i>{{ error }}
-    <button type="button" style="background:none;border:none;cursor:pointer;margin-left:auto;color:inherit;opacity:0.6" (click)="error=''"><i class="fas fa-times"></i></button>
+    <button type="button" class="wf-btn-cancel" style="background:none;border:none;padding:0;margin-left:auto;height:auto;color:inherit;opacity:0.5;min-width:0" (click)="error=''">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
 
-  <!-- Create / Edit Form -->
+  <!-- ── Create / Edit Form ─────────────────────────────────────── -->
   <div class="ingest-panel" *ngIf="showForm" style="margin-bottom:1.25rem">
     <div class="ingest-panel-title">
-      <i class="fas fa-edit me-2" style="color:#6366f1"></i>{{ editingId ? 'Edit' : 'Create' }} Workflow
+      <i class="fas fa-edit me-2" style="color:#6366f1"></i>
+      {{ editingId ? 'Edit Workflow' : 'Create Workflow' }}
     </div>
     <div class="alert-danger-pill" *ngIf="formError" style="margin-bottom:1rem">
       <i class="fas fa-exclamation-circle"></i>{{ formError }}
     </div>
     <form [formGroup]="form" (ngSubmit)="save()">
-      <div class="ingest-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:1rem">
+      <!-- Basic fields -->
+      <div class="ingest-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:1.1rem">
         <div class="ingest-field">
-          <label>Name</label>
-          <input class="field-input" formControlName="name" placeholder="enterprise_flow">
+          <label>Workflow Name</label>
+          <input class="field-input" formControlName="name" placeholder="e.g. enterprise_flow">
         </div>
         <div class="ingest-field">
           <label>Trigger Expression</label>
-          <input class="field-input" formControlName="trigger" placeholder='score == "high"'>
+          <input class="field-input" formControlName="trigger" placeholder='e.g. score == "high"'>
         </div>
         <div class="ingest-field">
-          <label>Description</label>
-          <input class="field-input" formControlName="description" placeholder="Optional description">
+          <label>Description <span style="color:#9ca3af;font-weight:400">(optional)</span></label>
+          <input class="field-input" formControlName="description" placeholder="Short description">
         </div>
       </div>
 
-      <!-- Steps -->
-      <div style="margin-bottom:1rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
-          <span class="ingest-panel-title" style="margin-bottom:0"><i class="fas fa-list-ol me-2" style="color:#6366f1"></i>Steps</span>
-          <button type="button" class="btn-primary-pill" style="padding:0.4rem 0.9rem;font-size:0.8rem" (click)="addStep()">
+      <!-- Steps section -->
+      <div style="margin-bottom:1.1rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem">
+          <div>
+            <div class="db-card-title"><i class="fas fa-list-ol me-2" style="color:#6366f1"></i>Steps</div>
+            <div class="page-sub" style="margin-top:0.15rem">Define the sequence of actions to execute</div>
+          </div>
+          <button type="button" class="btn-primary-pill" style="padding:0.42rem 1rem;font-size:0.8rem" (click)="addStep()">
             <i class="fas fa-plus"></i>Add Step
           </button>
         </div>
 
-        <div *ngFor="let step of steps.controls; let i=index"
-             class="ingest-panel" style="margin-bottom:0.75rem;padding:1rem 1.25rem">
-          <div style="display:grid;grid-template-columns:auto 100px 140px 1fr auto;gap:0.75rem;align-items:end">
-            <div style="display:flex;align-items:center">
-              <span class="stage-pill stage-new">Step {{ i+1 }}</span>
-            </div>
-            <div class="ingest-field" style="margin-bottom:0" [formGroup]="$any(step)">
-              <label>Delay (sec)</label>
-              <input type="number" class="field-input" formControlName="delay_sec">
-            </div>
-            <div class="ingest-field" style="margin-bottom:0" [formGroup]="$any(step)">
-              <label>Action</label>
-              <select class="field-input" formControlName="action">
-                <option value="whatsapp">WhatsApp</option>
-                <option value="email">Email</option>
-                <option value="sms">SMS</option>
-                <option value="call">Call</option>
-              </select>
-            </div>
-            <div class="ingest-field" style="margin-bottom:0" [formGroup]="$any(step)">
-              <label>Message Template</label>
-              <input class="field-input" formControlName="message_template" placeholder="Hi {name}, …">
-            </div>
-            <div>
-              <button type="button" class="row-action-btn"
-                      style="background:#fee2e2;border-color:#fecaca;color:#dc2626"
-                      (click)="removeStep(i)" title="Remove step">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
+        <div *ngFor="let step of steps.controls; let i=index" class="wf-step-card" [formGroup]="$any(step)">
+          <!-- Step number bubble -->
+          <div style="display:flex;align-items:flex-end;padding-bottom:0.4rem">
+            <div class="wf-step-num">{{ i + 1 }}</div>
+          </div>
+          <!-- Delay -->
+          <div class="ingest-field" style="margin-bottom:0">
+            <label>Delay (sec)</label>
+            <input type="number" class="field-input" formControlName="delay_sec">
+          </div>
+          <!-- Action -->
+          <div class="ingest-field" style="margin-bottom:0">
+            <label>Action</label>
+            <select class="field-input" formControlName="action">
+              <option value="whatsapp">WhatsApp</option>
+              <option value="email">Email</option>
+              <option value="sms">SMS</option>
+              <option value="call">Call</option>
+            </select>
+          </div>
+          <!-- Template -->
+          <div class="ingest-field" style="margin-bottom:0">
+            <label>Message Template</label>
+            <input class="field-input" formControlName="message_template" placeholder="Hi {name}, following up on your inquiry!">
+          </div>
+          <!-- Remove -->
+          <div style="display:flex;align-items:flex-end;padding-bottom:0.4rem">
+            <button type="button" class="row-action-btn" title="Remove step"
+                    style="background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.3);color:#dc2626"
+                    (click)="removeStep(i)">
+              <i class="fas fa-trash"></i>
+            </button>
           </div>
         </div>
-        <div *ngIf="steps.length === 0" class="db-empty" style="text-align:left;padding:0.5rem 0">No steps added yet.</div>
+
+        <div class="db-empty" *ngIf="steps.length === 0" style="padding:1rem;text-align:left">
+          <i class="fas fa-list-ol" style="display:inline;font-size:1rem;margin-right:0.4rem"></i>No steps yet — click Add Step to begin
+        </div>
       </div>
 
+      <!-- Form actions -->
       <div style="display:flex;gap:0.75rem">
         <button class="btn-ingest" type="submit" [disabled]="form.invalid || formLoading">
           <span class="ingest-spinner" *ngIf="formLoading"></span>
           <i class="fas fa-save" *ngIf="!formLoading"></i>
           {{ formLoading ? 'Saving…' : 'Save Workflow' }}
         </button>
-        <button type="button"
-                style="display:flex;align-items:center;gap:0.4rem;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:0.6rem 1.1rem;font-size:0.845rem;font-weight:600;color:#374151;cursor:pointer;transition:border-color 0.12s,color 0.12s"
-                (click)="cancelForm()">
+        <button type="button" class="wf-btn-cancel" (click)="cancelForm()">
           <i class="fas fa-times"></i>Cancel
         </button>
       </div>
     </form>
   </div>
 
-  <!-- Test Input -->
-  <div class="ingest-panel" style="margin-bottom:1.25rem;padding:0.9rem 1.25rem">
-    <div style="display:flex;align-items:center;gap:0.75rem">
-      <i class="fas fa-vial" style="color:#f59e0b;font-size:1rem"></i>
-      <label class="ingest-panel-title" style="margin-bottom:0;font-size:0.825rem">Test Lead ID</label>
-      <input class="field-input" style="max-width:280px;flex:1;margin-bottom:0"
-             [(ngModel)]="testLeadId" placeholder="Enter lead UUID for dry-run tests">
+  <!-- ── Test Lead Bar ──────────────────────────────────────────── -->
+  <div class="wf-test-bar">
+    <div class="wf-test-bar-icon"><i class="fas fa-vial"></i></div>
+    <div>
+      <div class="wf-test-bar-label">Dry-Run Test</div>
+      <div class="wf-test-bar-sub">Enter a lead UUID then click Test on any workflow</div>
     </div>
+    <input class="field-input" style="flex:1;max-width:320px;margin-bottom:0"
+           [(ngModel)]="testLeadId" placeholder="Paste lead UUID here…">
   </div>
 
-  <!-- Test Result -->
-  <div class="db-card" style="margin-bottom:1.25rem;border-color:rgba(245,158,11,0.3)!important" *ngIf="testResult">
-    <div class="db-card-header">
-      <div class="db-card-title"><i class="fas fa-vial me-2" style="color:#f59e0b"></i>Dry-Run Result</div>
+  <!-- ── Test Result ────────────────────────────────────────────── -->
+  <div class="wf-result-card" *ngIf="testResult">
+    <div class="wf-result-header">
+      <i class="fas fa-vial"></i>Dry-Run Result
     </div>
     <div class="db-card-body" style="padding:0">
       <table class="leads-table" style="width:100%">
         <thead>
-          <tr style="background:linear-gradient(135deg,#fafbff,#f4f7ff);border-bottom:1px solid #e5e7eb">
-            <th style="padding:0.75rem 1rem;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280">Step</th>
-            <th style="padding:0.75rem 1rem;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280">Action</th>
-            <th style="padding:0.75rem 1rem;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280">Delay (sec)</th>
+          <tr>
+            <th>Step</th>
+            <th>Action</th>
+            <th>Delay</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let s of testResult.steps_would_execute" style="border-bottom:1px solid #f3f4f6">
-            <td style="padding:0.85rem 1rem;font-size:0.845rem;color:#374151">{{ s.step }}</td>
-            <td style="padding:0.85rem 1rem">
+          <tr *ngFor="let s of testResult.steps_would_execute" class="lead-row">
+            <td>
+              <div class="wf-step-num" style="width:24px;height:24px;font-size:0.65rem">{{ s.step }}</div>
+            </td>
+            <td>
               <span class="stage-pill stage-new">{{ s.action }}</span>
             </td>
-            <td style="padding:0.85rem 1rem;font-size:0.845rem;color:#374151">{{ s.delay_sec }}s</td>
+            <td class="date-cell">{{ s.delay_sec }}s</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Loading -->
+  <!-- ── Skeleton ───────────────────────────────────────────────── -->
   <div class="leads-skeleton" *ngIf="loading">
     <div class="leads-skel-row" *ngFor="let i of [1,2,3]">
-      <div class="skel skel-avatar"></div>
+      <div class="skel skel-avatar" style="border-radius:12px"></div>
       <div class="skel-content">
-        <div class="skel skel-line" style="width:30%"></div>
-        <div class="skel skel-line" style="width:50%"></div>
+        <div class="skel skel-line" style="width:28%"></div>
+        <div class="skel skel-line" style="width:52%"></div>
       </div>
+      <div class="skel skel-pill"></div>
       <div class="skel skel-pill"></div>
     </div>
   </div>
 
-  <!-- Empty -->
+  <!-- ── Empty State ────────────────────────────────────────────── -->
   <div class="leads-empty" *ngIf="!loading && workflows.length === 0 && !showForm">
     <i class="fas fa-sitemap"></i>
     <div>No workflows yet</div>
-    <p>Create one to start automating your lead sequences</p>
+    <p>Create a workflow to start automating your lead follow-up sequences</p>
   </div>
 
-  <!-- Workflow Cards Grid -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem" *ngIf="!loading && workflows.length > 0">
-    <div *ngFor="let wf of workflows" class="db-card"
-         [style.border-color]="wf.is_active ? 'rgba(34,197,94,0.3)' : 'rgba(228,232,255,0.75)'">
+  <!-- ── Workflow Cards ─────────────────────────────────────────── -->
+  <div class="wf-grid" *ngIf="!loading && workflows.length > 0">
 
-      <div class="db-card-header" style="padding:1rem 1.25rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-          <div class="db-card-title">{{ wf.name }}</div>
-          <span class="stage-pill" [style.background]="wf.is_active ? 'rgba(34,197,94,0.12)' : 'rgba(156,163,175,0.15)'"
-                [style.color]="wf.is_active ? '#15803d' : '#6b7280'">
-            <i class="fas me-1" [class.fa-circle]="wf.is_active" [class.fa-pause-circle]="!wf.is_active"
-               [style.font-size]="'0.55rem'"></i>
-            {{ wf.is_active ? 'Active' : 'Inactive' }}
-          </span>
+    <div *ngFor="let wf of workflows"
+         class="wf-card"
+         [class.wf-active]="wf.is_active">
+
+      <!-- Header -->
+      <div class="wf-card-header">
+        <div class="wf-card-icon" [class.wf-icon-active]="wf.is_active" [class.wf-icon-inactive]="!wf.is_active">
+          <i class="fas" [class.fa-bolt]="wf.is_active" [class.fa-sitemap]="!wf.is_active"></i>
         </div>
+        <div class="wf-card-title-wrap">
+          <div class="wf-card-name">{{ wf.name }}</div>
+          <div class="wf-card-desc" *ngIf="wf.description">{{ wf.description }}</div>
+          <div class="wf-card-desc" *ngIf="!wf.description">{{ (wf.steps || []).length }} step workflow</div>
+        </div>
+        <span class="wf-status-badge" [class.wf-status-active]="wf.is_active" [class.wf-status-inactive]="!wf.is_active">
+          <span class="wf-status-dot"></span>
+          {{ wf.is_active ? 'Active' : 'Inactive' }}
+        </span>
       </div>
 
-      <div class="db-card-body">
-        <div style="margin-bottom:0.6rem;font-size:0.82rem;color:#6b7280">
-          <i class="fas fa-bolt me-1" style="color:#f59e0b"></i>
-          Trigger: <code style="background:#f3f4f6;padding:0.1rem 0.4rem;border-radius:5px;font-size:0.78rem;color:#374151">{{ wf.trigger }}</code>
-        </div>
-        <div style="margin-bottom:1.1rem;font-size:0.82rem;color:#6b7280">
-          <i class="fas fa-list-ol me-1" style="color:#6366f1"></i>
-          {{ (wf.steps || []).length }} step(s)
+      <!-- Body -->
+      <div class="wf-card-body">
+
+        <!-- Trigger -->
+        <div class="wf-trigger-row">
+          <span class="wf-trigger-label">Trigger</span>
+          <span class="wf-trigger-code">{{ wf.trigger }}</span>
         </div>
 
-        <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
-          <button class="row-action-btn" style="width:auto;padding:0 0.85rem;font-size:0.8rem;font-weight:600;color:#4f46e5;border-color:rgba(99,102,241,0.35)"
-                  (click)="openEdit(wf)">
-            <i class="fas fa-edit me-1"></i>Edit
-          </button>
-          <button class="row-action-btn" style="width:auto;padding:0 0.85rem;font-size:0.8rem;font-weight:600;color:#d97706;border-color:rgba(245,158,11,0.35)"
-                  (click)="test(wf)" [disabled]="testingId === wf.id">
-            <span class="ingest-spinner" style="border-color:rgba(217,119,6,0.3);border-top-color:#d97706" *ngIf="testingId===wf.id"></span>
-            <i class="fas fa-vial me-1" *ngIf="testingId!==wf.id"></i>Test
-          </button>
-          <button class="row-action-btn"
-                  [style.color]="wf.is_active ? '#6b7280' : '#15803d'"
-                  [style.border-color]="wf.is_active ? '#e5e7eb' : 'rgba(34,197,94,0.4)'"
-                  style="width:auto;padding:0 0.85rem;font-size:0.8rem;font-weight:600"
-                  (click)="toggleActive(wf)">
-            <i class="fas me-1" [class.fa-pause]="wf.is_active" [class.fa-play]="!wf.is_active"></i>
-            {{ wf.is_active ? 'Disable' : 'Enable' }}
-          </button>
-          <button class="row-action-btn" style="width:auto;padding:0 0.85rem;font-size:0.8rem;font-weight:600;color:#dc2626;border-color:rgba(239,68,68,0.35);background:#fff5f5"
-                  (click)="delete(wf)">
-            <i class="fas fa-trash"></i>
-          </button>
+        <!-- Steps visual -->
+        <div class="wf-steps-row">
+          <div class="wf-step-dots">
+            <div class="wf-step-dot" *ngFor="let s of (wf.steps || []).slice(0,5)"></div>
+            <div class="wf-step-dot wf-dot-more" *ngIf="(wf.steps || []).length > 5"></div>
+          </div>
+          <span class="wf-steps-count">{{ (wf.steps || []).length }}</span>
+          <span class="wf-steps-label">{{ (wf.steps || []).length === 1 ? 'step' : 'steps' }}</span>
         </div>
+
       </div>
+
+      <!-- Footer Actions -->
+      <div class="wf-card-footer">
+        <button class="wf-btn wf-btn-edit" (click)="openEdit(wf)">
+          <i class="fas fa-edit"></i>Edit
+        </button>
+        <button class="wf-btn wf-btn-test" (click)="test(wf)" [disabled]="testingId === wf.id">
+          <span class="ingest-spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(217,119,6,0.3);border-top-color:#d97706" *ngIf="testingId===wf.id"></span>
+          <i class="fas fa-vial" *ngIf="testingId!==wf.id"></i>
+          {{ testingId===wf.id ? 'Testing…' : 'Test' }}
+        </button>
+        <button class="wf-btn" (click)="toggleActive(wf)"
+                [class.wf-btn-enable]="!wf.is_active"
+                [class.wf-btn-disable]="wf.is_active">
+          <i class="fas" [class.fa-play]="!wf.is_active" [class.fa-pause]="wf.is_active"></i>
+          {{ wf.is_active ? 'Disable' : 'Enable' }}
+        </button>
+        <button class="wf-btn wf-btn-delete" (click)="delete(wf)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+
     </div>
   </div>
 

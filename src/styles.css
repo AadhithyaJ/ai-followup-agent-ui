@@ -1369,6 +1369,257 @@ body {
 .adm-skel.mid   { width: 55%; }
 .adm-skel.short { width: 35%; }
 
+/* ── Workflows page ──────────────────────────────────────────────── */
+
+/* Workflow card grid */
+.wf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.1rem;
+}
+
+/* Workflow card */
+.wf-card {
+  background: #fff;
+  border: 1px solid rgba(228,232,255,0.75);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: box-shadow 0.22s, transform 0.18s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03), 0 8px 28px rgba(99,102,241,0.05);
+  display: flex;
+  flex-direction: column;
+}
+.wf-card:hover {
+  box-shadow: 0 6px 28px rgba(99,102,241,0.13), 0 2px 8px rgba(0,0,0,0.06);
+  transform: translateY(-3px);
+}
+.wf-card.wf-active {
+  border-color: rgba(34,197,94,0.28);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03), 0 8px 28px rgba(34,197,94,0.08);
+}
+.wf-card.wf-active:hover {
+  box-shadow: 0 6px 28px rgba(34,197,94,0.16), 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Card header */
+.wf-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid rgba(99,102,241,0.07);
+  background: linear-gradient(135deg, #fafbff 0%, #f5f8ff 100%);
+}
+.wf-card.wf-active .wf-card-header {
+  background: linear-gradient(135deg, #f0fdf4 0%, #f7fef9 100%);
+  border-bottom-color: rgba(34,197,94,0.1);
+}
+.wf-card-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: #fff; flex-shrink: 0;
+}
+.wf-icon-active   { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 14px rgba(34,197,94,0.35); }
+.wf-icon-inactive { background: linear-gradient(135deg, #94a3b8, #64748b); box-shadow: 0 4px 12px rgba(100,116,139,0.25); }
+.wf-card-title-wrap { flex: 1; min-width: 0; }
+.wf-card-name {
+  font-size: 0.92rem; font-weight: 800; color: #111827;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 0.25rem;
+}
+.wf-card-desc {
+  font-size: 0.765rem; color: #9ca3af;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Status badge */
+.wf-status-badge {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  padding: 0.22rem 0.65rem; border-radius: 20px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.wf-status-active   { background: rgba(34,197,94,0.12);  color: #15803d; }
+.wf-status-inactive { background: rgba(156,163,175,0.14); color: #6b7280; }
+.wf-status-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.wf-status-active .wf-status-dot   { background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.3); }
+.wf-status-inactive .wf-status-dot { background: #9ca3af; }
+
+/* Card body */
+.wf-card-body { padding: 1.1rem 1.25rem; flex: 1; display: flex; flex-direction: column; gap: 0.7rem; }
+
+/* Trigger row */
+.wf-trigger-row {
+  display: flex; align-items: center; gap: 0.55rem;
+}
+.wf-trigger-label {
+  font-size: 0.72rem; font-weight: 700; color: #9ca3af;
+  text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0;
+}
+.wf-trigger-code {
+  background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.14);
+  border-radius: 7px; padding: 0.22rem 0.6rem;
+  font-size: 0.775rem; font-weight: 600; color: #4f46e5;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+/* Steps row */
+.wf-steps-row {
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.wf-step-dots { display: flex; gap: 4px; }
+.wf-step-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  box-shadow: 0 1px 4px rgba(99,102,241,0.3);
+}
+.wf-step-dot.wf-dot-more {
+  background: #e5e7eb;
+  box-shadow: none;
+}
+.wf-steps-count {
+  font-size: 0.8rem; font-weight: 600; color: #374151;
+}
+.wf-steps-label { font-size: 0.78rem; color: #9ca3af; }
+
+/* Card footer / actions */
+.wf-card-footer {
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid rgba(0,0,0,0.04);
+  background: rgba(249,250,255,0.6);
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+}
+
+/* Workflow action buttons */
+.wf-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.38rem 0.85rem;
+  border-radius: 8px; border: 1.5px solid;
+  font-size: 0.79rem; font-weight: 600; cursor: pointer;
+  transition: all 0.15s ease;
+  height: 32px;
+  white-space: nowrap;
+}
+.wf-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.wf-btn-edit {
+  background: rgba(99,102,241,0.07);
+  border-color: rgba(99,102,241,0.3);
+  color: #4f46e5;
+}
+.wf-btn-edit:hover { background: rgba(99,102,241,0.13); transform: translateY(-1px); }
+
+.wf-btn-test {
+  background: rgba(245,158,11,0.08);
+  border-color: rgba(245,158,11,0.3);
+  color: #d97706;
+}
+.wf-btn-test:hover:not(:disabled) { background: rgba(245,158,11,0.15); transform: translateY(-1px); }
+
+.wf-btn-enable {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.3);
+  color: #15803d;
+}
+.wf-btn-enable:hover { background: rgba(34,197,94,0.14); transform: translateY(-1px); }
+
+.wf-btn-disable {
+  background: rgba(156,163,175,0.1);
+  border-color: rgba(156,163,175,0.3);
+  color: #6b7280;
+}
+.wf-btn-disable:hover { background: rgba(156,163,175,0.17); transform: translateY(-1px); }
+
+.wf-btn-delete {
+  background: rgba(239,68,68,0.07);
+  border-color: rgba(239,68,68,0.28);
+  color: #dc2626;
+  margin-left: auto;
+}
+.wf-btn-delete:hover { background: rgba(239,68,68,0.13); transform: translateY(-1px); }
+
+/* Test input bar */
+.wf-test-bar {
+  display: flex; align-items: center; gap: 0.85rem;
+  background: rgba(255,255,255,0.98);
+  border: 1px solid rgba(99,102,241,0.1);
+  border-radius: 14px;
+  padding: 0.8rem 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 12px rgba(99,102,241,0.06);
+}
+.wf-test-bar-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  background: rgba(245,158,11,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; color: #d97706;
+}
+.wf-test-bar-label {
+  font-size: 0.82rem; font-weight: 700; color: #374151; white-space: nowrap;
+}
+.wf-test-bar-sub {
+  font-size: 0.72rem; color: #9ca3af;
+}
+
+/* Workflow form step card */
+.wf-step-card {
+  background: #f8f9ff;
+  border: 1px solid rgba(99,102,241,0.1);
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 0.65rem;
+  display: grid;
+  grid-template-columns: 40px 110px 150px 1fr 36px;
+  gap: 0.75rem;
+  align-items: end;
+}
+.wf-step-num {
+  width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 800; color: #fff;
+  box-shadow: 0 3px 10px rgba(99,102,241,0.35);
+  align-self: center;
+}
+
+/* Cancel / secondary button */
+.wf-btn-cancel {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: #fff; border: 1.5px solid #e5e7eb; border-radius: 10px;
+  padding: 0.58rem 1.1rem; font-size: 0.845rem; font-weight: 600;
+  color: #374151; cursor: pointer;
+  transition: border-color 0.13s, color 0.13s, transform 0.12s;
+}
+.wf-btn-cancel:hover { border-color: #9ca3af; color: #111827; transform: translateY(-1px); }
+
+/* Test result card */
+.wf-result-card {
+  background: rgba(255,255,255,0.97);
+  border: 1px solid rgba(245,158,11,0.28);
+  border-radius: 16px;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.08);
+}
+.wf-result-header {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(245,158,11,0.12);
+  background: linear-gradient(135deg, #fffbeb, #fefce8);
+  font-size: 0.875rem; font-weight: 700; color: #92400e;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .wf-grid { grid-template-columns: 1fr; }
+  .wf-step-card { grid-template-columns: 40px 1fr 1fr; grid-template-rows: auto auto; }
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    PREMIUM UI ENHANCEMENT LAYER
    ═══════════════════════════════════════════════════════════════════ */
