@@ -46,12 +46,11 @@ export class AnalyticsComponent implements OnInit {
     forkJoin({
       overview: this.api.getAnalyticsOverview(),
       funnel:   this.api.getAnalyticsFunnel(),
-      agents:   this.api.getAgentPerformance(),
       advanced: this.api.getAdvancedAnalytics()
     }).subscribe({
-      next: ({ overview, funnel, agents, advanced }) => {
+      next: ({ overview, funnel, advanced }) => {
         this.overview.set(overview);
-        this.agents.set(agents);
+        this.agents.set(this._buildAgents(overview));
         this.advanced.set(advanced);
         this.loading.set(false);
         this.funnelRows.set(this._buildFunnel(funnel));
@@ -59,6 +58,12 @@ export class AnalyticsComponent implements OnInit {
       },
       error: () => { this.error.set('Failed to load analytics.'); this.loading.set(false); }
     });
+  }
+
+  private _buildAgents(overview: AnalyticsOverview): AgentPerformance[] {
+    return Object.entries(overview.agent_performance ?? {}).map(([agent, v]) => ({
+      agent, total_leads: v.total_leads, conversions: v.conversions, conversion_rate: v.conversion_rate
+    }));
   }
 
   private _buildFunnel(funnel: FunnelData): FunnelRow[] {

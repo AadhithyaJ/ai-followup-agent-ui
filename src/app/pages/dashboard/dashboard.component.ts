@@ -27,7 +27,7 @@ export class DashboardComponent implements OnInit {
 
   bestAgent = computed<AgentPerformance | null>(() => {
     const a = this.agents();
-    return a.length ? a.reduce((x, b) => x.conv_rate > b.conv_rate ? x : b) : null;
+    return a.length ? a.reduce((x, b) => x.conversion_rate > b.conversion_rate ? x : b) : null;
   });
 
   constructor(private api: ApiService) {}
@@ -39,13 +39,14 @@ export class DashboardComponent implements OnInit {
     this.error.set('');
     forkJoin({
       overview: this.api.getAnalyticsOverview(),
-      funnel:   this.api.getAnalyticsFunnel(),
-      agents:   this.api.getAgentPerformance()
+      funnel:   this.api.getAnalyticsFunnel()
     }).subscribe({
-      next: ({ overview, funnel, agents }) => {
+      next: ({ overview, funnel }) => {
         this.overview.set(overview);
         this.funnel.set(funnel);
-        this.agents.set(agents);
+        this.agents.set(Object.entries(overview.agent_performance ?? {}).map(([agent, v]) => ({
+          agent, total_leads: v.total_leads, conversions: v.conversions, conversion_rate: v.conversion_rate
+        })));
         this.now.set(new Date());
         this.loading.set(false);
       },
