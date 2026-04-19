@@ -6,9 +6,14 @@
       <h4 class="page-title">Workflows</h4>
       <p class="page-sub">Automate your lead follow-up sequences</p>
     </div>
-    <button class="btn-primary-pill" (click)="openCreate()">
-      <i class="fas fa-plus"></i>New Workflow
-    </button>
+    <div style="display:flex;gap:0.6rem;align-items:center">
+      <button class="wf-btn wf-btn-tpl" (click)="toggleTemplates()">
+        <i class="fas fa-layer-group"></i>{{ showTemplates() ? 'Hide Templates' : 'Browse Templates' }}
+      </button>
+      <button class="btn-primary-pill" (click)="openCreate()">
+        <i class="fas fa-plus"></i>New Workflow
+      </button>
+    </div>
   </div>
 
   <!-- ── Alerts ─────────────────────────────────────────────────── -->
@@ -25,6 +30,40 @@
     </button>
   </div>
 
+  <!-- ── Templates Gallery ─────────────────────────────────────── -->
+  <div class="wf-tpl-panel" *ngIf="showTemplates()">
+    <div class="wf-tpl-panel-header">
+      <div class="db-card-title"><i class="fas fa-layer-group me-2" style="color:#8b5cf6"></i>Built-in Templates</div>
+      <span class="page-sub">Clone a template to get started instantly</span>
+    </div>
+    <div class="db-skel-list" *ngIf="templatesLoading()">
+      <div class="db-skel" *ngFor="let i of [1,2,3]"></div>
+    </div>
+    <div class="wf-tpl-grid" *ngIf="!templatesLoading()">
+      <div class="wf-tpl-card" *ngFor="let t of templates(); let i = index; trackBy: trackById">
+        <div class="wf-tpl-icon">
+          <i class="fas" [ngClass]="templateIcon(i)"></i>
+        </div>
+        <div class="wf-tpl-body">
+          <div class="wf-tpl-name">{{ t.name }}</div>
+          <div class="wf-tpl-desc">{{ t.description || 'No description' }}</div>
+          <div class="wf-tpl-meta">
+            <span class="wf-trigger-code" style="font-size:0.7rem">{{ t.trigger }}</span>
+            <span class="wf-tpl-steps">{{ t.steps.length }} steps</span>
+          </div>
+        </div>
+        <button class="wf-tpl-use-btn"
+                [disabled]="cloningId() === t.id"
+                (click)="cloneTemplate(t)">
+          <span class="ingest-spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(139,92,246,0.2);border-top-color:#8b5cf6" *ngIf="cloningId()===t.id"></span>
+          <i class="fas fa-copy" *ngIf="cloningId()!==t.id"></i>
+          {{ cloningId() === t.id ? 'Cloning…' : 'Use Template' }}
+        </button>
+      </div>
+      <div class="db-empty" *ngIf="!templates().length">No templates available.</div>
+    </div>
+  </div>
+
   <!-- ── Create / Edit Form ─────────────────────────────────────── -->
   <div class="ingest-panel" *ngIf="showForm()" style="margin-bottom:1.25rem">
     <div class="ingest-panel-title">
@@ -35,7 +74,6 @@
       <i class="fas fa-exclamation-circle"></i>{{ formError() }}
     </div>
     <form [formGroup]="form" (ngSubmit)="save()">
-      <!-- Basic fields -->
       <div class="ingest-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:1.1rem">
         <div class="ingest-field">
           <label>Workflow Name</label>
@@ -51,7 +89,6 @@
         </div>
       </div>
 
-      <!-- Steps section -->
       <div style="margin-bottom:1.1rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem">
           <div>
@@ -62,18 +99,14 @@
             <i class="fas fa-plus"></i>Add Step
           </button>
         </div>
-
         <div *ngFor="let step of steps.controls; let i=index" class="wf-step-card" [formGroup]="$any(step)">
-          <!-- Step number bubble -->
           <div style="display:flex;align-items:flex-end;padding-bottom:0.4rem">
             <div class="wf-step-num">{{ i + 1 }}</div>
           </div>
-          <!-- Delay -->
           <div class="ingest-field" style="margin-bottom:0">
             <label>Delay (sec)</label>
             <input type="number" class="field-input" formControlName="delay_sec">
           </div>
-          <!-- Action -->
           <div class="ingest-field" style="margin-bottom:0">
             <label>Action</label>
             <select class="field-input" formControlName="action">
@@ -83,12 +116,10 @@
               <option value="call">Call</option>
             </select>
           </div>
-          <!-- Template -->
           <div class="ingest-field" style="margin-bottom:0">
             <label>Message Template</label>
-            <input class="field-input" formControlName="message_template" placeholder="Hi {name}, following up on your inquiry!">
+            <input class="field-input" formControlName="message_template" placeholder="Hi {name}, following up!">
           </div>
-          <!-- Remove -->
           <div style="display:flex;align-items:flex-end;padding-bottom:0.4rem">
             <button type="button" class="row-action-btn" title="Remove step"
                     style="background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.3);color:#dc2626"
@@ -97,13 +128,11 @@
             </button>
           </div>
         </div>
-
         <div class="db-empty" *ngIf="steps.length === 0" style="padding:1rem;text-align:left">
           <i class="fas fa-list-ol" style="display:inline;font-size:1rem;margin-right:0.4rem"></i>No steps yet — click Add Step to begin
         </div>
       </div>
 
-      <!-- Form actions -->
       <div style="display:flex;gap:0.75rem">
         <button class="btn-ingest" type="submit" [disabled]="form.invalid || formLoading()">
           <span class="ingest-spinner" *ngIf="formLoading()"></span>
@@ -117,12 +146,12 @@
     </form>
   </div>
 
-  <!-- ── Test Lead Bar ──────────────────────────────────────────── -->
+  <!-- ── Lead ID Bar ────────────────────────────────────────────── -->
   <div class="wf-test-bar">
     <div class="wf-test-bar-icon"><i class="fas fa-vial"></i></div>
     <div>
-      <div class="wf-test-bar-label">Dry-Run Test</div>
-      <div class="wf-test-bar-sub">Enter a lead UUID then click Test on any workflow</div>
+      <div class="wf-test-bar-label">Lead Actions</div>
+      <div class="wf-test-bar-sub">Enter a lead UUID to test, assign, or force-run any workflow</div>
     </div>
     <input class="field-input" style="flex:1;max-width:320px;margin-bottom:0"
            [ngModel]="testLeadId()" (ngModelChange)="testLeadId.set($event)"
@@ -132,25 +161,15 @@
   <!-- ── Test Result ────────────────────────────────────────────── -->
   <div class="wf-result-card" *ngIf="testResult()">
     <div class="wf-result-header">
-      <i class="fas fa-vial"></i>Dry-Run Result
+      <i class="fas fa-vial"></i>Dry-Run Preview — {{ testResult()!.workflow }}
     </div>
     <div class="db-card-body" style="padding:0">
       <table class="leads-table" style="width:100%">
-        <thead>
-          <tr>
-            <th>Step</th>
-            <th>Action</th>
-            <th>Delay</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Step</th><th>Action</th><th>Delay</th></tr></thead>
         <tbody>
           <tr *ngFor="let s of testResult()!.steps_would_execute" class="lead-row">
-            <td>
-              <div class="wf-step-num" style="width:24px;height:24px;font-size:0.65rem">{{ s.step }}</div>
-            </td>
-            <td>
-              <span class="stage-pill stage-new">{{ s.action }}</span>
-            </td>
+            <td><div class="wf-step-num" style="width:24px;height:24px;font-size:0.65rem">{{ s.step }}</div></td>
+            <td><span class="stage-pill stage-new">{{ s.action }}</span></td>
             <td class="date-cell">{{ s.delay_sec }}s</td>
           </tr>
         </tbody>
@@ -175,15 +194,13 @@
   <div class="leads-empty" *ngIf="!loading() && workflows().length === 0 && !showForm()">
     <i class="fas fa-sitemap"></i>
     <div>No workflows yet</div>
-    <p>Create a workflow to start automating your lead follow-up sequences</p>
+    <p>Create a workflow or clone a built-in template to get started</p>
   </div>
 
   <!-- ── Workflow Cards ─────────────────────────────────────────── -->
   <div class="wf-grid" *ngIf="!loading() && workflows().length > 0">
-
-    <div *ngFor="let wf of workflows()"
-         class="wf-card"
-         [class.wf-active]="wf.is_active">
+    <div *ngFor="let wf of workflows(); trackBy: trackById"
+         class="wf-card" [class.wf-active]="wf.is_active">
 
       <!-- Header -->
       <div class="wf-card-header">
@@ -192,25 +209,19 @@
         </div>
         <div class="wf-card-title-wrap">
           <div class="wf-card-name">{{ wf.name }}</div>
-          <div class="wf-card-desc" *ngIf="wf.description">{{ wf.description }}</div>
-          <div class="wf-card-desc" *ngIf="!wf.description">{{ (wf.steps || []).length }} step workflow</div>
+          <div class="wf-card-desc">{{ wf.description || ((wf.steps || []).length + ' step workflow') }}</div>
         </div>
         <span class="wf-status-badge" [class.wf-status-active]="wf.is_active" [class.wf-status-inactive]="!wf.is_active">
-          <span class="wf-status-dot"></span>
-          {{ wf.is_active ? 'Active' : 'Inactive' }}
+          <span class="wf-status-dot"></span>{{ wf.is_active ? 'Active' : 'Inactive' }}
         </span>
       </div>
 
       <!-- Body -->
       <div class="wf-card-body">
-
-        <!-- Trigger -->
         <div class="wf-trigger-row">
           <span class="wf-trigger-label">Trigger</span>
           <span class="wf-trigger-code">{{ wf.trigger }}</span>
         </div>
-
-        <!-- Steps visual -->
         <div class="wf-steps-row">
           <div class="wf-step-dots">
             <div class="wf-step-dot" *ngFor="let s of (wf.steps || []).slice(0,5)"></div>
@@ -219,30 +230,122 @@
           <span class="wf-steps-count">{{ (wf.steps || []).length }}</span>
           <span class="wf-steps-label">{{ (wf.steps || []).length === 1 ? 'step' : 'steps' }}</span>
         </div>
-
       </div>
 
       <!-- Footer Actions -->
       <div class="wf-card-footer">
-        <button class="wf-btn wf-btn-edit" (click)="openEdit(wf)">
+        <button class="wf-btn wf-btn-edit" (click)="openEdit(wf)" title="Edit">
           <i class="fas fa-edit"></i>Edit
         </button>
-        <button class="wf-btn wf-btn-test" (click)="test(wf)" [disabled]="testingId() === wf.id">
+        <button class="wf-btn wf-btn-test" (click)="test(wf)" [disabled]="testingId() === wf.id" title="Dry-run preview">
           <span class="ingest-spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(217,119,6,0.3);border-top-color:#d97706" *ngIf="testingId()===wf.id"></span>
           <i class="fas fa-vial" *ngIf="testingId()!==wf.id"></i>
           {{ testingId()===wf.id ? 'Testing…' : 'Test' }}
         </button>
+        <button class="wf-btn wf-btn-assign" (click)="assign(wf)" [disabled]="actionIs(wf.id,'assign')" title="Assign + execute on lead">
+          <span class="ingest-spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(14,165,233,0.2);border-top-color:#0ea5e9" *ngIf="actionIs(wf.id,'assign')"></span>
+          <i class="fas fa-user-plus" *ngIf="!actionIs(wf.id,'assign')"></i>
+          {{ actionIs(wf.id,'assign') ? 'Assigning…' : 'Assign' }}
+        </button>
+        <button class="wf-btn wf-btn-run" (click)="forceRun(wf)" [disabled]="actionIs(wf.id,'run')" title="Force-run bypassing trigger">
+          <span class="ingest-spinner" style="width:11px;height:11px;border-width:1.5px;border-color:rgba(34,197,94,0.2);border-top-color:#22c55e" *ngIf="actionIs(wf.id,'run')"></span>
+          <i class="fas fa-play" *ngIf="!actionIs(wf.id,'run')"></i>
+          {{ actionIs(wf.id,'run') ? 'Running…' : 'Run' }}
+        </button>
+        <button class="wf-btn" [class.wf-btn-history-open]="executionsFor()===wf.id"
+                (click)="toggleHistory(wf)" title="Execution history">
+          <i class="fas fa-history"></i>History
+        </button>
         <button class="wf-btn" (click)="toggleActive(wf)"
-                [class.wf-btn-enable]="!wf.is_active"
-                [class.wf-btn-disable]="wf.is_active">
+                [class.wf-btn-enable]="!wf.is_active" [class.wf-btn-disable]="wf.is_active">
           <i class="fas" [class.fa-play]="!wf.is_active" [class.fa-pause]="wf.is_active"></i>
           {{ wf.is_active ? 'Disable' : 'Enable' }}
         </button>
-        <button class="wf-btn wf-btn-delete" (click)="delete(wf)">
+        <button class="wf-btn wf-btn-delete" (click)="delete(wf)" title="Delete">
           <i class="fas fa-trash"></i>
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ── Execution History + Analysis ──────────────────────────── -->
+  <div class="wf-exec-panel" *ngIf="executionsFor()">
+    <div class="wf-exec-panel-header">
+      <div style="display:flex;align-items:center;gap:0.75rem">
+        <div class="db-card-title"><i class="fas fa-history me-2" style="color:#6366f1"></i>Execution History</div>
+        <span class="wf-trigger-code" style="font-size:0.72rem">{{ executionsFor() }}</span>
+      </div>
+      <button class="wf-btn-cancel" style="min-width:0;padding:0.3rem 0.6rem" (click)="executionsFor.set(null)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Analysis KPIs -->
+    <div class="wf-exec-stats" *ngIf="!executionsLoading() && executions().length">
+      <div class="wf-exec-kpi">
+        <div class="wf-exec-kpi-val">{{ execStats().total }}</div>
+        <div class="wf-exec-kpi-label">Total Runs</div>
+      </div>
+      <div class="wf-exec-kpi">
+        <div class="wf-exec-kpi-val" style="color:#22c55e">{{ execStats().completed }}</div>
+        <div class="wf-exec-kpi-label">Completed</div>
+      </div>
+      <div class="wf-exec-kpi">
+        <div class="wf-exec-kpi-val" style="color:#ef4444">{{ execStats().failed }}</div>
+        <div class="wf-exec-kpi-label">Failed</div>
+      </div>
+      <div class="wf-exec-kpi">
+        <div class="wf-exec-kpi-val">{{ execStats().rate }}%</div>
+        <div class="wf-exec-kpi-label">Success Rate</div>
+        <div class="wf-exec-rate-bar">
+          <div class="wf-exec-rate-fill" [style.width.%]="execStats().rate"
+               [style.background]="execStats().rate >= 70 ? '#22c55e' : execStats().rate >= 40 ? '#f59e0b' : '#ef4444'"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spinner -->
+    <div class="db-skel-list" style="padding:1.25rem" *ngIf="executionsLoading()">
+      <div class="db-skel" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+
+    <!-- Empty -->
+    <div class="db-empty" *ngIf="!executionsLoading() && !executions().length">
+      No executions recorded for this workflow yet.
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto" *ngIf="!executionsLoading() && executions().length">
+      <table class="an-table">
+        <thead>
+          <tr>
+            <th>Status</th><th>Lead</th><th>Triggered</th>
+            <th>Completed</th><th>Duration</th><th>Steps</th><th>Dry Run</th><th>Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of executions(); trackBy: trackByExec">
+            <td>
+              <span class="wf-exec-status" [style.color]="statusColor(e.status)" [style.background]="statusBg(e.status)">
+                {{ e.status }}
+              </span>
+            </td>
+            <td class="an-td-bold">{{ e.lead_id }}</td>
+            <td style="white-space:nowrap">{{ formatDate(e.triggered_at) }}</td>
+            <td style="white-space:nowrap">{{ formatDate(e.completed_at || '') }}</td>
+            <td>{{ execDuration(e) }}</td>
+            <td>{{ e.steps_executed ?? '—' }}</td>
+            <td>
+              <span *ngIf="e.dry_run" style="color:#8b5cf6;font-weight:700;font-size:0.72rem">DRY</span>
+              <span *ngIf="!e.dry_run" style="color:#9ca3af;font-size:0.72rem">—</span>
+            </td>
+            <td style="color:#ef4444;font-size:0.78rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              {{ e.error || '—' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 

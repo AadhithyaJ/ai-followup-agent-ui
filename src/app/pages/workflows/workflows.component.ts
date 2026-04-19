@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
-import { Workflow, WorkflowTestResult } from '../../core/models/workflow.model';
+import {
+  Workflow, WorkflowTemplate, WorkflowExecution, WorkflowTestResult
+} from '../../core/models/workflow.model';
 
 @Component({
   selector: 'app-workflows',
@@ -10,21 +12,52 @@ import { Workflow, WorkflowTestResult } from '../../core/models/workflow.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowsComponent implements OnInit {
-  workflows  = signal<Workflow[]>([]);
-  loading    = signal(false);
-  error      = signal('');
-  successMsg = signal('');
+  /* ── Core ─────────────────────────────────── */
+  workflows   = signal<Workflow[]>([]);
+  loading     = signal(false);
+  error       = signal('');
+  successMsg  = signal('');
 
-  showForm   = signal(false);
-  editingId  = signal<string | null>(null);
+  /* ── Create / Edit form ───────────────────── */
+  showForm    = signal(false);
+  editingId   = signal<string | null>(null);
   formLoading = signal(false);
   formError   = signal('');
 
+  /* ── Test / Dry-run ───────────────────────── */
   testResult  = signal<WorkflowTestResult | null>(null);
   testLeadId  = signal('');
   testingId   = signal<string | null>(null);
 
+  /* ── Templates gallery ────────────────────── */
+  showTemplates    = signal(false);
+  templates        = signal<WorkflowTemplate[]>([]);
+  templatesLoading = signal(false);
+  cloningId        = signal<string | null>(null);
+
+  /* ── Executions & analysis ────────────────── */
+  executions        = signal<WorkflowExecution[]>([]);
+  executionsLoading = signal(false);
+  executionsFor     = signal<string | null>(null);   // workflow id whose history is open
+  actioningId       = signal<string | null>(null);   // workflow being assigned/run
+
+  execStats = computed(() => {
+    const ex = this.executions();
+    const total     = ex.length;
+    const completed = ex.filter(e => e.status === 'completed').length;
+    const failed    = ex.filter(e => e.status === 'failed').length;
+    const rate      = total ? Math.round((completed / total) * 100) : 0;
+    return { total, completed, failed, rate };
+  });
+
   form: FormGroup;
+
+  private readonly ACTION_ICONS: Record<string, string> = {
+    whatsapp: 'fa-whatsapp fab', email: 'fa-envelope fas',
+    sms: 'fa-sms fas', call: 'fa-phone fas'
+  };
+
+  private readonly TEMPLATE_ICONS = ['fa-bolt','fa-rocket','fa-star','fa-layer-group','fa-magic'];
 
   constructor(private api: ApiService, private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -39,6 +72,7 @@ export class WorkflowsComponent implements OnInit {
 
   get steps(): FormArray { return this.form.get('steps') as FormArray; }
 
+  /* ── Form helpers ─────────────────────────── */
   addStep(): void {
     this.steps.push(this.fb.group({
       delay_sec: [30, Validators.required],
@@ -48,14 +82,6 @@ export class WorkflowsComponent implements OnInit {
   }
 
   removeStep(i: number): void { this.steps.removeAt(i); }
-
-  loadWorkflows(): void {
-    this.loading.set(true);
-    this.api.getWorkflows().subscribe({
-      next: d => { this.workflows.set(d); this.loading.set(false); },
-      error: () => { this.error.set('Failed to load workflows.'); this.loading.set(false); }
-    });
-  }
 
   openCreate(): void {
     this.editingId.set(null);
@@ -70,13 +96,9 @@ export class WorkflowsComponent implements OnInit {
     this.editingId.set(wf.id);
     this.form.patchValue({ name: wf.name, trigger: wf.trigger, description: wf.description });
     this.steps.clear();
-    (wf.steps || []).forEach(s => {
-      this.steps.push(this.fb.group({
-        delay_sec: [s.delay_sec],
-        action: [s.action],
-        message_template: [s.message_template || '']
-      }));
-    });
+    (wf.steps || []).forEach(s => this.steps.push(this.fb.group({
+      delay_sec: [s.delay_sec], action: [s.action], message_template: [s.message_template || '']
+    })));
     this.showForm.set(true);
     this.formError.set('');
   }
@@ -87,12 +109,9 @@ export class WorkflowsComponent implements OnInit {
     if (this.form.invalid) return;
     this.formLoading.set(true);
     this.formError.set('');
-    const payload = this.form.value;
-
     const req$ = this.editingId()
-      ? this.api.updateWorkflow(this.editingId()!, payload)
-      : this.api.createWorkflow(payload);
-
+      ? this.api.updateWorkflow(this.editingId()!, this.form.value)
+      : this.api.createWorkflow(this.form.value);
     req$.subscribe({
       next: () => {
         this.successMsg.set(this.editingId() ? 'Workflow updated.' : 'Workflow created.');
@@ -100,17 +119,23 @@ export class WorkflowsComponent implements OnInit {
         this.showForm.set(false);
         this.loadWorkflows();
       },
-      error: err => {
-        this.formError.set(err?.error?.detail || 'Save failed.');
-        this.formLoading.set(false);
-      }
+      error: err => { this.formError.set(err?.error?.detail || 'Save failed.'); this.formLoading.set(false); }
+    });
+  }
+
+  /* ── CRUD ─────────────────────────────────── */
+  loadWorkflows(): void {
+    this.loading.set(true);
+    this.api.getWorkflows().subscribe({
+      next: d => { this.workflows.set(d); this.loading.set(false); },
+      error: () => { this.error.set('Failed to load workflows.'); this.loading.set(false); }
     });
   }
 
   toggleActive(wf: Workflow): void {
     this.api.updateWorkflow(wf.id, { is_active: !wf.is_active }).subscribe({
-      next: () => { wf.is_active = !wf.is_active; },
-      error: () => { this.error.set('Failed to toggle workflow.'); }
+      next: () => this.workflows.update(ws => ws.map(w => w.id === wf.id ? { ...w, is_active: !w.is_active } : w)),
+      error: () => this.error.set('Failed to toggle workflow.')
     });
   }
 
@@ -118,12 +143,13 @@ export class WorkflowsComponent implements OnInit {
     if (!confirm(`Delete workflow "${wf.name}"?`)) return;
     this.api.deleteWorkflow(wf.id).subscribe({
       next: () => { this.successMsg.set('Workflow deleted.'); this.loadWorkflows(); },
-      error: () => { this.error.set('Delete failed.'); }
+      error: () => this.error.set('Delete failed.')
     });
   }
 
+  /* ── Test ─────────────────────────────────── */
   test(wf: Workflow): void {
-    if (!this.testLeadId().trim()) { alert('Enter a lead ID to test against.'); return; }
+    if (!this.testLeadId().trim()) { alert('Enter a lead ID first.'); return; }
     this.testingId.set(wf.id);
     this.testResult.set(null);
     this.api.testWorkflow(wf.id, this.testLeadId().trim()).subscribe({
@@ -131,4 +157,95 @@ export class WorkflowsComponent implements OnInit {
       error: () => { this.error.set('Test failed.'); this.testingId.set(null); }
     });
   }
+
+  /* ── Templates ────────────────────────────── */
+  toggleTemplates(): void {
+    if (this.showTemplates()) { this.showTemplates.set(false); return; }
+    this.showTemplates.set(true);
+    if (!this.templates().length) {
+      this.templatesLoading.set(true);
+      this.api.getWorkflowTemplates().subscribe({
+        next: t => { this.templates.set(t); this.templatesLoading.set(false); },
+        error: () => this.templatesLoading.set(false)
+      });
+    }
+  }
+
+  cloneTemplate(tpl: WorkflowTemplate): void {
+    this.cloningId.set(tpl.id);
+    this.api.cloneTemplate(tpl.id).subscribe({
+      next: () => {
+        this.successMsg.set(`"${tpl.name}" added to your workflows.`);
+        this.cloningId.set(null);
+        this.loadWorkflows();
+      },
+      error: () => { this.error.set('Clone failed.'); this.cloningId.set(null); }
+    });
+  }
+
+  templateIcon(i: number): string { return this.TEMPLATE_ICONS[i % this.TEMPLATE_ICONS.length]; }
+
+  /* ── Assign / Run ─────────────────────────── */
+  assign(wf: Workflow): void {
+    if (!this.testLeadId().trim()) { alert('Enter a lead ID first.'); return; }
+    this.actioningId.set(wf.id + ':assign');
+    this.api.assignWorkflow(wf.id, this.testLeadId().trim()).subscribe({
+      next: () => { this.successMsg.set(`Workflow assigned to lead ${this.testLeadId()}.`); this.actioningId.set(null); },
+      error: err => { this.error.set(err?.error?.detail || 'Assign failed.'); this.actioningId.set(null); }
+    });
+  }
+
+  forceRun(wf: Workflow): void {
+    if (!this.testLeadId().trim()) { alert('Enter a lead ID first.'); return; }
+    this.actioningId.set(wf.id + ':run');
+    this.api.runWorkflow(wf.id, this.testLeadId().trim(), false).subscribe({
+      next: () => { this.successMsg.set(`Workflow executed on lead ${this.testLeadId()}.`); this.actioningId.set(null); },
+      error: err => { this.error.set(err?.error?.detail || 'Run failed.'); this.actioningId.set(null); }
+    });
+  }
+
+  /* ── Executions / History ─────────────────── */
+  toggleHistory(wf: Workflow): void {
+    if (this.executionsFor() === wf.id) { this.executionsFor.set(null); return; }
+    this.executionsFor.set(wf.id);
+    this.executionsLoading.set(true);
+    this.executions.set([]);
+    this.api.getWorkflowExecutions(wf.id).subscribe({
+      next: ex => { this.executions.set(ex); this.executionsLoading.set(false); },
+      error: () => { this.error.set('Failed to load executions.'); this.executionsLoading.set(false); }
+    });
+  }
+
+  statusColor(status: string): string {
+    switch (status) {
+      case 'completed': return '#22c55e';
+      case 'failed':    return '#ef4444';
+      case 'running':   return '#3b82f6';
+      default:          return '#9ca3af';
+    }
+  }
+
+  statusBg(status: string): string {
+    switch (status) {
+      case 'completed': return 'rgba(34,197,94,0.12)';
+      case 'failed':    return 'rgba(239,68,68,0.1)';
+      case 'running':   return 'rgba(59,130,246,0.1)';
+      default:          return 'rgba(156,163,175,0.12)';
+    }
+  }
+
+  formatDate(d: string): string {
+    return d ? new Date(d).toLocaleString() : '—';
+  }
+
+  execDuration(ex: WorkflowExecution): string {
+    if (!ex.triggered_at || !ex.completed_at) return '—';
+    const ms = new Date(ex.completed_at).getTime() - new Date(ex.triggered_at).getTime();
+    return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
+  }
+
+  actionIs(wfId: string, action: string): boolean { return this.actioningId() === `${wfId}:${action}`; }
+
+  trackById(_: number, x: { id: string }): string { return x.id; }
+  trackByExec(_: number, e: WorkflowExecution): string { return e.id; }
 }

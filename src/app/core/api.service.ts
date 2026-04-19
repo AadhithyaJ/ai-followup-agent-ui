@@ -8,10 +8,12 @@ import {
   CommunicationThread, LeadAdvisory
 } from './models/lead.model';
 import {
-  AnalyticsOverview, FunnelData, AgentPerformance, AdvancedAnalytics
+  AnalyticsOverview, FunnelData, AgentPerformance, AdvancedAnalytics,
+  CostOverview, CostLog
 } from './models/analytics.model';
 import {
-  Workflow, WorkflowCreateRequest, WorkflowTestResult
+  Workflow, WorkflowCreateRequest, WorkflowTestResult,
+  WorkflowTemplate, WorkflowExecution
 } from './models/workflow.model';
 import {
   FeatureFlags, FlagUpdateRequest, DynamicConfig, ConfigSetRequest,
@@ -98,6 +100,18 @@ export class ApiService {
     return this.http.get<AdvancedAnalytics>(`${this.base}/analytics/advanced`);
   }
 
+  getCostOverview(days = 7): Observable<CostOverview> {
+    return this.http.get<CostOverview>(`${this.base}/analytics/cost`, {
+      params: new HttpParams().set('days', days)
+    });
+  }
+
+  getCostLogs(limit = 100): Observable<{ count: number; logs: CostLog[] }> {
+    return this.http.get<{ count: number; logs: CostLog[] }>(`${this.base}/analytics/cost/logs`, {
+      params: new HttpParams().set('limit', limit)
+    });
+  }
+
   /* ── Workflows ──────────────────────────────────────── */
   getWorkflows(): Observable<Workflow[]> {
     return this.http.get<Workflow[]>(`${this.base}/workflows`);
@@ -120,7 +134,39 @@ export class ApiService {
   }
 
   testWorkflow(id: string, leadId: string): Observable<WorkflowTestResult> {
-    return this.http.post<WorkflowTestResult>(`${this.base}/workflows/${id}/test`, { lead_id: leadId });
+    return this.http.post<WorkflowTestResult>(`${this.base}/workflows/${id}/test`, {}, {
+      params: new HttpParams().set('lead_id', leadId)
+    });
+  }
+
+  getWorkflowTemplates(): Observable<WorkflowTemplate[]> {
+    return this.http.get<WorkflowTemplate[]>(`${this.base}/workflows/templates`);
+  }
+
+  cloneTemplate(templateId: string): Observable<Workflow> {
+    return this.http.post<Workflow>(`${this.base}/workflows/from-template/${templateId}`, {});
+  }
+
+  assignWorkflow(workflowId: string, leadId: string): Observable<any> {
+    return this.http.post(`${this.base}/workflows/${workflowId}/assign/${leadId}`, {});
+  }
+
+  runWorkflow(workflowId: string, leadId: string, dryRun = false): Observable<any> {
+    return this.http.post(`${this.base}/workflows/${workflowId}/run/${leadId}`, {}, {
+      params: new HttpParams().set('dry_run', dryRun)
+    });
+  }
+
+  getWorkflowExecutions(workflowId: string): Observable<WorkflowExecution[]> {
+    return this.http.get<WorkflowExecution[]>(`${this.base}/workflows/${workflowId}/executions`);
+  }
+
+  getLeadExecutions(leadId: string): Observable<WorkflowExecution[]> {
+    return this.http.get<WorkflowExecution[]>(`${this.base}/workflows/lead/${leadId}/executions`);
+  }
+
+  getExecution(execId: string): Observable<WorkflowExecution> {
+    return this.http.get<WorkflowExecution>(`${this.base}/workflows/executions/${execId}`);
   }
 
   /* ── Admin: Feature Flags ───────────────────────────── */
