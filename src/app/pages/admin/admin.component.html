@@ -14,6 +14,15 @@
     <!-- ── Sidebar ─────────────────────────────────────────────── -->
     <nav class="settings-sidebar">
 
+      <!-- Sidebar header -->
+      <div class="s-sidebar-hd">
+        <div class="s-sidebar-hd-icon" style="background:rgba(239,68,68,0.1);color:#ef4444"><i class="fas fa-shield-alt"></i></div>
+        <div>
+          <div class="s-sidebar-hd-title">Admin</div>
+          <div class="s-sidebar-hd-sub">System Control</div>
+        </div>
+      </div>
+
       <div class="settings-group-label">Operations</div>
       <button class="settings-nav-btn" [class.s-active]="activeTab()==='flags'" (click)="setTab('flags')">
         <i class="fas fa-toggle-on"></i>Feature Flags

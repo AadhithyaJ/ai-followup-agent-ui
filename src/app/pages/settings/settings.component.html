@@ -21,6 +21,15 @@
     <!-- ── Sidebar ─────────────────────────────────────────────── -->
     <nav class="settings-sidebar">
 
+      <!-- Sidebar header -->
+      <div class="s-sidebar-hd">
+        <div class="s-sidebar-hd-icon"><i class="fas fa-cog"></i></div>
+        <div>
+          <div class="s-sidebar-hd-title">Settings</div>
+          <div class="s-sidebar-hd-sub">Configuration</div>
+        </div>
+      </div>
+
       <!-- General -->
       <div class="settings-group-label">General</div>
       <button *ngFor="let t of tabGroup('general')"
