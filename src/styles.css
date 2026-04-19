@@ -3702,3 +3702,557 @@ h1,h2,h3,h4,h5,h6 { letter-spacing: -0.02em; }
 /* Focus ring */
 :focus-visible { outline: 2px solid rgba(99,102,241,0.55) !important; outline-offset: 2px !important; }
 
+/* ═══════════════════════════════════════════════════════════════════
+   PREMIUM UI — PHASE 2: COMPONENT DEPTH & COMPLETENESS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Bootstrap Modals ────────────────────────────────────────────── */
+.modal-content {
+  border-radius: 20px !important;
+  border: 1px solid rgba(228,232,255,0.8) !important;
+  box-shadow:
+    0 0 0 1px rgba(99,102,241,0.07),
+    0 8px 32px rgba(99,102,241,0.12),
+    0 32px 64px rgba(0,0,0,0.08) !important;
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  overflow: hidden;
+}
+.modal-header {
+  background: linear-gradient(135deg,#fafbff 0%,#f5f8ff 100%) !important;
+  border-bottom: 1px solid rgba(99,102,241,0.08) !important;
+  padding: 1.1rem 1.5rem !important;
+}
+.modal-header .modal-title {
+  font-size: 1rem !important; font-weight: 800 !important;
+  color: #0f172a !important; letter-spacing: -0.02em !important;
+}
+.modal-body { padding: 1.5rem !important; }
+.modal-footer {
+  background: #f8fafc !important;
+  border-top: 1px solid rgba(99,102,241,0.07) !important;
+  padding: 0.85rem 1.5rem !important; gap: 0.5rem !important;
+  display: flex !important; align-items: center !important;
+}
+.modal-backdrop.show { backdrop-filter: blur(4px); }
+
+/* ── Bootstrap List Group (Realtime Feed) ────────────────────────── */
+.list-group-item {
+  border-left: none !important; border-right: none !important;
+  border-color: rgba(228,232,255,0.6) !important;
+  padding: 0.75rem 1.1rem !important;
+  background: transparent !important;
+  transition: background 0.15s !important;
+}
+.list-group-item:first-child { border-top: none !important; border-radius: 0 !important; }
+.list-group-item:last-child  { border-bottom: none !important; border-radius: 0 !important; }
+.list-group-item-action:hover { background: rgba(248,250,255,0.95) !important; }
+.list-group-flush > .list-group-item { border-width: 0 0 1px !important; }
+
+/* ── Lead Detail — Thread Bubbles ───────────────────────────────── */
+.ld-bubble-out {
+  background: linear-gradient(135deg,var(--brand-primary) 0%,var(--brand-primary-dark) 100%) !important;
+  box-shadow: 0 2px 14px rgba(99,102,241,0.24) !important;
+  color: #fff !important;
+}
+.ld-bubble-in {
+  background: linear-gradient(135deg,#f3f5fb 0%,#edf0f8 100%) !important;
+  color: #374151 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
+}
+.ld-msg-avatar { box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important; border-radius: 10px !important; }
+
+/* ── Lead Detail — Tabs ─────────────────────────────────────────── */
+.ld-tabs {
+  background: linear-gradient(135deg,#f8f9ff 0%,#f3f5fb 100%) !important;
+  border: 1px solid rgba(228,232,255,0.8) !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.06), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+}
+.ld-tab-active {
+  background: linear-gradient(135deg,rgba(99,102,241,0.1),rgba(79,70,229,0.06)) !important;
+  box-shadow: 0 1px 6px rgba(99,102,241,0.16) !important;
+}
+
+/* ── Lead Detail — Health Banner ────────────────────────────────── */
+.ld-health-banner {
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  box-shadow: 0 2px 12px rgba(99,102,241,0.06), 0 1px 4px rgba(0,0,0,0.03) !important;
+  border-left: 4px solid var(--hc,#6b7280) !important;
+}
+.ld-health-bar-wrap {
+  background: #edf0f8 !important;
+  border-radius: 99px !important;
+}
+
+/* ── Lead Detail — Info List ────────────────────────────────────── */
+.ld-info-list {
+  background: linear-gradient(135deg,#fafbff 0%,#f5f8ff 100%) !important;
+  border: 1px solid rgba(228,232,255,0.7) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.04) !important;
+}
+.ld-info-row {
+  border-bottom-color: rgba(228,232,255,0.5) !important;
+  transition: background 0.14s !important;
+}
+.ld-info-row:hover { background: rgba(248,250,255,0.9) !important; }
+.ld-info-key { color: #94a3b8 !important; }
+.ld-info-val { color: #334155 !important; font-weight: 500 !important; }
+
+/* ── Lead Detail — Content blocks ──────────────────────────────── */
+.ld-orig-msg {
+  background: linear-gradient(135deg,#f8f9ff 0%,#f3f5fb 100%) !important;
+  border: 1px solid rgba(228,232,255,0.7) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(99,102,241,0.04) !important;
+}
+.ld-nba-draft {
+  background: linear-gradient(135deg,#fffbeb 0%,#fefce8 100%) !important;
+  border: 1px solid rgba(253,230,138,0.65) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(217,119,6,0.07) !important;
+}
+.ld-draft-text {
+  background: linear-gradient(135deg,#f8f9fb 0%,#f3f5f9 100%) !important;
+  border: 1px solid rgba(228,232,255,0.7) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+}
+.ld-suggestion-row { transition: background 0.14s !important; }
+.ld-suggestion-row:hover { background: rgba(248,250,255,0.9) !important; }
+.ld-talking-point { transition: background 0.14s !important; }
+.ld-talking-point:hover { background: rgba(248,250,255,0.9) !important; }
+
+/* ── Lead Detail — Draft tabs ───────────────────────────────────── */
+.ld-draft-tab {
+  border-radius: 9px !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+.ld-draft-tab:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 10px rgba(99,102,241,0.14) !important;
+}
+.ld-draft-tab-active {
+  box-shadow: 0 2px 8px rgba(99,102,241,0.18) !important;
+}
+
+/* ── Lead Detail — Back button & icon btns ──────────────────────── */
+.ld-back-btn {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+  border-radius: 10px !important;
+  transition: all 0.15s ease !important;
+}
+.ld-back-btn:hover { transform: translateY(-1px) !important; box-shadow: 0 4px 14px rgba(99,102,241,0.16) !important; }
+.ld-icon-btn {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+  transition: all 0.15s ease !important;
+}
+.ld-icon-btn:hover {
+  transform: translateY(-1px) scale(1.05) !important;
+  box-shadow: 0 3px 12px rgba(99,102,241,0.2) !important;
+}
+
+/* ── Lead Detail — Score badges ─────────────────────────────────── */
+.ld-score-high   { background: linear-gradient(135deg,#dcfce7,#d1fae5) !important; box-shadow: 0 1px 4px rgba(34,197,94,0.12) !important; }
+.ld-score-medium { background: linear-gradient(135deg,#fef3c7,#fde68a55) !important; box-shadow: 0 1px 4px rgba(245,158,11,0.12) !important; }
+.ld-score-low    { background: linear-gradient(135deg,#f3f4f6,#e9ecf0) !important; }
+
+/* ── Analytics — Cost KPI cards ─────────────────────────────────── */
+.an-cost-kpi {
+  background: linear-gradient(135deg,rgba(255,255,255,0.97) 0%,rgba(248,250,255,0.95) 100%) !important;
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.05), 0 4px 14px rgba(99,102,241,0.05) !important;
+  transition: box-shadow 0.18s, transform 0.18s !important;
+}
+.an-cost-kpi:hover { transform: translateY(-2px) !important; box-shadow: 0 4px 18px rgba(99,102,241,0.1) !important; }
+
+.an-cost-token-pill {
+  background: linear-gradient(135deg,rgba(255,255,255,0.97) 0%,rgba(248,250,255,0.95) 100%) !important;
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.05) !important;
+}
+.an-day-btn { border-radius: 8px !important; transition: all 0.15s ease !important; }
+.an-day-btn:hover { box-shadow: 0 2px 8px rgba(99,102,241,0.12) !important; transform: translateY(-1px) !important; }
+.an-day-btn.active {
+  background: linear-gradient(135deg,#6366f1,#4f46e5) !important;
+  box-shadow: 0 3px 12px rgba(99,102,241,0.32) !important;
+}
+.an-agent-row { transition: background 0.14s !important; }
+.an-agent-row:hover { background: rgba(248,250,255,0.9) !important; }
+
+/* ── Workflow Builder — Canvas Nodes ─────────────────────────────── */
+.wfb-step-node {
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  border-color: rgba(228,232,255,0.9) !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.06), 0 1px 3px rgba(0,0,0,0.04) !important;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s !important;
+}
+.wfb-step-node:hover {
+  border-color: rgba(99,102,241,0.3) !important;
+  box-shadow: 0 6px 24px rgba(99,102,241,0.12), 0 2px 8px rgba(0,0,0,0.05) !important;
+  transform: translateY(-1px) !important;
+}
+.wfb-trigger-node, .wfb-end-node {
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.06) !important;
+  transition: box-shadow 0.18s !important;
+}
+.wfb-trigger-node:hover { box-shadow: 0 4px 16px rgba(99,102,241,0.1) !important; }
+.wfb-empty-drop {
+  background: rgba(248,250,255,0.8) !important;
+  border-color: rgba(99,102,241,0.18) !important;
+  border-radius: 16px !important;
+}
+
+/* ── Workflow execution KPIs ─────────────────────────────────────── */
+.wf-exec-kpi {
+  background: linear-gradient(135deg,rgba(255,255,255,0.97) 0%,rgba(248,250,255,0.95) 100%);
+  transition: background 0.15s !important;
+}
+.wf-exec-kpi:hover { background: rgba(248,250,255,1) !important; }
+.wf-exec-panel {
+  box-shadow: 0 4px 24px rgba(99,102,241,0.09), 0 1px 4px rgba(0,0,0,0.03) !important;
+}
+.wf-result-card {
+  box-shadow: 0 4px 20px rgba(245,158,11,0.09), 0 1px 4px rgba(0,0,0,0.03) !important;
+}
+
+/* ── Admin — Stat boxes ──────────────────────────────────────────── */
+.adm-ap-stat {
+  background: linear-gradient(135deg,rgba(255,255,255,0.97) 0%,rgba(248,250,255,0.95) 100%) !important;
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.05), 0 4px 14px rgba(99,102,241,0.04) !important;
+  transition: transform 0.18s, box-shadow 0.18s !important;
+}
+.adm-ap-stat:hover { transform: translateY(-2px) !important; box-shadow: 0 4px 18px rgba(99,102,241,0.1) !important; }
+.adm-nba-result {
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 12px rgba(99,102,241,0.07) !important;
+}
+.adm-ab-variant {
+  border-radius: 12px !important;
+  transition: all 0.18s ease !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
+}
+.adm-ab-variant:not(.leader):hover {
+  border-color: rgba(99,102,241,0.3) !important;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.1) !important;
+  transform: translateY(-1px) !important;
+}
+.adm-ab-variant.leader {
+  box-shadow: 0 3px 14px rgba(34,197,94,0.14) !important;
+}
+.adm-nba-draft {
+  background: linear-gradient(135deg,#f8f9fb 0%,#f3f5f9 100%) !important;
+  border: 1px solid rgba(228,232,255,0.7) !important;
+  border-radius: 10px !important;
+}
+.adm-recommendation {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 10px rgba(34,197,94,0.08) !important;
+}
+
+/* ── Settings — Panel headers & info boxes ──────────────────────── */
+.settings-panel-header {
+  border-radius: 14px !important;
+  background: linear-gradient(135deg,#f8f9ff 0%,#f0f4ff 100%) !important;
+  border: 1px solid rgba(99,102,241,0.09) !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.05) !important;
+}
+.s-info-box {
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(59,130,246,0.07) !important;
+  background: linear-gradient(135deg,#eff6ff,#dbeafe22) !important;
+}
+.s-warn-box {
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(245,158,11,0.08) !important;
+  background: linear-gradient(135deg,#fffbeb,#fef3c755) !important;
+}
+.cred-block {
+  background: linear-gradient(135deg,#f8f9ff 0%,#f3f5fb 100%) !important;
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.04) !important;
+}
+.exp-row {
+  background: linear-gradient(135deg,#f8f9ff 0%,#f4f7ff 100%) !important;
+  border: 1px solid rgba(228,232,255,0.7) !important;
+  border-radius: 12px !important;
+  transition: all 0.15s ease !important;
+}
+.exp-row:hover {
+  border-color: rgba(99,102,241,0.22) !important;
+  box-shadow: 0 2px 10px rgba(99,102,241,0.08) !important;
+}
+.s-toast {
+  border-radius: 10px !important;
+  box-shadow: 0 2px 10px rgba(34,197,94,0.12) !important;
+  background: linear-gradient(135deg,#ecfdf5,#d1fae5) !important;
+}
+
+/* ── Admin — Toggle switch ──────────────────────────────────────── */
+.adm-toggle-track {
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1) !important;
+  transition: background 0.22s ease !important;
+}
+.adm-toggle-track::after {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18) !important;
+  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1) !important;
+}
+.adm-toggle input:checked + .adm-toggle-track {
+  background: linear-gradient(135deg,var(--brand-primary),var(--brand-primary-dark)) !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.3) inset 0 1px 2px rgba(0,0,0,0.08) !important;
+}
+
+/* ── Bootstrap Table ────────────────────────────────────────────── */
+.table > thead {
+  background: linear-gradient(135deg,#fafbff 0%,#f4f7ff 100%) !important;
+}
+.table > thead > tr > th {
+  font-size: 0.7rem !important; font-weight: 700 !important;
+  text-transform: uppercase !important; letter-spacing: 0.07em !important;
+  color: #94a3b8 !important; border-bottom: 1px solid rgba(228,232,255,0.8) !important;
+  white-space: nowrap !important;
+}
+.table > tbody > tr { transition: background 0.14s !important; }
+.table > tbody > tr:hover { background: rgba(248,250,255,0.95) !important; }
+.table > tbody > tr > td {
+  border-bottom: 1px solid rgba(228,232,255,0.5) !important;
+  font-size: 0.845rem !important; color: #374151 !important;
+  padding: 0.85rem 1rem !important;
+}
+
+/* ── Page subheadings ───────────────────────────────────────────── */
+.db-page-sub, .page-sub {
+  font-size: 0.8rem !important; color: #94a3b8 !important;
+  font-weight: 400 !important; letter-spacing: 0.01em !important;
+}
+
+/* ── Empty CTA states ───────────────────────────────────────────── */
+.ld-empty-cta {
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 2px 12px rgba(99,102,241,0.06) !important;
+}
+.leads-empty i, .ld-empty-cta i { opacity: 0.35 !important; }
+
+/* ── cfg-form-card ──────────────────────────────────────────────── */
+.cfg-form-card {
+  box-shadow: 0 2px 12px rgba(99,102,241,0.08), 0 1px 4px rgba(0,0,0,0.03) !important;
+  border-radius: 16px !important;
+}
+.cfg-overrides-list, .cfg-audit-list {
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.04) !important;
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+}
+.cfg-override-row:hover { background: rgba(248,250,255,0.95) !important; }
+.cfg-audit-row:hover { background: rgba(248,250,255,0.9) !important; }
+
+/* ── Score dots enhancement ─────────────────────────────────────── */
+.score-dot.score-high   { box-shadow: 0 0 0 3px rgba(34,197,94,0.18) !important; }
+.score-dot.score-medium { box-shadow: 0 0 0 3px rgba(245,158,11,0.18) !important; }
+
+/* ── Wf-node (preview diagram nodes) ───────────────────────────── */
+.wf-node {
+  background: linear-gradient(135deg,#f8fafc 0%,#f3f5fb 100%) !important;
+  border: 1px solid rgba(228,232,255,0.8) !important;
+  box-shadow: 0 1px 3px rgba(99,102,241,0.04) !important;
+  transition: box-shadow 0.15s !important;
+}
+.wf-node-trigger {
+  background: linear-gradient(135deg,rgba(99,102,241,0.06) 0%,rgba(139,92,246,0.03) 100%) !important;
+}
+.wf-node-end {
+  background: linear-gradient(135deg,rgba(34,197,94,0.06) 0%,rgba(16,185,129,0.03) 100%) !important;
+}
+
+/* ── Adm-flag dots (glow) ───────────────────────────────────────── */
+.adm-flag-dot.on {
+  background: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.2), 0 0 8px rgba(34,197,94,0.35) !important;
+}
+
+/* ── Adm-icon-btn ───────────────────────────────────────────────── */
+.adm-icon-btn {
+  border-radius: 9px !important;
+  transition: all 0.15s ease !important;
+}
+.adm-icon-btn:hover {
+  transform: translateY(-1px) scale(1.05) !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1) !important;
+}
+
+/* ── Danger button premium ──────────────────────────────────────── */
+.adm-danger-btn {
+  border-radius: 10px !important;
+  transition: all 0.15s ease !important;
+}
+.adm-danger-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(239,68,68,0.2) !important;
+}
+
+/* ── Cfg delete button ──────────────────────────────────────────── */
+.cfg-delete-btn { border-radius: 8px !important; transition: all 0.15s ease !important; }
+.cfg-delete-btn:hover { transform: scale(1.08) !important; }
+
+/* ── Wfb-remove btn ─────────────────────────────────────────────── */
+.wfb-remove-btn { transition: all 0.15s ease !important; }
+.wfb-remove-btn:hover { transform: scale(1.08) !important; }
+
+/* ── Adm prompt items ───────────────────────────────────────────── */
+.adm-prompt-item {
+  border-radius: 8px !important;
+  transition: all 0.13s ease !important;
+}
+.adm-prompt-item:hover { transform: translateX(2px) !important; }
+.adm-prompt-item.adm-prompt-active {
+  box-shadow: inset 3px 0 0 var(--brand-primary) !important;
+}
+
+/* ── Rollback btn ───────────────────────────────────────────────── */
+.adm-rollback-btn {
+  border-radius: 7px !important;
+  transition: all 0.14s ease !important;
+}
+.adm-rollback-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* ── NBA badge ──────────────────────────────────────────────────── */
+.ld-nba-badge {
+  box-shadow: 0 2px 8px rgba(217,119,6,0.28) !important;
+  border-radius: 9px !important;
+}
+.ld-priority-badge { border-radius: 9px !important; }
+
+/* ── Adm spinner ────────────────────────────────────────────────── */
+.adm-msg.success {
+  background: linear-gradient(135deg,#dcfce7,#d1fae5) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(34,197,94,0.1) !important;
+}
+.adm-msg.error {
+  background: linear-gradient(135deg,#fee2e2,#fecaca55) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(239,68,68,0.1) !important;
+}
+
+/* ── Global heading refinement ──────────────────────────────────── */
+.adm-panel-title {
+  background: linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%) !important;
+  -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.auth-card-title {
+  letter-spacing: -0.025em !important;
+}
+
+/* ── DB err pill ────────────────────────────────────────────────── */
+.db-err-pill {
+  background: linear-gradient(135deg,#fef2f2,#fee2e2) !important;
+  border: 1px solid rgba(252,165,165,0.6) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(239,68,68,0.08) !important;
+  font-size: 0.8rem !important; padding: 0.35rem 0.9rem !important;
+}
+
+/* ── Wf test bar ────────────────────────────────────────────────── */
+.wf-test-bar {
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  border: 1px solid rgba(228,232,255,0.75) !important;
+  box-shadow: 0 2px 14px rgba(99,102,241,0.07), 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+
+/* ── Wf tpl panel ───────────────────────────────────────────────── */
+.wf-tpl-panel {
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  border: 1px solid rgba(139,92,246,0.15) !important;
+  box-shadow: 0 4px 20px rgba(139,92,246,0.08), 0 1px 4px rgba(0,0,0,0.03) !important;
+}
+.wf-tpl-card {
+  background: linear-gradient(160deg,#fafafa 0%,#f5f7ff 100%) !important;
+  transition: all 0.18s ease !important;
+}
+.wf-tpl-card:hover {
+  background: #fff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(139,92,246,0.12) !important;
+}
+
+/* ── Wf tpl use btn ─────────────────────────────────────────────── */
+.wf-tpl-use-btn { border-radius: 10px !important; }
+.wf-tpl-use-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 14px rgba(139,92,246,0.22) !important;
+}
+
+/* ── Wf btn cancel ──────────────────────────────────────────────── */
+.wf-btn-cancel {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+}
+.wf-btn-cancel:hover {
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1) !important;
+}
+
+/* ── Brand icon btn ─────────────────────────────────────────────── */
+.brand-icon-btn {
+  border-radius: 11px !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+.brand-icon-btn:hover {
+  transform: translateY(-2px) scale(1.06) !important;
+  box-shadow: 0 4px 14px rgba(99,102,241,0.2) !important;
+}
+.brand-icon-btn.selected {
+  box-shadow: 0 3px 12px rgba(99,102,241,0.25) !important;
+}
+
+/* ── Color swatches ─────────────────────────────────────────────── */
+.brand-color-swatch {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.14) !important;
+}
+.brand-color-swatch.selected {
+  box-shadow: 0 3px 12px rgba(0,0,0,0.22) !important;
+}
+
+/* ── Wf status badge ────────────────────────────────────────────── */
+.wf-status-active {
+  background: linear-gradient(135deg,rgba(34,197,94,0.12),rgba(16,185,129,0.08)) !important;
+  box-shadow: 0 1px 4px rgba(34,197,94,0.1) !important;
+}
+.wf-status-inactive {
+  background: linear-gradient(135deg,rgba(156,163,175,0.12),rgba(107,114,128,0.06)) !important;
+}
+
+/* ── Stage pills refined ────────────────────────────────────────── */
+.stage-new         { box-shadow: 0 1px 4px rgba(91,33,182,0.1) !important; }
+.stage-qualified   { box-shadow: 0 1px 4px rgba(29,78,216,0.1) !important; }
+.stage-interested, .stage-converted { box-shadow: 0 1px 4px rgba(21,128,61,0.1) !important; }
+.stage-negotiation { box-shadow: 0 1px 4px rgba(146,64,14,0.1) !important; }
+.stage-lost        { box-shadow: 0 1px 4px rgba(153,27,27,0.1) !important; }
+
+/* ── Adm badge refined ──────────────────────────────────────────── */
+.adm-badge-green  { box-shadow: 0 1px 3px rgba(21,128,61,0.1) !important; }
+.adm-badge-blue   { box-shadow: 0 1px 3px rgba(29,78,216,0.1) !important; }
+.adm-badge-warn   { box-shadow: 0 1px 3px rgba(217,119,6,0.1) !important; }
+.adm-badge-red    { box-shadow: 0 1px 3px rgba(220,38,38,0.1) !important; }
+
+/* ── Live pill animated dot ─────────────────────────────────────── */
+.db-live-pill {
+  background: linear-gradient(135deg,#dcfce7,#d1fae5) !important;
+  border: 1px solid rgba(34,197,94,0.22) !important;
+  box-shadow: 0 1px 4px rgba(34,197,94,0.1) !important;
+}
+
