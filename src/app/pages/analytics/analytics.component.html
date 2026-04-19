@@ -116,21 +116,88 @@
       </div>
     </div>
 
-    <div class="db-card an-cost" *ngIf="!loading() && advanced()">
+    <!-- LLM Cost KPIs -->
+    <div class="db-card an-cost">
       <div class="db-card-header">
         <div class="db-card-title"><i class="fas fa-dollar-sign me-2" style="color:#22c55e"></i>LLM Cost</div>
+        <div class="an-day-selector">
+          <button class="an-day-btn" [class.active]="costDays()===7"  (click)="setCostDays(7)">7d</button>
+          <button class="an-day-btn" [class.active]="costDays()===14" (click)="setCostDays(14)">14d</button>
+          <button class="an-day-btn" [class.active]="costDays()===30" (click)="setCostDays(30)">30d</button>
+        </div>
       </div>
       <div class="db-card-body">
-        <div class="an-stat-big">${{ totalLlmCost().toFixed(4) }}</div>
-        <div class="an-stat-sub">total spend</div>
-        <div class="an-attribution" *ngIf="attrRows().length">
-          <div class="an-stat-label" style="margin-bottom:0.5rem">Revenue Attribution</div>
-          <div class="an-attr-row" *ngFor="let e of attrRows(); trackBy: trackByAttr">
-            <span class="an-attr-channel">{{ e.channel | titlecase }}</span>
-            <div class="an-attr-bar-wrap">
-              <div class="an-attr-bar" [style.width.%]="e.pct"></div>
+        <div class="db-skel-list" *ngIf="loading() && !cost()">
+          <div class="db-skel" *ngFor="let i of [1,2]"></div>
+        </div>
+        <ng-container *ngIf="cost()">
+          <div class="an-cost-kpis">
+            <div class="an-cost-kpi">
+              <div class="an-cost-kpi-label">Today</div>
+              <div class="an-cost-kpi-val">${{ cost()!.today_usd.toFixed(4) }}</div>
             </div>
-            <span class="an-attr-count">{{ e.count }}</span>
+            <div class="an-cost-kpi">
+              <div class="an-cost-kpi-label">Monthly</div>
+              <div class="an-cost-kpi-val">${{ cost()!.monthly_usd.toFixed(3) }}</div>
+            </div>
+            <div class="an-cost-kpi">
+              <div class="an-cost-kpi-label">Total ({{ costDays() }}d)</div>
+              <div class="an-cost-kpi-val">${{ cost()!.total_usd.toFixed(4) }}</div>
+            </div>
+          </div>
+          <div class="an-cost-tokens">
+            <div class="an-cost-token-pill">
+              <div class="an-cost-token-label">Prompt tokens</div>
+              <div class="an-cost-token-val">{{ formatK(cost()!.today_tokens.prompt) }}</div>
+            </div>
+            <div class="an-cost-token-pill">
+              <div class="an-cost-token-label">Completion tokens</div>
+              <div class="an-cost-token-val">{{ formatK(cost()!.today_tokens.completion) }}</div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Cost Breakdown (daily + by model/op) -->
+    <div class="db-card an-cost-detail" *ngIf="cost()">
+      <div class="db-card-header">
+        <div class="db-card-title">
+          <i class="fas fa-chart-bar me-2" style="color:#6366f1"></i>Cost Breakdown ({{ costDays() }}d)
+        </div>
+        <i class="fas fa-sync-alt fa-spin" *ngIf="costLoading()" style="color:#9ca3af;font-size:0.8rem"></i>
+      </div>
+      <div class="db-card-body">
+        <div class="an-stat-label" style="margin-bottom:0.6rem">Daily Spend</div>
+        <div class="an-cost-daily">
+          <div class="an-cost-day" *ngFor="let b of dailyBars(); trackBy: trackByDailyBar">
+            <div class="an-cost-day-val">${{ b.usd.toFixed(3) }}</div>
+            <div class="an-cost-day-bar-wrap">
+              <div class="an-cost-day-bar" [style.height.%]="b.pct"></div>
+            </div>
+            <div class="an-cost-day-label">{{ b.date }}</div>
+          </div>
+        </div>
+        <div class="an-cost-split">
+          <div>
+            <div class="an-cost-section-label">By Model</div>
+            <div class="an-cost-bar-row" *ngFor="let r of modelRows(); trackBy: trackByCostBar">
+              <span class="an-cost-bar-label" [title]="r.label">{{ r.label }}</span>
+              <div class="an-cost-bar-track">
+                <div class="an-cost-bar-fill" [style.width.%]="r.pct" [style.background]="r.color"></div>
+              </div>
+              <span class="an-cost-bar-val">${{ r.usd.toFixed(4) }}</span>
+            </div>
+          </div>
+          <div>
+            <div class="an-cost-section-label">By Operation</div>
+            <div class="an-cost-bar-row" *ngFor="let r of opRows(); trackBy: trackByCostBar">
+              <span class="an-cost-bar-label" [title]="r.label">{{ r.label }}</span>
+              <div class="an-cost-bar-track">
+                <div class="an-cost-bar-fill" [style.width.%]="r.pct" [style.background]="r.color"></div>
+              </div>
+              <span class="an-cost-bar-val">${{ r.usd.toFixed(4) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -154,6 +221,36 @@
               <td>
                 <div class="an-cohort-rate" [style.background]="rateColor(e.value.rate)">{{ e.value.rate }}%</div>
               </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cost Logs -->
+    <div class="db-card an-cost-logs" *ngIf="!loading() && costLogs().length">
+      <div class="db-card-header">
+        <div class="db-card-title"><i class="fas fa-list me-2" style="color:#8b5cf6"></i>Cost Logs</div>
+        <span style="font-size:0.775rem;color:#9ca3af;font-weight:600">{{ costLogs().length }} entries</span>
+      </div>
+      <div class="db-card-body" style="padding:0;overflow-x:auto">
+        <table class="an-table">
+          <thead>
+            <tr>
+              <th>Time</th><th>Lead</th><th>Model</th><th>Operation</th>
+              <th>Prompt</th><th>Completion</th><th>Cost</th><th>Latency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let l of costLogs(); trackBy: trackByCostLog">
+              <td style="white-space:nowrap">{{ formatTs(l.ts) }}</td>
+              <td class="an-td-bold">{{ l.lead_id }}</td>
+              <td>{{ l.model }}</td>
+              <td>{{ l.operation }}</td>
+              <td>{{ formatK(l.prompt_tokens) }}</td>
+              <td>{{ formatK(l.completion_tokens) }}</td>
+              <td>${{ l.cost_usd.toFixed(5) }}</td>
+              <td>{{ l.latency_ms | number:'1.0-0' }}ms</td>
             </tr>
           </tbody>
         </table>
