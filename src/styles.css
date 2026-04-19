@@ -4008,7 +4008,7 @@ h1,h2,h3,h4,h5,h6 { letter-spacing: -0.02em; }
 }
 .adm-toggle input:checked + .adm-toggle-track {
   background: linear-gradient(135deg,var(--brand-primary),var(--brand-primary-dark)) !important;
-  box-shadow: 0 2px 8px rgba(99,102,241,0.3) inset 0 1px 2px rgba(0,0,0,0.08) !important;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.3), inset 0 1px 2px rgba(0,0,0,0.08) !important;
 }
 
 /* ── Bootstrap Table ────────────────────────────────────────────── */
@@ -4256,3 +4256,304 @@ h1,h2,h3,h4,h5,h6 { letter-spacing: -0.02em; }
   box-shadow: 0 1px 4px rgba(34,197,94,0.1) !important;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   PREMIUM UI — PHASE 3: ANIMATIONS, BAR FILLS & MICRO-POLISH
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── New keyframes ───────────────────────────────────────────────── */
+@keyframes bar-scale-in {
+  from { transform: scaleX(0); opacity: 0.6; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+@keyframes stage-dot-pulse {
+  0%,100% { box-shadow: 0 0 0 3px rgba(99,102,241,0.18), 0 2px 8px rgba(99,102,241,0.28); }
+  50%     { box-shadow: 0 0 0 6px rgba(99,102,241,0.1),  0 2px 14px rgba(99,102,241,0.36); }
+}
+@keyframes drag-pulse {
+  0%,100% {
+    border-color: rgba(99,102,241,0.22);
+    box-shadow: none;
+    background: rgba(99,102,241,0.03);
+  }
+  50% {
+    border-color: rgba(99,102,241,0.46);
+    box-shadow: 0 0 0 5px rgba(99,102,241,0.07);
+    background: rgba(99,102,241,0.07);
+  }
+}
+
+/* ── Bar tracks — cool-toned gradient ───────────────────────────── */
+.db-funnel-bar-wrap,
+.an-funnel-track,
+.an-attr-bar-wrap,
+.an-cost-bar-track,
+.ld-health-bar-wrap,
+.adm-quota-track,
+.adm-ab-track,
+.wf-exec-rate-bar,
+.db-agent-bar-wrap,
+.wf-exec-rate-bar,
+.pwd-bar {
+  background: linear-gradient(90deg,#edf0f8,#e4eaf5) !important;
+}
+
+/* ── Bar fills — gradient + scale-in on mount ───────────────────── */
+.db-funnel-bar,
+.an-funnel-bar,
+.db-agent-bar,
+.an-attr-bar,
+.an-cost-bar-fill,
+.adm-ab-bar,
+.wf-exec-rate-fill {
+  transform-origin: left center !important;
+  animation: bar-scale-in 0.75s cubic-bezier(0.22,1,0.36,1) both !important;
+}
+
+/* Gradient overrides for CSS-defined bar colors */
+.db-agent-bar     { background: linear-gradient(90deg,#6366f1,#3b82f6) !important; }
+.an-attr-bar      { background: linear-gradient(90deg,#6366f1,#3b82f6) !important; }
+.wf-exec-rate-fill { background: linear-gradient(90deg,#6366f1,#3b82f6) !important; }
+.adm-quota-bar    { background: linear-gradient(90deg,var(--brand-primary),var(--brand-primary-dark)) !important; }
+.adm-quota-bar.warn   { background: linear-gradient(90deg,#f59e0b,#d97706) !important; }
+.adm-quota-bar.danger { background: linear-gradient(90deg,#ef4444,#dc2626) !important; }
+
+/* Also apply scale-in to quota bars */
+.adm-quota-bar, .ld-health-bar {
+  transform-origin: left center !important;
+  animation: bar-scale-in 0.75s cubic-bezier(0.22,1,0.36,1) both !important;
+}
+
+/* Cost daily bars use height not width — skip scaleX, just fade in */
+.an-cost-day-bar {
+  animation: fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both !important;
+  background: linear-gradient(180deg,#6366f1,#3b82f6) !important;
+}
+
+/* ── Staggered lead row entrance ────────────────────────────────── */
+.lead-row {
+  animation: fade-up 0.32s cubic-bezier(0.22,1,0.36,1) both !important;
+}
+.lead-row:nth-child(1)  { animation-delay: 0.04s !important; }
+.lead-row:nth-child(2)  { animation-delay: 0.08s !important; }
+.lead-row:nth-child(3)  { animation-delay: 0.12s !important; }
+.lead-row:nth-child(4)  { animation-delay: 0.16s !important; }
+.lead-row:nth-child(5)  { animation-delay: 0.20s !important; }
+.lead-row:nth-child(6)  { animation-delay: 0.24s !important; }
+.lead-row:nth-child(7)  { animation-delay: 0.28s !important; }
+.lead-row:nth-child(8)  { animation-delay: 0.32s !important; }
+.lead-row:nth-child(9)  { animation-delay: 0.36s !important; }
+.lead-row:nth-child(10) { animation-delay: 0.40s !important; }
+.lead-row:nth-child(n+11) { animation-delay: 0.44s !important; }
+
+/* ── Register page parity — 3rd field + submit ──────────────────── */
+.af-field:nth-child(3) { animation-delay: 0.34s !important; }
+/* Register has 3 fields so push the submit button later */
+.auth-root-register .af-submit {
+  animation-delay: 0.44s !important;
+}
+/* Register step items entrance */
+.auth-step {
+  animation: fade-up 0.4s cubic-bezier(0.22,1,0.36,1) both;
+}
+.auth-step:nth-child(1) { animation-delay: 0.1s; }
+.auth-step:nth-child(2) { animation-delay: 0.18s; }
+.auth-step:nth-child(3) { animation-delay: 0.26s; }
+
+/* ── Lead stage pipeline depth ──────────────────────────────────── */
+/* Current step: pulsing glow dot */
+.ld-stage-current .ld-stage-dot {
+  animation: stage-dot-pulse 2.2s ease-in-out infinite !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.18) !important;
+  background: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+}
+/* Past connector: gradient line */
+.ld-stage-past::after {
+  background: linear-gradient(90deg,#6ee7b7,#a7f3d0) !important;
+}
+/* Past dot: green filled with checkmark via background trick */
+.ld-stage-past .ld-stage-dot {
+  background: linear-gradient(135deg,#34d399,#10b981) !important;
+  border-color: transparent !important;
+  box-shadow: 0 1px 6px rgba(16,185,129,0.3) !important;
+}
+/* Stage step hover effect */
+.ld-stage-step:not(.ld-stage-current):hover .ld-stage-dot {
+  border-color: rgba(99,102,241,0.4) !important;
+  transform: scale(1.15);
+  transition: transform 0.18s, border-color 0.15s !important;
+}
+/* Connector line base */
+.ld-stage-step::after {
+  transition: background 0.3s ease !important;
+}
+
+/* ── Settings form inputs — premium styling ─────────────────────── */
+.s-field input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]),
+.s-field select,
+.s-field textarea {
+  background: linear-gradient(160deg,#ffffff 0%,#fafbff 100%) !important;
+  border: 1.5px solid #dde3f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.9) !important;
+  font-size: 0.865rem !important;
+  color: #0f172a !important;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s !important;
+  font-family: 'Inter', inherit !important;
+}
+.s-field input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]):focus,
+.s-field select:focus,
+.s-field textarea:focus {
+  border-color: var(--brand-primary) !important;
+  background: #ffffff !important;
+  box-shadow:
+    0 0 0 3.5px rgba(99,102,241,0.12),
+    0 1px 3px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.9) !important;
+}
+.s-field select {
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236366f1'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.8rem center !important;
+  padding-right: 2rem !important;
+  cursor: pointer !important;
+}
+.s-field textarea { resize: vertical !important; min-height: 80px !important; }
+
+/* ── wf-exec-status badge enhancement ──────────────────────────── */
+.wf-exec-status {
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 99px !important;
+  font-weight: 700 !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.04em !important;
+  padding: 0.22rem 0.75rem !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+  text-transform: capitalize !important;
+}
+
+/* ── wf-status-dot live pulse ───────────────────────────────────── */
+.wf-status-active .wf-status-dot {
+  animation: live-pulse 2s ease-in-out infinite !important;
+}
+
+/* ── Tabular numeric typography on KPI values ───────────────────── */
+.db-kpi-value,
+.ld-kpi-value,
+.wf-exec-kpi-val,
+.an-stat-big,
+.an-cost-kpi-val,
+.an-cost-token-val,
+.db-agent-rate,
+.adm-ap-stat-val,
+.auth-stat-val,
+.db-top-agent-name,
+.adm-nba-action {
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* ── Checkbox / radio accent-color ──────────────────────────────── */
+.form-check-input[type=checkbox],
+.form-check-input[type=radio],
+input[type=checkbox],
+input[type=radio] {
+  accent-color: var(--brand-primary) !important;
+  cursor: pointer !important;
+}
+.form-check-input:focus {
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important;
+  border-color: rgba(99,102,241,0.5) !important;
+}
+
+/* ── wfb-drag-placeholder pulse ─────────────────────────────────── */
+.wfb-drag-placeholder {
+  animation: drag-pulse 1.4s ease-in-out infinite !important;
+  border-radius: 14px !important;
+}
+
+/* ── cfg-input monospace code aesthetic ─────────────────────────── */
+.cfg-input {
+  background: linear-gradient(160deg,#f8f9ff 0%,#f3f5fb 100%) !important;
+  border-left: 3px solid rgba(99,102,241,0.3) !important;
+  border-radius: 0 10px 10px 0 !important;
+  padding-left: 2rem !important;
+  letter-spacing: 0.01em !important;
+  color: #312e81 !important;
+}
+.cfg-input:focus {
+  background: #ffffff !important;
+  border-left-color: var(--brand-primary) !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12) !important;
+}
+.cfg-input::placeholder {
+  color: #b0bdd4 !important;
+  font-style: italic !important;
+}
+/* Wrap left-rounded to match */
+.cfg-input-wrap {
+  border-radius: 0 10px 10px 0 !important;
+}
+
+/* ── Extra: stagger wf-card grid entrance ───────────────────────── */
+.wf-grid .wf-card {
+  animation: card-rise 0.42s cubic-bezier(0.22,1,0.36,1) both;
+}
+.wf-grid .wf-card:nth-child(1) { animation-delay: 0.04s; }
+.wf-grid .wf-card:nth-child(2) { animation-delay: 0.10s; }
+.wf-grid .wf-card:nth-child(3) { animation-delay: 0.16s; }
+.wf-grid .wf-card:nth-child(4) { animation-delay: 0.22s; }
+.wf-grid .wf-card:nth-child(5) { animation-delay: 0.28s; }
+.wf-grid .wf-card:nth-child(n+6) { animation-delay: 0.32s; }
+
+/* ── Extra: stagger ld-kpi-card row ─────────────────────────────── */
+.ld-kpi-row .ld-kpi-card {
+  animation: card-rise 0.38s cubic-bezier(0.22,1,0.36,1) both;
+}
+.ld-kpi-row .ld-kpi-card:nth-child(1) { animation-delay: 0.04s; }
+.ld-kpi-row .ld-kpi-card:nth-child(2) { animation-delay: 0.09s; }
+.ld-kpi-row .ld-kpi-card:nth-child(3) { animation-delay: 0.14s; }
+.ld-kpi-row .ld-kpi-card:nth-child(4) { animation-delay: 0.19s; }
+
+/* ── Extra: stagger adm-autopilot stats ─────────────────────────── */
+.adm-autopilot-stats .adm-ap-stat {
+  animation: card-rise 0.38s cubic-bezier(0.22,1,0.36,1) both;
+}
+.adm-autopilot-stats .adm-ap-stat:nth-child(1) { animation-delay: 0.04s; }
+.adm-autopilot-stats .adm-ap-stat:nth-child(2) { animation-delay: 0.09s; }
+.adm-autopilot-stats .adm-ap-stat:nth-child(3) { animation-delay: 0.14s; }
+.adm-autopilot-stats .adm-ap-stat:nth-child(4) { animation-delay: 0.19s; }
+
+/* ── Extra: pwd strength bar track ─────────────────────────────── */
+.pwd-bar {
+  background: #edf0f8 !important;
+  border-radius: 99px !important;
+  transition: background 0.25s ease !important;
+}
+.pwd-bar.active.weak   { background: linear-gradient(90deg,#f87171,#ef4444) !important; }
+.pwd-bar.active.fair   { background: linear-gradient(90deg,#fb923c,#f97316) !important; }
+.pwd-bar.active.good   { background: linear-gradient(90deg,#60a5fa,#3b82f6) !important; }
+.pwd-bar.active.strong { background: linear-gradient(90deg,#4ade80,#22c55e) !important; }
+
+/* ── Extra: an-agent-rank badges with gradient ──────────────────── */
+.db-rank-gold   { background: linear-gradient(135deg,#fef3c7,#fde68a) !important; }
+.db-rank-silver { background: linear-gradient(135deg,#f1f5f9,#e2e8f0) !important; }
+.db-rank-bronze { background: linear-gradient(135deg,#fef2e8,#fde8c8) !important; }
+
+/* ── Extra: adm-lb rank colors more vibrant ─────────────────────── */
+.adm-lb-rank.gold   { color: #d97706 !important; font-size: 1rem !important; }
+.adm-lb-rank.silver { color: #64748b !important; font-size: 1rem !important; }
+.adm-lb-rank.bronze { color: #b45309 !important; font-size: 1rem !important; }
+
+/* ── Extra: score dot size + glow tweak ─────────────────────────── */
+.score-dot {
+  width: 9px !important; height: 9px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── Extra: version badge ───────────────────────────────────────── */
+.adm-version-badge {
+  background: linear-gradient(135deg,#dbeafe,#bfdbfe) !important;
+  box-shadow: 0 1px 3px rgba(29,78,216,0.1) !important;
+}
