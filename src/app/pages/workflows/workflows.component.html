@@ -89,47 +89,121 @@
         </div>
       </div>
 
-      <div style="margin-bottom:1.1rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem">
+      <!-- ── Steps Diagram Builder ────────────────────────────── -->
+      <div class="wfb-section">
+        <div class="wfb-section-header">
           <div>
-            <div class="db-card-title"><i class="fas fa-list-ol me-2" style="color:#6366f1"></i>Steps</div>
-            <div class="page-sub" style="margin-top:0.15rem">Define the sequence of actions to execute</div>
+            <div class="db-card-title"><i class="fas fa-project-diagram me-2" style="color:#6366f1"></i>Flow Steps</div>
+            <div class="page-sub" style="margin-top:0.15rem">Drag to reorder · Click fields to edit</div>
           </div>
           <button type="button" class="btn-primary-pill" style="padding:0.42rem 1rem;font-size:0.8rem" (click)="addStep()">
             <i class="fas fa-plus"></i>Add Step
           </button>
         </div>
-        <div *ngFor="let step of steps.controls; let i=index" class="wf-step-card" [formGroup]="$any(step)">
-          <div style="display:flex;align-items:flex-end;padding-bottom:0.4rem">
-            <div class="wf-step-num">{{ i + 1 }}</div>
+
+        <!-- Diagram canvas -->
+        <div class="wfb-canvas">
+
+          <!-- Trigger node (static) -->
+          <div class="wfb-trigger-node">
+            <div class="wfb-node-icon wf-nicon-trigger"><i class="fas fa-bolt"></i></div>
+            <div class="wfb-node-label">START · Trigger</div>
+            <div class="wfb-trigger-expr">{{ form.get('trigger')?.value || 'No trigger set' }}</div>
           </div>
-          <div class="ingest-field" style="margin-bottom:0">
-            <label>Delay (sec)</label>
-            <input type="number" class="field-input" formControlName="delay_sec">
+
+          <!-- Drop list for steps -->
+          <div cdkDropList
+               (cdkDropListDropped)="dropStep($event)"
+               class="wfb-drop-list">
+
+            <!-- Empty state -->
+            <div class="wfb-empty-drop" *ngIf="steps.length === 0">
+              <i class="fas fa-arrow-down" style="font-size:1.1rem;color:#c7d2fe"></i>
+              <span>No steps yet — click <strong>Add Step</strong> to begin</span>
+            </div>
+
+            <!-- Step items -->
+            <div *ngFor="let step of steps.controls; let i=index"
+                 cdkDrag
+                 [formGroup]="$any(step)"
+                 class="wfb-step-item">
+
+              <!-- Connector from trigger / previous step -->
+              <div class="wfb-connector">
+                <div class="wfb-conn-line"></div>
+                <div class="wfb-conn-arrow"></div>
+              </div>
+
+              <!-- Step node card -->
+              <div class="wfb-step-node" cdkDragHandle>
+
+                <!-- Drag handle strip -->
+                <div class="wfb-drag-handle" title="Drag to reorder">
+                  <i class="fas fa-grip-vertical"></i>
+                </div>
+
+                <!-- Step number badge -->
+                <div class="wfb-step-badge">{{ i + 1 }}</div>
+
+                <!-- Action icon -->
+                <div class="wfb-action-icon"
+                     [style.background]="stepActionMeta($any(step).get('action')?.value).bg"
+                     [style.color]="stepActionMeta($any(step).get('action')?.value).color">
+                  <i [class]="stepActionMeta($any(step).get('action')?.value).icon"></i>
+                </div>
+
+                <!-- Fields -->
+                <div class="wfb-fields">
+                  <div class="wfb-field-row">
+                    <div class="wfb-field">
+                      <label class="wfb-label">Action</label>
+                      <select class="wfb-input" formControlName="action">
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="email">Email</option>
+                        <option value="sms">SMS</option>
+                        <option value="call">Call</option>
+                      </select>
+                    </div>
+                    <div class="wfb-field wfb-field-delay">
+                      <label class="wfb-label">Delay</label>
+                      <div class="wfb-delay-wrap">
+                        <input type="number" class="wfb-input" formControlName="delay_sec" min="0">
+                        <span class="wfb-delay-unit">sec</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="wfb-field" style="margin-top:0.5rem">
+                    <label class="wfb-label">Message Template</label>
+                    <input class="wfb-input" formControlName="message_template"
+                           placeholder="Hi {name}, following up on your inquiry!">
+                  </div>
+                </div>
+
+                <!-- Remove -->
+                <button type="button" class="wfb-remove-btn" title="Remove step" (click)="removeStep(i)">
+                  <i class="fas fa-times"></i>
+                </button>
+
+              </div>
+
+              <!-- Drag preview placeholder -->
+              <div *cdkDragPlaceholder class="wfb-drag-placeholder"></div>
+            </div>
+
           </div>
-          <div class="ingest-field" style="margin-bottom:0">
-            <label>Action</label>
-            <select class="field-input" formControlName="action">
-              <option value="whatsapp">WhatsApp</option>
-              <option value="email">Email</option>
-              <option value="sms">SMS</option>
-              <option value="call">Call</option>
-            </select>
-          </div>
-          <div class="ingest-field" style="margin-bottom:0">
-            <label>Message Template</label>
-            <input class="field-input" formControlName="message_template" placeholder="Hi {name}, following up!">
-          </div>
-          <div style="display:flex;align-items:flex-end;padding-bottom:0.4rem">
-            <button type="button" class="row-action-btn" title="Remove step"
-                    style="background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.3);color:#dc2626"
-                    (click)="removeStep(i)">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="db-empty" *ngIf="steps.length === 0" style="padding:1rem;text-align:left">
-          <i class="fas fa-list-ol" style="display:inline;font-size:1rem;margin-right:0.4rem"></i>No steps yet — click Add Step to begin
+
+          <!-- End node -->
+          <ng-container *ngIf="steps.length > 0">
+            <div class="wfb-connector">
+              <div class="wfb-conn-line"></div>
+              <div class="wfb-conn-arrow"></div>
+            </div>
+            <div class="wfb-end-node">
+              <div class="wfb-node-icon wf-nicon-end"><i class="fas fa-check-circle"></i></div>
+              <div class="wfb-node-label">END · Workflow Complete</div>
+            </div>
+          </ng-container>
+
         </div>
       </div>
 
@@ -216,20 +290,53 @@
         </span>
       </div>
 
-      <!-- Body -->
-      <div class="wf-card-body">
-        <div class="wf-trigger-row">
-          <span class="wf-trigger-label">Trigger</span>
-          <span class="wf-trigger-code">{{ wf.trigger }}</span>
-        </div>
-        <div class="wf-steps-row">
-          <div class="wf-step-dots">
-            <div class="wf-step-dot" *ngFor="let s of (wf.steps || []).slice(0,5)"></div>
-            <div class="wf-step-dot wf-dot-more" *ngIf="(wf.steps || []).length > 5"></div>
+      <!-- Diagrammatic Flow -->
+      <div class="wf-diagram">
+
+        <!-- Trigger Node -->
+        <div class="wf-node wf-node-trigger">
+          <div class="wf-node-icon wf-nicon-trigger"><i class="fas fa-bolt"></i></div>
+          <div class="wf-node-content">
+            <div class="wf-node-type">Trigger Condition</div>
+            <div class="wf-node-detail">{{ wf.trigger }}</div>
           </div>
-          <span class="wf-steps-count">{{ (wf.steps || []).length }}</span>
-          <span class="wf-steps-label">{{ (wf.steps || []).length === 1 ? 'step' : 'steps' }}</span>
         </div>
+
+        <!-- Steps -->
+        <ng-container *ngFor="let s of (wf.steps || [])">
+          <div class="wf-conn">
+            <div class="wf-conn-pipe"></div>
+            <span class="wf-conn-delay">+{{ formatDelay(s.delay_sec) }}</span>
+          </div>
+          <div class="wf-node wf-node-step">
+            <div class="wf-node-icon"
+                 [style.background]="stepActionMeta(s.action).bg"
+                 [style.color]="stepActionMeta(s.action).color">
+              <i [class]="stepActionMeta(s.action).icon"></i>
+            </div>
+            <div class="wf-node-content">
+              <div class="wf-node-type">{{ stepActionMeta(s.action).prefix }}</div>
+              <div class="wf-node-detail">{{ s.message_template || 'No message template' }}</div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- End Node -->
+        <ng-container *ngIf="(wf.steps || []).length > 0">
+          <div class="wf-conn"><div class="wf-conn-pipe"></div></div>
+          <div class="wf-node wf-node-end">
+            <div class="wf-node-icon wf-nicon-end"><i class="fas fa-check-circle"></i></div>
+            <div class="wf-node-content">
+              <div class="wf-node-type">Workflow Complete</div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Empty -->
+        <div class="wf-diagram-empty" *ngIf="(wf.steps || []).length === 0">
+          <i class="fas fa-list-ol"></i> No steps configured
+        </div>
+
       </div>
 
       <!-- Footer Actions -->

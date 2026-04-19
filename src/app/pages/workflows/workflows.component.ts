@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ApiService } from '../../core/api.service';
 import {
   Workflow, WorkflowTemplate, WorkflowExecution, WorkflowTestResult
@@ -52,11 +53,6 @@ export class WorkflowsComponent implements OnInit {
 
   form: FormGroup;
 
-  private readonly ACTION_ICONS: Record<string, string> = {
-    whatsapp: 'fa-whatsapp fab', email: 'fa-envelope fas',
-    sms: 'fa-sms fas', call: 'fa-phone fas'
-  };
-
   private readonly TEMPLATE_ICONS = ['fa-bolt','fa-rocket','fa-star','fa-layer-group','fa-magic'];
 
   constructor(private api: ApiService, private fb: FormBuilder) {
@@ -82,6 +78,13 @@ export class WorkflowsComponent implements OnInit {
   }
 
   removeStep(i: number): void { this.steps.removeAt(i); }
+
+  dropStep(event: CdkDragDrop<FormGroup[]>): void {
+    const controls = this.steps.controls.slice();
+    moveItemInArray(controls, event.previousIndex, event.currentIndex);
+    this.steps.clear();
+    controls.forEach(c => this.steps.push(c));
+  }
 
   openCreate(): void {
     this.editingId.set(null);
@@ -245,6 +248,23 @@ export class WorkflowsComponent implements OnInit {
   }
 
   actionIs(wfId: string, action: string): boolean { return this.actioningId() === `${wfId}:${action}`; }
+
+  formatDelay(sec: number): string {
+    if (sec < 60)    return `${sec}s`;
+    if (sec < 3600)  return `${Math.round(sec / 60)}m`;
+    if (sec < 86400) return `${Math.round(sec / 3600)}h`;
+    return `${Math.round(sec / 86400)}d`;
+  }
+
+  stepActionMeta(action: string): { icon: string; color: string; bg: string; prefix: string } {
+    const map: Record<string, { icon: string; color: string; bg: string; prefix: string }> = {
+      whatsapp: { icon: 'fab fa-whatsapp', color: '#22c55e', bg: 'rgba(34,197,94,0.1)',   prefix: 'WhatsApp' },
+      email:    { icon: 'fas fa-envelope', color: '#6366f1', bg: 'rgba(99,102,241,0.1)',  prefix: 'Email' },
+      sms:      { icon: 'fas fa-sms',      color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', prefix: 'SMS' },
+      call:     { icon: 'fas fa-phone',    color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', prefix: 'Call' },
+    };
+    return map[action] || { icon: 'fas fa-bolt', color: '#6366f1', bg: 'rgba(99,102,241,0.1)', prefix: action };
+  }
 
   trackById(_: number, x: { id: string }): string { return x.id; }
   trackByExec(_: number, e: WorkflowExecution): string { return e.id; }

@@ -1572,8 +1572,8 @@ body {
 /* Workflow card grid */
 .wf-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.25rem;
 }
 
 /* Workflow card */
@@ -1647,17 +1647,100 @@ body {
 .wf-status-active .wf-status-dot   { background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.3); }
 .wf-status-inactive .wf-status-dot { background: #9ca3af; }
 
-/* Card body */
-.wf-card-body { padding: 1.1rem 1.25rem; flex: 1; display: flex; flex-direction: column; gap: 0.7rem; }
+/* ── Workflow Diagram ─────────────────────────────────────────── */
+.wf-diagram {
+  padding: 0.9rem 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+}
 
-/* Trigger row */
-.wf-trigger-row {
-  display: flex; align-items: center; gap: 0.55rem;
+/* Nodes */
+.wf-node {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  background: #f8fafc;
+  border: 1px solid #e8edf8;
+  border-radius: 11px;
+  padding: 0.6rem 0.8rem;
 }
-.wf-trigger-label {
-  font-size: 0.72rem; font-weight: 700; color: #9ca3af;
-  text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0;
+.wf-node-trigger {
+  background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(139,92,246,0.04) 100%);
+  border-color: rgba(99,102,241,0.22);
 }
+.wf-node-end {
+  background: linear-gradient(135deg, rgba(34,197,94,0.06) 0%, rgba(16,185,129,0.04) 100%);
+  border-color: rgba(34,197,94,0.22);
+}
+
+.wf-node-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+.wf-nicon-trigger { background: rgba(99,102,241,0.13); color: #6366f1; }
+.wf-nicon-end     { background: rgba(34,197,94,0.13);  color: #22c55e; }
+
+.wf-node-content  { flex: 1; min-width: 0; }
+.wf-node-type {
+  font-size: 0.71rem; font-weight: 700; color: #374151;
+  margin-bottom: 0.1rem; line-height: 1.3;
+}
+.wf-node-detail {
+  font-size: 0.67rem; color: #6b7280;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  line-height: 1.4;
+}
+
+/* Connectors */
+.wf-conn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding-left: calc(0.8rem + 14px);
+  min-height: 22px;
+}
+.wf-conn-pipe {
+  width: 2px;
+  align-self: stretch;
+  min-height: 16px;
+  background: linear-gradient(to bottom, #c7d2fe, #ddd6fe);
+  border-radius: 1px;
+  flex-shrink: 0;
+  position: relative;
+}
+.wf-conn-pipe::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #a5b4fc;
+}
+.wf-conn-delay {
+  font-size: 0.61rem; font-weight: 700;
+  color: #6366f1;
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.16);
+  border-radius: 8px;
+  padding: 0.05rem 0.38rem;
+  white-space: nowrap;
+}
+.wf-diagram-empty {
+  font-size: 0.77rem; color: #9ca3af;
+  padding: 0.75rem 0;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+/* Keep trigger-code used in test bar & templates */
 .wf-trigger-code {
   background: rgba(99,102,241,0.07); border: 1px solid rgba(99,102,241,0.14);
   border-radius: 7px; padding: 0.22rem 0.6rem;
@@ -1666,25 +1749,6 @@ body {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   max-width: 220px;
 }
-
-/* Steps row */
-.wf-steps-row {
-  display: flex; align-items: center; gap: 0.6rem;
-}
-.wf-step-dots { display: flex; gap: 4px; }
-.wf-step-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
-  box-shadow: 0 1px 4px rgba(99,102,241,0.3);
-}
-.wf-step-dot.wf-dot-more {
-  background: #e5e7eb;
-  box-shadow: none;
-}
-.wf-steps-count {
-  font-size: 0.8rem; font-weight: 600; color: #374151;
-}
-.wf-steps-label { font-size: 0.78rem; color: #9ca3af; }
 
 /* Card footer / actions */
 .wf-card-footer {
@@ -1783,6 +1847,200 @@ body {
   font-size: 0.72rem; font-weight: 800; color: #fff;
   box-shadow: 0 3px 10px rgba(99,102,241,0.35);
   align-self: center;
+}
+
+/* ── Workflow Builder (Diagram Form) ──────────────────────────── */
+.wfb-section { margin-bottom: 1.25rem; }
+.wfb-section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+/* Canvas — vertical flow column */
+.wfb-canvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Trigger / End nodes (static) */
+.wfb-trigger-node, .wfb-end-node {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: #fff;
+  border: 1.5px solid rgba(99,102,241,0.22);
+  border-radius: 12px;
+  padding: 0.65rem 1rem;
+  width: 100%;
+  max-width: 680px;
+}
+.wfb-end-node { border-color: rgba(34,197,94,0.25); }
+.wfb-node-icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; flex-shrink: 0;
+}
+.wfb-node-label {
+  font-size: 0.72rem; font-weight: 700; color: #374151;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.wfb-trigger-expr {
+  margin-left: auto;
+  font-size: 0.72rem; font-weight: 600; color: #6366f1;
+  font-family: 'Fira Code', monospace;
+  background: rgba(99,102,241,0.07);
+  border: 1px solid rgba(99,102,241,0.15);
+  border-radius: 7px; padding: 0.2rem 0.55rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+/* Connector line + arrow */
+.wfb-connector {
+  display: flex; flex-direction: column; align-items: center;
+  width: 2px; min-height: 28px; position: relative;
+}
+.wfb-conn-line {
+  flex: 1; width: 2px; min-height: 20px;
+  background: linear-gradient(to bottom, #c7d2fe, #ddd6fe);
+  border-radius: 1px;
+}
+.wfb-conn-arrow {
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid #a5b4fc;
+  flex-shrink: 0;
+}
+
+/* Drop list */
+.wfb-drop-list {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%;
+}
+.wfb-empty-drop {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: #94a3b8; font-size: 0.82rem; text-align: center;
+  border: 2px dashed #e2e8f0; border-radius: 14px;
+  width: 100%; max-width: 680px; margin: 0.5rem 0;
+}
+
+/* Step item wrapper */
+.wfb-step-item {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%;
+}
+
+/* Step node card */
+.wfb-step-node {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fff;
+  border: 1.5px solid #e8edf8;
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem 0.8rem 0.5rem;
+  width: 100%; max-width: 680px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: box-shadow 0.18s, border-color 0.18s;
+  cursor: default;
+}
+.wfb-step-node:hover {
+  border-color: rgba(99,102,241,0.3);
+  box-shadow: 0 4px 16px rgba(99,102,241,0.1);
+}
+
+/* Drag handle */
+.wfb-drag-handle {
+  display: flex; align-items: center; justify-content: center;
+  width: 20px; flex-shrink: 0;
+  color: #cbd5e1; font-size: 0.8rem;
+  cursor: grab; align-self: stretch;
+  border-radius: 6px; transition: color 0.15s;
+}
+.wfb-drag-handle:hover { color: #6366f1; }
+.wfb-drag-handle:active { cursor: grabbing; }
+
+/* Step badge */
+.wfb-step-badge {
+  width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 800; color: #fff;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+}
+
+/* Action icon */
+.wfb-action-icon {
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+}
+
+/* Fields area */
+.wfb-fields { flex: 1; min-width: 0; }
+.wfb-field-row { display: flex; gap: 0.65rem; align-items: flex-end; }
+.wfb-field { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; min-width: 0; }
+.wfb-field-delay { flex: 0 0 110px; }
+.wfb-label {
+  font-size: 0.65rem; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.wfb-input {
+  height: 34px;
+  background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 9px;
+  padding: 0 0.65rem; font-size: 0.82rem; font-weight: 500; color: #0f172a;
+  outline: none; width: 100%; transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+.wfb-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  background: #fff;
+}
+select.wfb-input { appearance: none; -webkit-appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236366f1'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.65rem center;
+  padding-right: 1.8rem;
+}
+.wfb-delay-wrap { display: flex; align-items: center; gap: 0; position: relative; }
+.wfb-delay-wrap .wfb-input { border-radius: 9px 0 0 9px; border-right: none; }
+.wfb-delay-unit {
+  height: 34px; display: flex; align-items: center;
+  padding: 0 0.6rem; font-size: 0.75rem; font-weight: 700; color: #94a3b8;
+  background: #f1f5f9; border: 1.5px solid #e2e8f0; border-left: none;
+  border-radius: 0 9px 9px 0; white-space: nowrap;
+}
+
+/* Remove button */
+.wfb-remove-btn {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  background: rgba(239,68,68,0.06); border: 1.5px solid rgba(239,68,68,0.22);
+  color: #ef4444; display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.wfb-remove-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
+
+/* CDK Drag states */
+.cdk-drag-preview.wfb-step-node {
+  box-shadow: 0 12px 40px rgba(99,102,241,0.22), 0 4px 12px rgba(0,0,0,0.1);
+  border-color: rgba(99,102,241,0.4);
+  border-radius: 14px;
+  opacity: 0.96;
+}
+.cdk-drag-animating { transition: transform 220ms cubic-bezier(0.22,1,0.36,1); }
+.wfb-drag-placeholder {
+  height: 68px; max-width: 680px; width: 100%;
+  background: rgba(99,102,241,0.05);
+  border: 2px dashed rgba(99,102,241,0.25);
+  border-radius: 14px;
+  margin: 0 auto;
+}
+.wfb-drop-list.cdk-drop-list-dragging .wfb-step-item:not(.cdk-drag-placeholder) {
+  transition: transform 220ms cubic-bezier(0.22,1,0.36,1);
 }
 
 /* Cancel / secondary button */
@@ -3072,7 +3330,7 @@ h1,h2,h3,h4,h5,h6 { letter-spacing: -0.02em; }
 /* Workflow */
 .wf-card { border-radius: 16px !important; }
 .wf-card-header { padding: 1rem 1.25rem !important; }
-.wf-card-body { padding: 1rem 1.25rem !important; }
+.wf-diagram { padding: 0.9rem 1rem 0.5rem !important; }
 .wf-card-footer { padding: 0.75rem 1.25rem !important; min-height: 48px !important; display: flex !important; align-items: center !important; }
 .wf-btn { height: 34px !important; padding: 0 0.9rem !important; font-size: 0.78rem !important; border-radius: 8px !important; display: inline-flex !important; align-items: center !important; }
 
