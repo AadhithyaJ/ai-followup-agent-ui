@@ -1,8 +1,15 @@
+export interface AgentPerformanceEntry {
+  total_leads: number;
+  conversions: number;
+  conversion_rate: number;
+}
+
 export interface AnalyticsOverview {
   total_leads: number;
   conversion_rate: number;
   avg_response_time: number;
   active_pipeline: number;
+  agent_performance: Record<string, AgentPerformanceEntry>;
 }
 
 export interface FunnelData {
@@ -17,8 +24,9 @@ export interface FunnelData {
 
 export interface AgentPerformance {
   agent: string;
+  total_leads: number;
   conversions: number;
-  conv_rate: number;
+  conversion_rate: number;
 }
 
 export interface AdvancedAnalytics {

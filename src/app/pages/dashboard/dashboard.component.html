@@ -135,7 +135,7 @@
             </div>
             <div>
               <div class="db-top-agent-name">{{ bestAgent()!.agent }}</div>
-              <div class="db-top-agent-stat">{{ bestAgent()!.conv_rate }}% conversion · {{ bestAgent()!.conversions }} deals</div>
+              <div class="db-top-agent-stat">{{ bestAgent()!.conversion_rate }}% conversion · {{ bestAgent()!.conversions }} deals</div>
             </div>
             <div class="db-top-agent-crown ms-auto"><i class="fas fa-crown" style="color:#f59e0b"></i></div>
           </div>
@@ -163,10 +163,10 @@
             <div class="db-agent-info">
               <div class="db-agent-name">{{ a.agent }}</div>
               <div class="db-agent-bar-wrap">
-                <div class="db-agent-bar" [style.width.%]="a.conv_rate"></div>
+                <div class="db-agent-bar" [style.width.%]="a.conversion_rate"></div>
               </div>
             </div>
-            <div class="db-agent-rate">{{ a.conv_rate }}%</div>
+            <div class="db-agent-rate">{{ a.conversion_rate }}%</div>
             <div class="db-agent-conv">{{ a.conversions }} <span>deals</span></div>
           </div>
         </div>
