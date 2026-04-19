@@ -1,25 +1,39 @@
 <div class="auth-root">
 
-  <!-- Animated background blobs -->
+  <!-- Ambient blobs -->
   <div class="auth-blob auth-blob-1"></div>
   <div class="auth-blob auth-blob-2"></div>
   <div class="auth-blob auth-blob-3"></div>
+  <!-- Decorative dot grid overlay -->
+  <div class="auth-dot-grid"></div>
 
-  <!-- ── Left Panel ─────────────────────────────────────────── -->
+  <!-- ── Left: Brand & Marketing Panel ─────────────────────── -->
   <div class="auth-brand">
     <div class="auth-brand-inner">
 
-      <div class="auth-logo">
-        <i class="fas fa-bolt"></i>
+      <!-- Logo + live badge -->
+      <div class="auth-logo-row">
+        <div class="auth-logo">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <div class="auth-live-chip">
+          <span class="auth-live-dot"></span> System Live
+        </div>
       </div>
 
+      <!-- App name label -->
+      <div class="auth-app-name-label">Revenue AI Engine</div>
+
+      <!-- Headline -->
       <h1 class="auth-headline">
-        Close more deals<br>
+        Close deals faster<br>
         <span class="auth-headline-accent">with AI agents</span>
       </h1>
-      <p class="auth-tagline">Autonomous follow-up, qualification, and pipeline management — running 24/7 while you focus on what matters.</p>
+      <p class="auth-tagline">
+        Autonomous follow-up, qualification, and pipeline management — running 24/7 while your team focuses on closing.
+      </p>
 
-      <!-- Stats -->
+      <!-- Stats strip -->
       <div class="auth-stats">
         <div class="auth-stat">
           <div class="auth-stat-val">98%</div>
@@ -37,30 +51,65 @@
         </div>
       </div>
 
-      <!-- Feature list -->
+      <!-- Feature list with colored icon boxes -->
       <div class="auth-features">
-        <div class="auth-feat"><i class="fas fa-check-circle"></i><span>Autonomous lead qualification</span></div>
-        <div class="auth-feat"><i class="fas fa-check-circle"></i><span>Multi-channel follow-up</span></div>
-        <div class="auth-feat"><i class="fas fa-check-circle"></i><span>Real-time analytics dashboard</span></div>
-        <div class="auth-feat"><i class="fas fa-check-circle"></i><span>A/B tested message templates</span></div>
+        <div class="auth-feat">
+          <div class="auth-feat-icon af-icon-purple"><i class="fas fa-robot"></i></div>
+          <span>Autonomous lead qualification & scoring</span>
+        </div>
+        <div class="auth-feat">
+          <div class="auth-feat-icon af-icon-green"><i class="fas fa-paper-plane"></i></div>
+          <span>Multi-channel automated follow-up</span>
+        </div>
+        <div class="auth-feat">
+          <div class="auth-feat-icon af-icon-amber"><i class="fas fa-chart-line"></i></div>
+          <span>Real-time analytics & conversion insights</span>
+        </div>
+        <div class="auth-feat">
+          <div class="auth-feat-icon af-icon-blue"><i class="fas fa-flask"></i></div>
+          <span>A/B tested message templates</span>
+        </div>
       </div>
+
+      <!-- Social proof -->
+      <!-- <div class="auth-social-proof">
+        <div class="auth-proof-avatars">
+          <div class="auth-pav" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">S</div>
+          <div class="auth-pav" style="background:linear-gradient(135deg,#0ea5e9,#3b82f6)">T</div>
+          <div class="auth-pav" style="background:linear-gradient(135deg,#22c55e,#16a34a)">M</div>
+          <div class="auth-pav" style="background:linear-gradient(135deg,#f59e0b,#d97706)">A</div>
+          <div class="auth-pav auth-pav-more">+</div>
+        </div>
+        <div class="auth-proof-label">
+          Trusted by <strong>500+</strong> sales teams worldwide
+        </div>
+      </div> -->
 
     </div>
   </div>
 
-  <!-- ── Right Panel: Form ──────────────────────────────────── -->
+  <!-- ── Right: Form Panel ─────────────────────────────────── -->
   <div class="auth-form-panel">
     <div class="auth-card">
 
-      <div class="auth-card-header">
-        <h2 class="auth-card-title">Sign in</h2>
-        <p class="auth-card-sub">Welcome back — let's grow your pipeline</p>
+      <!-- Top secure badge -->
+      <div class="auth-card-secure-badge">
+        <i class="fas fa-shield-alt"></i>
+        <span>256-bit encrypted · SOC 2 compliant</span>
       </div>
 
+      <!-- Header -->
+      <div class="auth-card-header">
+        <h2 class="auth-card-title">Welcome back</h2>
+        <p class="auth-card-sub">Sign in to access your AI dashboard</p>
+      </div>
+
+      <!-- Error -->
       <div class="auth-error" *ngIf="error()">
         <i class="fas fa-exclamation-circle"></i>{{ error() }}
       </div>
 
+      <!-- Form -->
       <form [formGroup]="form" (ngSubmit)="submit()" autocomplete="on" class="auth-form">
 
         <div class="af-field">
@@ -70,36 +119,48 @@
             <input type="email" class="af-input" formControlName="email"
                    placeholder="you@company.com" autocomplete="email">
           </div>
-          <span class="af-err" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">Enter a valid email</span>
+          <span class="af-err" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            <i class="fas fa-exclamation-circle me-1"></i>Enter a valid email
+          </span>
         </div>
 
         <div class="af-field">
           <div class="af-label-row">
             <label class="af-label">Password</label>
-            <a href="#" class="af-link">Forgot password?</a>
+            <a href="#" class="af-link"><i class="fas fa-key me-1" style="font-size:0.65rem"></i>Forgot password?</a>
           </div>
           <div class="af-input-wrap" [class.af-invalid]="form.get('password')?.invalid && form.get('password')?.touched">
             <i class="fas fa-lock af-icon"></i>
             <input [type]="showPwd() ? 'text' : 'password'" class="af-input"
-                   formControlName="password" placeholder="Your password" autocomplete="current-password">
+                   formControlName="password" placeholder="••••••••" autocomplete="current-password">
             <button type="button" class="af-eye" (click)="showPwd.set(!showPwd())" tabindex="-1">
               <i class="fas" [class.fa-eye]="!showPwd()" [class.fa-eye-slash]="showPwd()"></i>
             </button>
           </div>
-          <span class="af-err" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">Password is required</span>
+          <span class="af-err" *ngIf="form.get('password')?.invalid && form.get('password')?.touched">
+            <i class="fas fa-exclamation-circle me-1"></i>Password is required
+          </span>
         </div>
 
+        <!-- Submit -->
         <button class="af-submit" type="submit" [disabled]="loading() || form.invalid">
           <span class="af-spinner" *ngIf="loading()"></span>
+          <i class="fas fa-bolt me-1" *ngIf="!loading()" style="font-size:0.85rem"></i>
           <span>{{ loading() ? 'Signing in…' : 'Sign In' }}</span>
-          <i class="fas fa-arrow-right ms-2" *ngIf="!loading()"></i>
+          <i class="fas fa-arrow-right ms-auto" *ngIf="!loading()"></i>
         </button>
 
       </form>
 
+      <!-- Divider -->
+      <div class="auth-or-divider">
+        <span>new here?</span>
+      </div>
+
+      <!-- Switch link -->
       <div class="auth-switch">
         Don't have an account?
-        <a routerLink="/register" class="auth-switch-link">Create one free</a>
+        <a routerLink="/register" class="auth-switch-link">Create one free →</a>
       </div>
 
     </div>
