@@ -1503,6 +1503,166 @@ body {
 .adm-config-row .ck { font-size: 0.78rem; font-weight: 600; color: #374151; font-family: monospace; }
 .adm-config-row .cv { font-size: 0.78rem; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* ── Dynamic Config (single-column redesign) ──────────────── */
+.cfg-form-card {
+  background: linear-gradient(135deg, #fafbff 0%, #f4f7ff 100%);
+  border: 1.5px solid rgba(99,102,241,0.15);
+  border-radius: 16px;
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+.cfg-card-hd {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.cfg-card-hd-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+  background: rgba(99,102,241,0.1); color: #6366f1;
+}
+.cfg-card-hd-title { font-size: 0.9rem; font-weight: 800; color: #0f172a; }
+.cfg-card-hd-sub   { font-size: 0.74rem; color: #94a3b8; margin-top: 0.1rem; }
+
+.cfg-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.9rem;
+  align-items: end;
+}
+.cfg-form-field { display: flex; flex-direction: column; gap: 0.25rem; }
+.cfg-form-field label {
+  font-size: 0.68rem; font-weight: 700; color: #64748b;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  display: flex; align-items: center; gap: 0.35rem;
+}
+.cfg-label-hint {
+  font-size: 0.66rem; font-weight: 400; color: #b0bdd4;
+  text-transform: none; letter-spacing: 0;
+}
+.cfg-input-wrap { position: relative; }
+.cfg-input-icon {
+  position: absolute; left: 0.72rem; top: 50%; transform: translateY(-50%);
+  font-size: 0.7rem; color: #94a3b8; pointer-events: none;
+}
+.cfg-input {
+  width: 100%; height: 40px;
+  padding: 0 0.8rem 0 2.1rem;
+  background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px;
+  font-size: 0.84rem; color: #0f172a; outline: none;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+.cfg-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+.cfg-input::placeholder { color: #c0cad8; font-style: italic; }
+
+.cfg-form-action { display: flex; flex-direction: column; gap: 0.25rem; }
+.cfg-save-btn {
+  height: 40px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  border: none; color: #fff; padding: 0 1.3rem; border-radius: 10px;
+  font-size: 0.845rem; font-weight: 700; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(99,102,241,0.3);
+  transition: box-shadow 0.15s, transform 0.13s; white-space: nowrap;
+}
+.cfg-save-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(99,102,241,0.38); }
+.cfg-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Section headers */
+.cfg-section { margin-bottom: 1.75rem; }
+.cfg-section-hd {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; font-weight: 700; color: #374151;
+  margin-bottom: 0.75rem;
+}
+.cfg-count-badge {
+  margin-left: 0.2rem;
+  background: #f1f5f9; color: #64748b;
+  font-size: 0.65rem; font-weight: 700;
+  padding: 0.1rem 0.45rem; border-radius: 8px;
+}
+
+/* Empty state */
+.cfg-empty {
+  display: flex; align-items: center; gap: 0.55rem;
+  font-size: 0.8rem; color: #94a3b8;
+  padding: 1.25rem 0.75rem;
+}
+
+/* Overrides list */
+.cfg-overrides-list {
+  background: #fff;
+  border: 1.5px solid #e8edf8;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.cfg-override-row {
+  display: grid;
+  grid-template-columns: minmax(140px,300px) 20px 1fr auto;
+  align-items: center; gap: 0.75rem;
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.12s;
+}
+.cfg-override-row:last-child { border-bottom: none; }
+.cfg-override-row:hover { background: #f8fafc; }
+.cfg-override-key { display: flex; align-items: center; gap: 0.4rem; }
+.cfg-override-key code {
+  font-size: 0.8rem; font-weight: 700; color: #4338ca;
+  font-family: 'Fira Code', monospace;
+  background: rgba(99,102,241,0.07); border-radius: 6px;
+  padding: 0.12rem 0.42rem;
+}
+.cfg-override-arrow { color: #d1d5db; font-size: 0.65rem; text-align: center; }
+.cfg-override-val {
+  font-size: 0.82rem; font-weight: 600; color: #0f172a;
+  font-family: 'Fira Code', monospace;
+  overflow: hidden; text-overflow: ellipsis; white-space: normal;
+}
+.cfg-delete-btn {
+  width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
+  background: rgba(239,68,68,0.06); border: 1.5px solid rgba(239,68,68,0.2);
+  color: #ef4444; display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; cursor: pointer;
+  transition: background 0.13s, border-color 0.13s;
+}
+.cfg-delete-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
+
+/* Audit log */
+.cfg-audit-list {
+  background: #fff; border: 1.5px solid #e8edf8;
+  border-radius: 14px; overflow: hidden;
+}
+.cfg-audit-row {
+  display: grid;
+  grid-template-columns: 115px 52px 1fr 1fr;
+  align-items: center; gap: 0.75rem;
+  padding: 0.72rem 1.1rem;
+  border-bottom: 1px solid #f1f5f9; font-size: 0.79rem;
+}
+.cfg-audit-row:last-child { border-bottom: none; }
+.cfg-audit-time {
+  font-size: 0.71rem; color: #94a3b8;
+  font-family: monospace; white-space: nowrap;
+}
+.cfg-op-badge {
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 0.07em;
+  padding: 0.2rem 0.5rem; border-radius: 6px; text-align: center;
+  white-space: nowrap;
+}
+.cfg-op-set { background: rgba(99,102,241,0.1); color: #6366f1; }
+.cfg-op-del { background: rgba(239,68,68,0.1);  color: #ef4444; }
+.cfg-audit-path {
+  font-size: 0.79rem; font-weight: 600; color: #374151;
+  font-family: 'Fira Code', monospace; white-space: nowrap;
+}
+.cfg-audit-val {
+  font-size: 0.76rem; color: #64748b;
+  font-family: monospace;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
 /* ── Quota bars ── */
 .adm-quota-list { display: flex; flex-direction: column; gap: 1rem; }
 .adm-quota-row  { display: flex; flex-direction: column; gap: 0.35rem; }
