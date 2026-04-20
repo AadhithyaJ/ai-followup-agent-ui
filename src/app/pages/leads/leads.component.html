@@ -134,7 +134,7 @@
                 {{ lead._initials }}
               </div>
               <div>
-                <div class="lead-name">{{ lead.name }}</div>
+                <div class="lead-name">{{ lead.name || 'Unknown' }}</div>
                 <div class="lead-contact">{{ lead.phone || lead.email || '—' }}</div>
               </div>
             </div>

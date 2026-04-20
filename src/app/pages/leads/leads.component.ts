@@ -80,7 +80,7 @@ export class LeadsComponent implements OnInit {
     this.ingestError.set('');
     this.api.ingestLead(this.ingestForm.value).subscribe({
       next: (res) => {
-        this.ingestSuccess.set(`Lead "${res.name}" ingested — score: ${res.score}, stage: ${res.stage}`);
+        this.ingestSuccess.set(`Lead "${res.name || 'Unknown'}" ingested — score: ${res.score}, stage: ${res.stage}`);
         this.ingestLoading.set(false);
         this.ingestForm.reset({ source: 'whatsapp' });
         this.loadLeads();

@@ -7,7 +7,7 @@
         <i class="fas fa-arrow-left"></i>
       </a>
       <div *ngIf="lead()">
-        <div class="ld-hero-name">{{ lead()!.name }}</div>
+        <div class="ld-hero-name">{{ lead()!.name || 'Unknown' }}</div>
         <div class="ld-hero-meta">
           <span *ngIf="lead()!.email"><i class="fas fa-envelope me-1"></i>{{ lead()!.email }}</span>
           <span *ngIf="lead()!.phone"><i class="fas fa-phone me-1"></i>{{ lead()!.phone }}</span>
@@ -122,10 +122,10 @@
               <div class="ld-profile-hero">
                 <div class="ld-profile-avatar"
                      [style.background]="'linear-gradient(135deg,#6366f1,#3b82f6)'">
-                  {{ lead()!.name.charAt(0).toUpperCase() }}
+                  {{ (lead()?.name || 'U').charAt(0).toUpperCase() }}
                 </div>
                 <div>
-                  <div class="ld-profile-name">{{ lead()!.name }}</div>
+                  <div class="ld-profile-name">{{ lead()!.name || 'Unknown' }}</div>
                   <div class="ld-profile-contact">
                     <span *ngIf="lead()!.email"><i class="fas fa-envelope me-1"></i>{{ lead()!.email }}</span>
                     <span *ngIf="lead()!.phone" style="margin-left:0.75rem"><i class="fas fa-phone me-1"></i>{{ lead()!.phone }}</span>
@@ -366,7 +366,7 @@
                 <div class="ld-msg-avatar"
                      *ngIf="msg.direction==='inbound'"
                      [style.background]="'linear-gradient(135deg,#6366f1,#3b82f6)'">
-                  {{ thread()!.lead_name.charAt(0).toUpperCase() }}
+                  {{ (thread()!.lead_name || 'U').charAt(0).toUpperCase() }}
                 </div>
                 <div class="ld-msg-content">
                   <!-- Meta row -->
@@ -385,7 +385,7 @@
                     {{ msg.message }}
                   </div>
                   <div class="ld-msg-sender">
-                    {{ msg.direction === 'outbound' ? 'AI Agent' : thread()!.lead_name }}
+                    {{ msg.direction === 'outbound' ? 'AI Agent' : (thread()!.lead_name || 'Unknown') }}
                   </div>
                 </div>
                 <!-- Agent avatar -->
