@@ -632,6 +632,56 @@ app-realtime-feed { grid-column: 1 / 3; grid-row: 3; display: block; }
 /* Feed */
 .db-feed-body { max-height: 260px; overflow-y: auto; }
 
+/* ── Pagination Component ────────────────────────────────────── */
+.pgn-wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.85rem 1.4rem;
+  border-top: 1px solid #f1f5f9;
+  gap: 1rem; flex-wrap: wrap;
+}
+
+.pgn-info {
+  font-size: 0.775rem; color: #94a3b8;
+}
+.pgn-info strong { color: #475569; }
+
+.pgn-controls {
+  display: flex; align-items: center; gap: 0.3rem;
+}
+
+.pgn-btn {
+  min-width: 32px; height: 32px; padding: 0 0.55rem;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: #fff; color: #475569;
+  font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+}
+.pgn-btn:hover:not(:disabled):not(.pgn-btn-active) {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  background: rgba(74,83,173,0.04);
+}
+.pgn-btn:disabled {
+  opacity: 0.38; cursor: not-allowed;
+}
+.pgn-btn-active {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(74,83,173,0.28);
+  cursor: default;
+}
+.pgn-btn-nav {
+  font-size: 0.65rem;
+}
+.pgn-ellipsis {
+  width: 28px; text-align: center;
+  color: #b0bdd4; font-size: 0.85rem; letter-spacing: 0.05em;
+  user-select: none;
+}
+
 /* ── Realtime Feed Component ─────────────────────────────────── */
 .rf-card {
   background: #fff;

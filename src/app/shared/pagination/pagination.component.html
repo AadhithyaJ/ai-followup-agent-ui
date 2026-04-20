@@ -1,0 +1,28 @@
+<div class="pgn-wrap" *ngIf="totalItems > 0">
+
+  <span class="pgn-info">
+    Showing <strong>{{ startItem }}–{{ endItem }}</strong> of <strong>{{ totalItems }}</strong>
+  </span>
+
+  <div class="pgn-controls">
+    <!-- Prev -->
+    <button class="pgn-btn pgn-btn-nav" [disabled]="currentPage === 1" (click)="prev()" title="Previous">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <!-- Page numbers -->
+    <ng-container *ngFor="let p of pages">
+      <button *ngIf="p !== '...'"
+              class="pgn-btn"
+              [class.pgn-btn-active]="p === currentPage"
+              (click)="goTo(p)">{{ p }}</button>
+      <span *ngIf="p === '...'" class="pgn-ellipsis">…</span>
+    </ng-container>
+
+    <!-- Next -->
+    <button class="pgn-btn pgn-btn-nav" [disabled]="currentPage === totalPages" (click)="next()" title="Next">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+</div>

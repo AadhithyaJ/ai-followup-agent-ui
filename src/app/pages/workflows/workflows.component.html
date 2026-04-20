@@ -337,7 +337,7 @@
 
   <!-- ── Workflow Cards ─────────────────────────────────────────── -->
   <div class="wf-grid" *ngIf="!loading() && workflows().length > 0">
-    <div *ngFor="let wf of workflows(); trackBy: trackById"
+    <div *ngFor="let wf of pagedWorkflows(); trackBy: trackById"
          class="wf-card" [class.wf-active]="wf.is_active">
 
       <!-- Header -->
@@ -440,6 +440,14 @@
     </div>
   </div>
 
+  <!-- Workflows pagination -->
+  <app-pagination *ngIf="!loading() && workflows().length > 0"
+    [currentPage]="wfPage()"
+    [totalItems]="workflows().length"
+    [pageSize]="wfPageSize"
+    (pageChange)="wfPage.set($event)">
+  </app-pagination>
+
   <!-- ── Execution History + Analysis ──────────────────────────── -->
   <div class="wf-exec-panel" *ngIf="executionsFor()">
     <div class="wf-exec-panel-header">
@@ -496,7 +504,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let e of executions(); trackBy: trackByExec">
+          <tr *ngFor="let e of pagedExecutions(); trackBy: trackByExec">
             <td>
               <span class="wf-exec-status" [style.color]="statusColor(e.status)" [style.background]="statusBg(e.status)">
                 {{ e.status }}
@@ -517,6 +525,12 @@
           </tr>
         </tbody>
       </table>
+      <app-pagination
+        [currentPage]="execPage()"
+        [totalItems]="executions().length"
+        [pageSize]="execPageSize"
+        (pageChange)="execPage.set($event)">
+      </app-pagination>
     </div>
   </div>
 

@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from './navbar/navbar.component';
 import { RealtimeFeedComponent } from './realtime-feed/realtime-feed.component';
+import { PaginationComponent } from './pagination/pagination.component';
 
 @NgModule({
   declarations: [
     NavbarComponent,
-    RealtimeFeedComponent
+    RealtimeFeedComponent,
+    PaginationComponent
   ],
   imports: [CommonModule, RouterModule],
-  exports: [NavbarComponent, RealtimeFeedComponent]
+  exports: [NavbarComponent, RealtimeFeedComponent, PaginationComponent]
 })
 export class SharedModule {}

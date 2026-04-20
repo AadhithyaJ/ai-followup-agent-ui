@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
@@ -17,13 +17,24 @@ interface LeadView extends Lead {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LeadsComponent implements OnInit {
-  leads          = signal<LeadView[]>([]);
+  allLeads       = signal<LeadView[]>([]);
   loading        = signal(false);
   error          = signal('');
   showIngestForm = signal(false);
   ingestLoading  = signal(false);
   ingestSuccess  = signal('');
   ingestError    = signal('');
+
+  /* Pagination */
+  currentPage = signal(1);
+  pageSize    = 10;
+
+  leads = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.allLeads().slice(start, start + this.pageSize);
+  });
+
+  totalItems = computed(() => this.allLeads().length);
 
   filterForm: FormGroup;
   ingestForm: FormGroup;
@@ -45,13 +56,14 @@ export class LeadsComponent implements OnInit {
 
   loadLeads(): void {
     this.loading.set(true);
+    this.currentPage.set(1);
     const { stage, score } = this.filterForm.value;
     const params: any = {};
     if (stage) params.stage = stage;
     if (score) params.score = score;
     this.api.getLeads(params).subscribe({
       next: (data) => {
-        this.leads.set(data.map(l => ({
+        this.allLeads.set(data.map(l => ({
           ...l,
           _initials: this._initials(l.name),
           _avatarColor: this._avatarColor(l.name),
@@ -62,6 +74,8 @@ export class LeadsComponent implements OnInit {
       error: () => { this.error.set('Failed to load leads.'); this.loading.set(false); }
     });
   }
+
+  onPageChange(page: number): void { this.currentPage.set(page); }
 
   applyFilter(): void { this.loadLeads(); }
 
@@ -90,20 +104,6 @@ export class LeadsComponent implements OnInit {
         this.ingestLoading.set(false);
       }
     });
-  }
-
-  scoreBadge(score: string): string {
-    return score === 'high' ? 'bg-success' : score === 'medium' ? 'bg-warning text-dark' : 'bg-secondary';
-  }
-
-  stageBadge(stage: string): string {
-    const map: Record<string, string> = {
-      new: 'bg-info text-dark', qualified: 'bg-primary',
-      contacted: 'bg-secondary', interested: 'bg-success',
-      negotiation: 'bg-warning text-dark', converted: 'bg-success',
-      lost: 'bg-danger'
-    };
-    return map[stage] || 'bg-secondary';
   }
 
   trackByLead(_: number, l: LeadView): string { return l.id; }

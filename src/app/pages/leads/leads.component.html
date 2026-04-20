@@ -106,14 +106,14 @@
   </div>
 
   <!-- Empty -->
-  <div class="leads-empty" *ngIf="!loading() && leads().length === 0">
+  <div class="leads-empty" *ngIf="!loading() && allLeads().length === 0">
     <i class="fas fa-user-slash"></i>
     <div>No leads found</div>
     <p>Try adjusting the filters or ingest a new lead</p>
   </div>
 
   <!-- Table -->
-  <div class="leads-table-wrap" *ngIf="!loading() && leads().length > 0">
+  <div class="leads-table-wrap" *ngIf="!loading() && allLeads().length > 0">
     <table class="leads-table">
       <thead>
         <tr>
@@ -157,6 +157,12 @@
         </tr>
       </tbody>
     </table>
+    <app-pagination
+      [currentPage]="currentPage()"
+      [totalItems]="totalItems()"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination>
   </div>
 
 </div>

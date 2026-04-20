@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal, effect } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ApiService } from '../../core/api.service';
@@ -19,6 +19,22 @@ export class WorkflowsComponent implements OnInit {
   loading     = signal(false);
   error       = signal('');
   successMsg  = signal('');
+
+  /* ── Workflows pagination ─────────────────── */
+  wfPage     = signal(1);
+  wfPageSize = 6;
+  pagedWorkflows = computed(() => {
+    const start = (this.wfPage() - 1) * this.wfPageSize;
+    return this.workflows().slice(start, start + this.wfPageSize);
+  });
+
+  /* ── Executions pagination ────────────────── */
+  execPage     = signal(1);
+  execPageSize = 8;
+  pagedExecutions = computed(() => {
+    const start = (this.execPage() - 1) * this.execPageSize;
+    return this.executions().slice(start, start + this.execPageSize);
+  });
 
   /* ── Create / Edit form ───────────────────── */
   showForm    = signal(false);
@@ -168,6 +184,7 @@ export class WorkflowsComponent implements OnInit {
   /* ── CRUD ─────────────────────────────────── */
   loadWorkflows(): void {
     this.loading.set(true);
+    this.wfPage.set(1);
     this.api.getWorkflows().subscribe({
       next: d => { this.workflows.set(d); this.loading.set(false); },
       error: () => { this.error.set('Failed to load workflows.'); this.loading.set(false); }
@@ -251,6 +268,7 @@ export class WorkflowsComponent implements OnInit {
     if (this.executionsFor() === wf.id) { this.executionsFor.set(null); return; }
     this.executionsFor.set(wf.id);
     this.executionsLoading.set(true);
+    this.execPage.set(1);
     this.executions.set([]);
     this.api.getWorkflowExecutions(wf.id).subscribe({
       next: ex => { this.executions.set(ex); this.executionsLoading.set(false); },
