@@ -220,16 +220,80 @@
     </form>
   </div>
 
-  <!-- ── Lead ID Bar ────────────────────────────────────────────── -->
+  <!-- ── Lead Selector Bar ─────────────────────────────────────── -->
   <div class="wf-test-bar">
-    <div class="wf-test-bar-icon"><i class="fas fa-vial"></i></div>
+    <div class="wf-test-bar-icon"><i class="fas fa-user-check"></i></div>
     <div>
       <div class="wf-test-bar-label">Lead Actions</div>
-      <div class="wf-test-bar-sub">Enter a lead UUID to test, assign, or force-run any workflow</div>
+      <div class="wf-test-bar-sub">Select a lead to test, assign, or force-run any workflow</div>
     </div>
-    <input class="field-input" style="flex:1;max-width:320px;margin-bottom:0"
-           [ngModel]="testLeadId()" (ngModelChange)="testLeadId.set($event)"
-           placeholder="Paste lead UUID here…">
+
+    <!-- Backdrop to close dropdown on outside click -->
+    <div class="wf-lpick-backdrop" *ngIf="showLeadDropdown()" (click)="showLeadDropdown.set(false)"></div>
+
+    <!-- Lead picker -->
+    <div class="wf-lead-picker">
+
+      <!-- Trigger button -->
+      <div class="wf-lead-trigger"
+           [class.wf-lead-trigger-open]="showLeadDropdown()"
+           [class.wf-lead-trigger-selected]="selectedLead()"
+           (click)="showLeadDropdown.set(!showLeadDropdown())">
+        <ng-container *ngIf="selectedLead(); else noLeadTpl">
+          <span class="wf-lpick-dot wf-lpick-dot-{{ selectedLead()!.score }}"></span>
+          <span class="wf-lpick-name">{{ selectedLead()!.name || 'Unknown' }}</span>
+          <span class="wf-lpick-meta">{{ selectedLead()!.email || selectedLead()!.phone || selectedLead()!.stage }}</span>
+          <button class="wf-lpick-clear" type="button" (click)="$event.stopPropagation(); clearLeadSelection()">
+            <i class="fas fa-times"></i>
+          </button>
+        </ng-container>
+        <ng-template #noLeadTpl>
+          <i class="fas fa-user me-2" style="color:#b0bdd4;font-size:0.8rem"></i>
+          <span style="color:#94a3b8">Select a lead…</span>
+          <i class="fas fa-chevron-down ms-auto" style="color:#b0bdd4;font-size:0.7rem"></i>
+        </ng-template>
+      </div>
+
+      <!-- Dropdown panel -->
+      <div class="wf-lead-dropdown" *ngIf="showLeadDropdown()">
+
+        <!-- Search -->
+        <div class="wf-lpick-search-wrap">
+          <i class="fas fa-search wf-lpick-search-icon"></i>
+          <input class="wf-lpick-search" type="text" placeholder="Search by name, email, phone…"
+                 [ngModel]="leadSearch()" (ngModelChange)="leadSearch.set($event)"
+                 (click)="$event.stopPropagation()" autofocus>
+        </div>
+
+        <!-- Loading -->
+        <div class="wf-lpick-loading" *ngIf="leadsLoading()">
+          <span class="ingest-spinner" style="width:14px;height:14px;border-width:2px"></span>
+          Loading leads…
+        </div>
+
+        <!-- Empty result -->
+        <div class="wf-lpick-empty" *ngIf="!leadsLoading() && filteredLeads().length === 0">
+          <i class="fas fa-user-slash me-2"></i>No leads found
+        </div>
+
+        <!-- Lead list -->
+        <div class="wf-lpick-list" *ngIf="!leadsLoading()">
+          <div *ngFor="let lead of filteredLeads()"
+               class="wf-lpick-item"
+               [class.wf-lpick-item-active]="selectedLead()?.id === lead.id"
+               (click)="selectLead(lead)">
+            <span class="wf-lpick-dot wf-lpick-dot-{{ lead.score }}"></span>
+            <div class="wf-lpick-info">
+              <span class="wf-lpick-item-name">{{ lead.name || 'Unknown' }}</span>
+              <span class="wf-lpick-item-sub">{{ lead.email || lead.phone || '—' }}</span>
+            </div>
+            <span class="stage-pill stage-{{ lead.stage }}" style="font-size:0.62rem;padding:0.15rem 0.5rem">{{ lead.stage | titlecase }}</span>
+            <i class="fas fa-check wf-lpick-check" *ngIf="selectedLead()?.id === lead.id"></i>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- ── Test Result ────────────────────────────────────────────── -->

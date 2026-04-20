@@ -174,18 +174,7 @@
     </div>
 
     <!-- Realtime Feed -->
-    <div class="db-card db-feed-card">
-      <div class="db-card-header">
-        <div class="db-card-title">
-          <i class="fas fa-circle me-2" style="color:#22c55e;font-size:0.5rem;vertical-align:middle"></i>
-          Live Activity Feed
-        </div>
-        <span class="db-live-pill">Live</span>
-      </div>
-      <div class="db-card-body db-feed-body">
-        <app-realtime-feed mode="sse" channel="dashboard"></app-realtime-feed>
-      </div>
-    </div>
+    <app-realtime-feed mode="sse" channel="dashboard"></app-realtime-feed>
 
   </div>
 </div>

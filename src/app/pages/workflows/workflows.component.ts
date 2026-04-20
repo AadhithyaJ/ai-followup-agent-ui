@@ -5,6 +5,7 @@ import { ApiService } from '../../core/api.service';
 import {
   Workflow, WorkflowTemplate, WorkflowExecution, WorkflowTestResult
 } from '../../core/models/workflow.model';
+import { Lead } from '../../core/models/lead.model';
 
 @Component({
   selector: 'app-workflows',
@@ -29,6 +30,23 @@ export class WorkflowsComponent implements OnInit {
   testResult  = signal<WorkflowTestResult | null>(null);
   testLeadId  = signal('');
   testingId   = signal<string | null>(null);
+
+  /* ── Lead selector ────────────────────────── */
+  leads            = signal<Lead[]>([]);
+  leadsLoading     = signal(false);
+  leadSearch       = signal('');
+  showLeadDropdown = signal(false);
+  selectedLead     = signal<Lead | null>(null);
+
+  filteredLeads = computed(() => {
+    const q = this.leadSearch().toLowerCase().trim();
+    if (!q) return this.leads();
+    return this.leads().filter(l =>
+      (l.name || '').toLowerCase().includes(q) ||
+      (l.email || '').toLowerCase().includes(q) ||
+      (l.phone || '').toLowerCase().includes(q)
+    );
+  });
 
   /* ── Templates gallery ────────────────────── */
   showTemplates    = signal(false);
@@ -64,7 +82,7 @@ export class WorkflowsComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void { this.loadWorkflows(); }
+  ngOnInit(): void { this.loadWorkflows(); this.loadLeads(); }
 
   get steps(): FormArray { return this.form.get('steps') as FormArray; }
 
@@ -126,6 +144,27 @@ export class WorkflowsComponent implements OnInit {
     });
   }
 
+  /* ── Lead selector ───────────────────────── */
+  loadLeads(): void {
+    this.leadsLoading.set(true);
+    this.api.getLeads({}).subscribe({
+      next: d => { this.leads.set(d); this.leadsLoading.set(false); },
+      error: () => this.leadsLoading.set(false)
+    });
+  }
+
+  selectLead(lead: Lead): void {
+    this.selectedLead.set(lead);
+    this.testLeadId.set(lead.id);
+    this.showLeadDropdown.set(false);
+    this.leadSearch.set('');
+  }
+
+  clearLeadSelection(): void {
+    this.selectedLead.set(null);
+    this.testLeadId.set('');
+  }
+
   /* ── CRUD ─────────────────────────────────── */
   loadWorkflows(): void {
     this.loading.set(true);
@@ -152,7 +191,7 @@ export class WorkflowsComponent implements OnInit {
 
   /* ── Test ─────────────────────────────────── */
   test(wf: Workflow): void {
-    if (!this.testLeadId().trim()) { alert('Enter a lead ID first.'); return; }
+    if (!this.testLeadId().trim()) { this.error.set('Select a lead first.'); return; }
     this.testingId.set(wf.id);
     this.testResult.set(null);
     this.api.testWorkflow(wf.id, this.testLeadId().trim()).subscribe({
@@ -190,7 +229,7 @@ export class WorkflowsComponent implements OnInit {
 
   /* ── Assign / Run ─────────────────────────── */
   assign(wf: Workflow): void {
-    if (!this.testLeadId().trim()) { alert('Enter a lead ID first.'); return; }
+    if (!this.testLeadId().trim()) { this.error.set('Select a lead first.'); return; }
     this.actioningId.set(wf.id + ':assign');
     this.api.assignWorkflow(wf.id, this.testLeadId().trim()).subscribe({
       next: () => { this.successMsg.set(`Workflow assigned to lead ${this.testLeadId()}.`); this.actioningId.set(null); },
@@ -199,7 +238,7 @@ export class WorkflowsComponent implements OnInit {
   }
 
   forceRun(wf: Workflow): void {
-    if (!this.testLeadId().trim()) { alert('Enter a lead ID first.'); return; }
+    if (!this.testLeadId().trim()) { this.error.set('Select a lead first.'); return; }
     this.actioningId.set(wf.id + ':run');
     this.api.runWorkflow(wf.id, this.testLeadId().trim(), false).subscribe({
       next: () => { this.successMsg.set(`Workflow executed on lead ${this.testLeadId()}.`); this.actioningId.set(null); },
